@@ -1,0 +1,3380 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#060606;--s1:#0e0e0e;--s2:#141414;--s3:#1a1a1a;
+--b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.10);--b3:rgba(255,255,255,0.18);
+--t1:#f2f2f2;--t2:#666;--t3:#333;
+--red:#e03030;--rdim:rgba(224,48,48,0.06);--rborder:rgba(224,48,48,0.18);
+--green:#22c55e;--gdim:rgba(34,197,94,0.06);--gborder:rgba(34,197,94,0.18);
+--amber:#f59e0b;--adim:rgba(245,158,11,0.06);--aborder:rgba(245,158,11,0.18);
+--blue:#3b82f6;--bdim:rgba(59,130,246,0.06);--bborder:rgba(59,130,246,0.18);
+--purple:#a855f7;--pdim:rgba(168,85,247,0.06);--pborder:rgba(168,85,247,0.18);
+--gray:#9ca3af;--graydim:rgba(156,163,175,0.06);--grayborder:rgba(156,163,175,0.18);
+}
+.app{font-family:'Poppins',system-ui,sans-serif;background:var(--bg);min-height:640px;display:flex;flex-direction:column;color:var(--t1);position:relative;overflow:hidden}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* Fond noir uni */
+.bg-grad{position:fixed;inset:0;background:var(--bg);pointer-events:none;z-index:0}
+
+/* ANIMATIONS */
+@keyframes bubbleIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes orbEntry{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.bubble{animation:bubbleIn .35s cubic-bezier(.4,0,.2,1) both}
+.orb{animation:orbEntry .5s cubic-bezier(.4,0,.2,1) both}
+.brain-dot:not(.busy):not(.idle){animation:pulse 3s ease-in-out infinite}
+
+/* TOPBAR */
+.topbar{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:0.5px solid var(--b1)}
+.tb-logo{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(180deg,#fff 0%,#e03030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tb-pills{display:flex;gap:6px;align-items:center}
+.pill{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;border:0.5px solid}
+.pill-phase{background:var(--bdim);color:var(--blue);border-color:var(--bborder)}
+.pill-cycle{background:var(--s2);color:var(--t2);border-color:var(--b1)}
+.pill-budget{background:var(--adim);color:var(--amber);border-color:var(--aborder)}
+
+/* BRAIN STATUS — fusionne aussi le system state (mode/cycle/next action) */
+.brain-bar{position:relative;z-index:2;display:flex;align-items:center;gap:8px;padding:9px 18px;border-bottom:0.5px solid var(--b1)}
+.brain-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--green)}
+.brain-dot.busy{background:var(--amber)}
+.brain-dot.idle{background:var(--gray)}
+.brain-txt{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.brain-status{font-size:10px;font-weight:500;color:var(--t1)}
+.brain-timing{font-size:9px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brain-next{font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;flex-shrink:0;border:0.5px solid var(--b2);color:var(--t2)}
+.brain-btn{background:transparent;border:0.5px solid var(--b2);border-radius:6px;color:var(--t3);font-size:13px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color .15s,border-color .15s;font-family:'Poppins',sans-serif}
+.brain-btn:hover{color:var(--t1);border-color:var(--b3)}
+
+/* MAIN SCROLL */
+.main{position:relative;z-index:1;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:16px 18px 100px}
+
+/* ═══════════════════════════════════════════════
+   BUBBLE SYSTEM — mapping brain → UI
+   ═══════════════════════════════════════════════ */
+
+/* ── BULLE PRINCIPALE ─────────────────────────── */
+.orb-zone{display:flex;flex-direction:column;align-items:stretch;padding:8px 0 4px}
+
+.orb{
+  width:100%;
+  border-radius:20px;
+  padding:20px 20px 16px;
+  border:0.5px solid;
+  position:relative;
+  cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+  animation:orbEntry .4s cubic-bezier(.4,0,.2,1) both;
+}
+.orb:active{transform:scale(.99)}
+.orb::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% -10%,var(--orb-glow,rgba(255,255,255,.06)) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+/* Label type */
+.orb-type-label{
+  font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  margin-bottom:10px;position:relative;
+}
+/* Message principal */
+.orb-msg{
+  font-size:17px;font-weight:700;line-height:1.35;
+  color:var(--t1);position:relative;margin-bottom:8px;
+}
+/* Sous-texte raison */
+.orb-reason{
+  font-size:11px;color:var(--t2);line-height:1.6;
+  position:relative;margin-bottom:14px;
+}
+/* Jauge confiance */
+.orb-conf{position:relative;display:flex;align-items:center;gap:8px;margin-bottom:0}
+.conf-track{height:2px;flex:1;background:rgba(255,255,255,.08);border-radius:2px;max-width:100px}
+.conf-fill{height:100%;border-radius:2px;transition:width .4s}
+.conf-lbl{font-size:9px;color:var(--t3);white-space:nowrap}
+
+/* Boutons — révélés au clic */
+.orb-actions{
+  display:flex;gap:7px;
+  max-height:0;opacity:0;overflow:hidden;margin-top:0;
+  transition:max-height .25s,opacity .2s,margin-top .2s;
+}
+.orb.expanded .orb-actions{max-height:80px;opacity:1;margin-top:14px}
+.orb-btn{
+  flex:1;padding:10px 8px;border-radius:10px;
+  font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;
+  cursor:pointer;transition:opacity .15s;white-space:nowrap;
+  border:0.5px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.08);color:#fff;
+}
+.orb-btn:hover{opacity:.85}
+.orb-btn.primary{border:none;background:var(--orb-accent,#e03030);color:#fff}
+
+/* État Réflexion */
+.orb-think{display:none;position:relative;text-align:left;padding:4px 0}
+.orb.thinking .orb-think{display:block}
+.orb.thinking .orb-type-label,.orb.thinking .orb-msg,.orb.thinking .orb-reason,.orb.thinking .orb-conf,.orb.thinking .orb-actions{display:none}
+.think-step{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--t2);line-height:2;opacity:.3;transition:opacity .25s}
+.think-step.done{opacity:1;color:var(--t1)}
+.think-check{width:14px;height:14px;border-radius:50%;border:1px solid var(--t3);flex-shrink:0}
+.think-step.done .think-check{border-color:var(--orb-accent,#e03030);background:var(--orb-accent,#e03030)}
+
+/* Mapping couleurs — bulle principale */
+/* ACTION SYSTEM (CUT/SCALE/CREATE) → rouge */
+.orb.bs-action-system{
+  background:linear-gradient(160deg,rgba(224,48,48,.13) 0%,rgba(224,48,48,.04) 100%);
+  border-color:rgba(224,48,48,.3);--orb-glow:rgba(224,48,48,.18);
+  --orb-accent:#e03030;
+}
+.orb.bs-action-system .orb-type-label{color:var(--red)}
+.orb.bs-action-system .conf-fill{background:var(--red)}
+
+/* ACTION USER → orange */
+.orb.bs-action-user{
+  background:linear-gradient(160deg,rgba(245,158,11,.13) 0%,rgba(245,158,11,.04) 100%);
+  border-color:rgba(245,158,11,.3);--orb-glow:rgba(245,158,11,.16);
+  --orb-accent:#f59e0b;
+}
+.orb.bs-action-user .orb-type-label{color:var(--amber)}
+.orb.bs-action-user .orb-btn.primary{color:#1a0e00}
+.orb.bs-action-user .conf-fill{background:var(--amber)}
+
+/* ALERT → rouge vif */
+.orb.bs-alert{
+  background:linear-gradient(160deg,rgba(224,48,48,.18) 0%,rgba(224,48,48,.06) 100%);
+  border-color:rgba(224,48,48,.4);--orb-glow:rgba(224,48,48,.22);
+  --orb-accent:#e03030;
+}
+.orb.bs-alert .orb-type-label{color:var(--red)}
+.orb.bs-alert .conf-fill{background:var(--red)}
+
+/* SUCCESS → vert */
+.orb.bs-success{
+  background:linear-gradient(160deg,rgba(34,197,94,.13) 0%,rgba(34,197,94,.04) 100%);
+  border-color:rgba(34,197,94,.3);--orb-glow:rgba(34,197,94,.16);
+  --orb-accent:#22c55e;
+}
+.orb.bs-success .orb-type-label{color:var(--green)}
+.orb.bs-success .orb-btn.primary{color:#06140a}
+.orb.bs-success .conf-fill{background:var(--green)}
+
+/* WAIT → gris */
+.orb.bs-wait{
+  background:linear-gradient(160deg,rgba(156,163,175,.1) 0%,rgba(156,163,175,.03) 100%);
+  border-color:rgba(156,163,175,.2);--orb-glow:rgba(156,163,175,.1);
+  --orb-accent:#9ca3af;
+}
+.orb.bs-wait .orb-type-label{color:var(--gray)}
+.orb.bs-wait .conf-fill{background:var(--gray)}
+
+/* ── BULLES SECONDAIRES ────────────────────────── */
+.bubbles-zone{
+  display:flex;flex-wrap:wrap;gap:10px;padding:4px 0;
+  /* Max 6 visibles avec scroll */
+  max-height:none;overflow:visible;
+}
+
+.bubble{
+  position:relative;
+  width:calc(50% - 5px);
+  min-height:110px;
+  border-radius:14px;
+  border:0.5px solid;
+  padding:13px 13px 10px;
+  cursor:pointer;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  transition:transform .18s cubic-bezier(.4,0,.2,1),box-shadow .18s;
+  animation:bubbleIn .32s cubic-bezier(.4,0,.2,1) both;
+}
+.bubble:hover{
+  transform:translateY(-2px) scale(1.02);
+  box-shadow:0 6px 24px rgba(0,0,0,.28);
+}
+.bubble::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,var(--bub-glow,rgba(255,255,255,.05)) 0%,transparent 68%);
+  pointer-events:none;
+}
+
+/* Badge non-lu */
+.bubble-dot{
+  position:absolute;top:10px;right:10px;
+  width:6px;height:6px;border-radius:50%;
+  border:1.5px solid var(--bg);
+}
+.bubble.read .bubble-dot{display:none}
+
+/* Corps */
+.bubble-body{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;gap:4px}
+.bubble-label{
+  font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:2px 7px;border-radius:20px;border:0.5px solid;
+  width:fit-content;margin-bottom:3px;
+}
+.bubble-text{font-size:11px;font-weight:600;color:var(--t1);line-height:1.4}
+.bubble-sub{font-size:10px;color:var(--t2);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+/* Boutons — hover seulement */
+.bubble-actions{
+  position:relative;z-index:1;
+  display:flex;gap:5px;
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .2s,opacity .18s,margin-top .2s;
+}
+.bubble:hover .bubble-actions{max-height:32px;opacity:1;margin-top:9px}
+.bub-btn{
+  flex:1;padding:5px 4px;border-radius:7px;
+  font-size:9px;font-weight:600;font-family:'Poppins',sans-serif;
+  cursor:pointer;
+  border:0.5px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);color:#fff;
+  transition:background .15s;white-space:nowrap;
+}
+.bub-btn:hover{background:rgba(255,255,255,.18)}
+.bub-btn.primary{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.24)}
+
+.bubble.read{opacity:.45}
+
+/* Couleurs secondaires */
+.bubble.sb-alert{
+  background:linear-gradient(145deg,rgba(224,48,48,.12) 0%,rgba(224,48,48,.03) 100%);
+  border-color:rgba(224,48,48,.25);--bub-glow:rgba(224,48,48,.15);
+}
+.bubble.sb-alert .bubble-label{color:var(--red);border-color:rgba(224,48,48,.3);background:rgba(224,48,48,.1)}
+.bubble.sb-alert .bubble-dot{background:var(--red)}
+
+.bubble.sb-insight{
+  background:linear-gradient(145deg,rgba(168,85,247,.12) 0%,rgba(168,85,247,.03) 100%);
+  border-color:rgba(168,85,247,.25);--bub-glow:rgba(168,85,247,.15);
+}
+.bubble.sb-insight .bubble-label{color:var(--purple);border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.1)}
+.bubble.sb-insight .bubble-dot{background:var(--purple)}
+
+.bubble.sb-success{
+  background:linear-gradient(145deg,rgba(34,197,94,.12) 0%,rgba(34,197,94,.03) 100%);
+  border-color:rgba(34,197,94,.25);--bub-glow:rgba(34,197,94,.14);
+}
+.bubble.sb-success .bubble-label{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.1)}
+.bubble.sb-success .bubble-dot{background:var(--green)}
+
+.bubble.sb-info{
+  background:linear-gradient(145deg,rgba(156,163,175,.1) 0%,rgba(156,163,175,.03) 100%);
+  border-color:rgba(156,163,175,.2);--bub-glow:rgba(156,163,175,.1);
+}
+.bubble.sb-info .bubble-label{color:var(--gray);border-color:rgba(156,163,175,.25);background:rgba(156,163,175,.08)}
+.bubble.sb-info .bubble-dot{background:var(--gray)}
+
+.bubble.sb-user-action{
+  background:linear-gradient(145deg,rgba(245,158,11,.12) 0%,rgba(245,158,11,.03) 100%);
+  border-color:rgba(245,158,11,.25);--bub-glow:rgba(245,158,11,.14);
+}
+.bubble.sb-user-action .bubble-label{color:var(--amber);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.1)}
+.bubble.sb-user-action .bubble-dot{background:var(--amber)}
+
+/* ── ANIMATIONS ────────────────────────────────── */
+@keyframes orbEntry{from{opacity:0;transform:scale(.97) translateY(-6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* WHISPERS */
+.whispers{display:flex;gap:6px;flex-wrap:wrap}
+.whisper{font-size:10px;color:var(--t2);background:transparent;border:0.5px solid var(--b2);border-radius:20px;padding:3px 10px}
+.whisper.alert{color:var(--amber);border-color:var(--aborder)}
+.whisper.good{color:var(--green);border-color:var(--gborder)}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.stat{background:var(--s1);border:0.5px solid var(--b1);border-radius:10px;padding:11px 13px}
+.stat-lbl{font-size:10px;color:var(--t3);margin-bottom:5px}
+.stat-val{font-size:18px;font-weight:600;line-height:1}
+.stat-sub{font-size:10px;color:var(--t2);margin-top:3px}
+
+/* DOCK NAVIGATION */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:18;background:rgba(10,10,10,0.92);backdrop-filter:blur(14px);border-top:0.5px solid var(--b2);display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+.dock-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:none;cursor:pointer;padding:6px 4px;color:var(--t3);font-family:'Poppins',sans-serif;transition:color .15s}
+.dock-btn.on{color:var(--red)}
+.dock-btn svg{width:19px;height:19px}
+.dock-lbl{font-size:9px;font-weight:500;letter-spacing:.02em}
+
+/* VIEW PANELS */
+.view{display:none}
+.view.on{display:flex;flex-direction:column;gap:12px}
+
+/* INDICATEURS VIEW */
+.ind-onboard-note{background:var(--s1);border:0.5px solid var(--b1);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.6}
+.ind-level-row{display:flex;gap:6px}
+.ind-lvl{flex:1;text-align:center;padding:8px 4px;border-radius:8px;font-size:10px;font-weight:600;border:0.5px solid var(--b2);color:var(--t3);cursor:pointer;background:transparent;font-family:'Poppins',sans-serif}
+.ind-lvl.on{background:var(--s3);color:var(--t1);border-color:var(--b3)}
+.ind-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ind-field{background:var(--s1);border:0.5px solid var(--b1);border-radius:10px;padding:11px 13px}
+.ind-field-lbl{font-size:10px;color:var(--t3);margin-bottom:5px}
+.ind-field-inp{width:100%;background:transparent;border:none;color:var(--t1);font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;outline:none}
+.ind-field-inp::placeholder{color:var(--t3);font-weight:400;font-size:12px}
+.ind-submit{width:100%;background:var(--red);border:none;border-radius:10px;padding:12px;color:#fff;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer}
+
+/* PARAMS VIEW */
+.param-row{display:flex;align-items:center;justify-content:space-between;background:var(--s1);border:0.5px solid var(--b1);border-radius:10px;padding:13px 15px}
+.param-lbl{font-size:12px;font-weight:500}
+.param-sub{font-size:10px;color:var(--t3);margin-top:2px}
+.param-val{font-size:11px;color:var(--t2)}
+
+/* TOGGLE */
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--s3);border:0.5px solid var(--b2);position:relative;cursor:pointer;transition:background .2s,border-color .2s;flex-shrink:0}
+.toggle.on{background:var(--red);border-color:var(--rborder)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s}
+.toggle.on::after{left:18px}
+
+/* BOUTON CONNEXION */
+.connect-btn{font-size:10px;font-weight:600;padding:5px 12px;border-radius:8px;border:0.5px solid var(--b2);background:transparent;color:var(--t2);cursor:pointer;font-family:'Poppins',sans-serif;transition:border-color .15s,color .15s}
+.connect-btn:hover{border-color:var(--b3);color:var(--t1)}
+.connect-btn.connected{color:var(--green);border-color:var(--gborder);background:var(--gdim)}
+
+/* VALIDATION INPUTS */
+.ind-field.valid{border-color:var(--gborder)}
+.ind-field.error{border-color:var(--rborder)}
+.ind-field-hint{font-size:9px;margin-top:4px;display:none}
+.ind-field.error .ind-field-hint{display:block;color:var(--red)}
+.ind-field.valid .ind-field-hint{display:block;color:var(--green)}
+
+/* FILTRES MÉMOIRE */
+.mem-filters{display:flex;gap:6px;flex-wrap:wrap}
+.mem-filter{font-size:10px;font-weight:500;padding:4px 12px;border-radius:20px;border:0.5px solid var(--b2);background:transparent;color:var(--t2);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s}
+.mem-filter.on{background:var(--s3);color:var(--t1);border-color:var(--b3)}
+.mem-filter.f-win.on{background:var(--gdim);color:var(--green);border-color:var(--gborder)}
+.mem-filter.f-lose.on{background:var(--rdim);color:var(--red);border-color:var(--rborder)}
+
+/* FICHE MISSION (overlay dédié) */
+.mission-sheet{position:fixed;left:0;right:0;bottom:0;background:var(--s1);border-top:0.5px solid var(--b2);border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:21;max-height:80%;overflow-y:auto}
+.mission-sheet.open{transform:translateY(0)}
+.ms-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:0.5px solid var(--b1)}
+.ms-id{font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase}
+.ms-date{font-size:10px;color:var(--t3);margin-top:2px}
+.ms-close{font-size:20px;color:var(--t3);cursor:pointer;line-height:1}
+.ms-body{padding:16px 18px 28px;display:flex;flex-direction:column;gap:14px}
+.ms-row{display:flex;flex-direction:column;gap:4px}
+.ms-lbl{font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase}
+.ms-val{font-size:13px;color:var(--t1);line-height:1.5}
+.ms-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--green)}
+.ms-divider{height:0.5px;background:var(--b1)}
+.ms-btn{width:100%;background:var(--red);border:none;border-radius:10px;padding:12px;color:#fff;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:4px}
+
+/* DECISION CONTEXT — structuré, scannable */
+.dc-box{background:var(--s2);border:0.5px solid var(--b1);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.dc-line{display:flex;gap:8px;font-size:11px;line-height:1.5}
+.dc-line-lbl{color:var(--t3);flex-shrink:0;min-width:90px}
+.dc-line-val{color:var(--t1)}
+
+/* VARIABLES MODIFIÉES */
+.var-grid{display:flex;flex-direction:column;gap:6px}
+.var-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;padding:8px 10px;background:var(--s2);border-radius:8px}
+.var-name{color:var(--t2)}
+.var-state{font-weight:600}
+.var-state.changed{color:var(--amber)}
+.var-state.kept{color:var(--green)}
+.var-state.new{color:var(--blue)}
+
+/* SECTION TITLE */
+.sec-title{font-size:10px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+
+/* MÉMOIRE CRÉATIVE */
+.mem-card{background:var(--s1);border:0.5px solid var(--b1);border-radius:12px;overflow:hidden}
+.mem-header{padding:12px 16px;border-bottom:0.5px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.mem-title{font-size:12px;font-weight:600}
+.mem-sub{font-size:10px;color:var(--t3)}
+.crea-row{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background .1s;border-bottom:0.5px solid var(--b1)}
+.crea-row:last-child{border-bottom:none}
+.crea-row:hover{background:var(--s2)}
+.crea-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.crea-info{flex:1;min-width:0}
+.crea-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crea-detail{font-size:10px;color:var(--t3);margin-top:1px}
+.crea-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.crea-roas{font-size:11px;color:var(--t2)}
+.badge{font-size:9px;padding:2px 7px;border-radius:3px;font-weight:500;border:0.5px solid}
+.b-win{background:var(--gdim);color:var(--green);border-color:var(--gborder)}
+.b-mid{background:var(--adim);color:var(--amber);border-color:var(--aborder)}
+.b-watch{background:var(--s2);color:var(--t3);border-color:var(--b1)}
+.b-arc{background:transparent;color:var(--t3);border-color:var(--b1)}
+
+/* CHAT OVERLAY */
+.chat-overlay{position:fixed;left:0;right:0;bottom:0;background:var(--s1);border-top:0.5px solid var(--b2);border-radius:14px 14px 0 0;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:20;max-height:75%}
+.chat-overlay.open{transform:translateY(0)}
+.chat-pull{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;border-bottom:0.5px solid var(--b1)}
+.chat-pull-title{font-size:12px;font-weight:500;color:var(--t2)}
+.chat-pull-close{font-size:20px;color:var(--t3);line-height:1;padding:0 4px}
+.chat-body{padding:14px 18px;overflow-y:auto;max-height:240px;display:flex;flex-direction:column;gap:8px}
+.chat-ctx{background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:9px 12px}
+.chat-ctx-lbl{font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.chat-ctx-val{font-size:11px;color:var(--t2);line-height:1.5}
+.chat-msg{padding:9px 12px;border-radius:8px;font-size:12px;line-height:1.55}
+.chat-msg.brain{background:var(--s2);color:var(--t1)}
+.chat-msg.user{background:var(--s3);color:var(--t2);margin-left:20px}
+.chat-tag{font-size:9px;color:var(--red);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+.chat-bar{padding:10px 18px 16px;border-top:0.5px solid var(--b1);display:flex;gap:8px}
+.chat-input{flex:1;background:transparent;border:0.5px solid var(--b2);border-radius:8px;padding:9px 12px;color:var(--t1);font-size:12px;font-family:'Poppins',sans-serif;outline:none}
+.chat-input:focus{border-color:var(--b3)}
+.chat-input::placeholder{color:var(--t3)}
+.chat-send{background:var(--red);border:none;border-radius:8px;padding:9px 14px;color:#fff;font-size:13px;cursor:pointer}
+
+/* SAISIE MÉTRIQUE SHEET */
+.metric-sheet{position:fixed;left:0;right:0;bottom:0;background:var(--s1);border-top:0.5px solid var(--b2);border-radius:14px 14px 0 0;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:20;padding:16px 18px 24px}
+.metric-sheet.open{transform:translateY(0)}
+.metric-sheet-title{font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.metric-close{font-size:20px;color:var(--t3);cursor:pointer;line-height:1}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.metric-field{background:transparent;border:0.5px solid var(--b2);border-radius:8px;padding:9px 11px}
+.metric-lbl{font-size:9px;color:var(--t3);margin-bottom:4px;letter-spacing:.04em}
+.metric-inp{width:100%;background:transparent;border:none;color:var(--t1);font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;outline:none}
+.metric-inp::placeholder{color:var(--t3);font-weight:400;font-size:13px}
+.metric-submit{width:100%;background:var(--red);border:none;border-radius:8px;padding:12px;color:#fff;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer}
+
+/* MINI CHAT BAR */
+.mini-chat-wrap{position:fixed;left:0;right:0;bottom:68px;z-index:17;display:flex;justify-content:center;padding:0 12px}
+.mini-chat{width:44px;height:44px;background:var(--red);border:none;border-radius:22px;transition:width .25s cubic-bezier(.4,0,.2,1),background .2s,border-radius .2s;overflow:hidden;display:flex;align-items:center}
+.mini-chat:hover,.mini-chat.expanded{width:100%;background:rgba(14,14,14,0.95);backdrop-filter:blur(14px);border:0.5px solid var(--b2)}
+.mini-chat-reply{display:none;font-size:11px;color:var(--t2);line-height:1.6;padding:12px 16px 0;width:100%}
+.mini-chat.expanded .mini-chat-reply{display:block}
+.mini-chat-row{display:flex;align-items:center;gap:8px;padding:5px 6px 5px 16px;width:100%}
+.mini-chat-input{flex:1;background:transparent;border:none;color:var(--t1);font-size:12px;font-family:'Poppins',sans-serif;outline:none;min-width:0;width:0;opacity:0}
+.mini-chat:hover .mini-chat-input,.mini-chat.expanded .mini-chat-input{width:auto;opacity:1}
+.mini-chat-input::placeholder{color:var(--t3)}
+.mini-chat-send{background:var(--red);border:none;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;opacity:0;width:0;transition:width .2s,opacity .2s}
+.mini-chat:hover .mini-chat-send,.mini-chat.expanded .mini-chat-send{opacity:1;width:28px}
+.mini-chat-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.mini-chat:hover .mini-chat-icon,.mini-chat.expanded .mini-chat-icon{display:none}
+</style>
+
+
+
+<h2 class="sr-only">Prométhée — Dashboard principal</h2>
+
+<div class="app">
+<div class="bg-grad"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">Prométhée</div>
+  <div class="tb-pills">
+    <span class="pill pill-phase">Testing</span>
+    <span class="pill pill-cycle">Cycle 2 · J3</span>
+    <span class="pill pill-budget">680€</span>
+  </div>
+</div>
+
+<!-- BRAIN STATUS (intègre le system state : mode, confiance, next action) -->
+<div class="brain-bar">
+  <span class="brain-dot" id="brain-dot"></span>
+  <div class="brain-txt">
+    <div class="brain-status" id="brain-status">Prométhée actif</div>
+    <div class="brain-timing" id="brain-timing">Dernière analyse il y a 12 min · prochaine dans 47 min</div>
+  </div>
+  <button class="brain-btn" onclick="simulateData()" title="Simuler des métriques aléatoires">⋆</button>
+  <button class="brain-btn" onclick="runBrain(true)" title="Réévaluer maintenant">↻</button>
+  <span class="brain-next" id="brain-next">CREATE</span>
+</div>
+
+<!-- MAIN -->
+<div class="main" style="padding-bottom:130px">
+
+  <!-- ===== VUE 1 : MISSION ===== -->
+  <div class="view on" id="view-mission">
+
+    <!-- BULLE PRINCIPALE -->
+    <div class="orb-zone">
+      <div class="orb bs-wait" id="orb" onclick="toggleOrb()">
+        <!-- Type label -->
+        <div class="orb-type-label" id="orb-type-label">En attente</div>
+        <!-- Message principal -->
+        <div class="orb-msg" id="orb-msg">Configure ton catalogue pour démarrer.</div>
+        <!-- Raison -->
+        <div class="orb-reason" id="orb-reason">Aucun produit actif · Va dans Réglages pour initialiser Prométhée</div>
+        <!-- Jauge -->
+        <div class="orb-conf">
+          <div class="conf-track"><div class="conf-fill" id="conf-fill" style="width:0%"></div></div>
+          <div class="conf-lbl" id="conf-lbl">—</div>
+        </div>
+        <!-- Boutons (générés dynamiquement par renderOrb) -->
+        <div class="orb-actions" id="orb-actions"></div>
+        <!-- Séquence réflexion -->
+        <div class="orb-think" id="orb-think">
+          <div class="think-step" id="think-0"><span class="think-check"></span>Lecture de la mémoire créative</div>
+          <div class="think-step" id="think-1"><span class="think-check"></span>Analyse des KPI des 4 derniers jours</div>
+          <div class="think-step" id="think-2"><span class="think-check"></span>Connexion à TrendTrack</div>
+          <div class="think-step" id="think-3"><span class="think-check"></span>Construction des prompts créatifs</div>
+          <div class="think-step" id="think-4"><span class="think-check"></span>Archivage dans la Creative Bank</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BULLES SECONDAIRES -->
+    <div class="bubbles-zone" id="bubbles-zone"></div>
+
+  </div>
+
+  <!-- ===== VUE 2 : INDICATEURS ===== -->
+  <div class="view" id="view-indicateurs">
+    <div class="sec-title">Ton niveau actuel avec Meta Ads</div>
+    <div class="ind-level-row">
+      <button class="ind-lvl" id="lvl-A" onclick="setLevel('A')">A · Jamais lancé</button>
+      <button class="ind-lvl" id="lvl-B" onclick="setLevel('B')">B · Testé</button>
+    </div>
+    <div class="ind-level-row">
+      <button class="ind-lvl" id="lvl-C" onclick="setLevel('C')">C · Rentable</button>
+      <button class="ind-lvl" id="lvl-D" onclick="setLevel('D')">D · Scale</button>
+    </div>
+
+    <div class="ind-onboard-note" id="ind-note">Sélectionne ton niveau — les indicateurs demandés s'adaptent automatiquement. Si tu n'as encore lancé aucune pub, on ne te demande pas un ROAS qui n'existe pas.</div>
+
+    <div class="sec-title" id="ind-fields-title">Indicateurs à fournir</div>
+    <div class="ind-field-grid" id="ind-fields"></div>
+
+    <button class="ind-submit" onclick="submitIndicators()">Enregistrer</button>
+  </div>
+
+  <!-- ===== VUE 3 : MÉMOIRE CRÉATIVE (dynamique) ===== -->
+  <div class="view" id="view-memoire">
+
+    <!-- Stats live depuis mémoire -->
+    <div class="stats-row" id="mem-stats">
+      <div class="stat">
+        <div class="stat-lbl">ROAS réel</div>
+        <div class="stat-val" id="mem-roas">—</div>
+        <div class="stat-sub" id="mem-roas-sub">En attente métriques</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Spend cycle</div>
+        <div class="stat-val" id="mem-spend">0€</div>
+        <div class="stat-sub" id="mem-spend-sub">Seuil J1 · 50€</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Créatives</div>
+        <div class="stat-val" id="mem-count">0</div>
+        <div class="stat-sub" id="mem-count-sub">0W · 0M · 0 test</div>
+      </div>
+    </div>
+
+    <!-- Briefs en attente Higgsfield -->
+    <div id="briefs-section" style="display:none">
+      <div class="sec-title">Briefs générés — à envoyer dans Higgsfield</div>
+      <div id="briefs-list"></div>
+    </div>
+
+    <!-- Creative Bank -->
+    <div class="sec-title" id="mem-bank-title">Creative Bank</div>
+    <div class="mem-filters">
+      <button class="mem-filter on" onclick="filterMemLive('all',this)">Toutes</button>
+      <button class="mem-filter f-win" onclick="filterMemLive('win',this)">Winners</button>
+      <button class="mem-filter f-lose" onclick="filterMemLive('lose',this)">À surveiller</button>
+    </div>
+    <div class="mem-card" id="mem-bank-list">
+      <div style="padding:24px;text-align:center;color:var(--t3);font-size:11px">Aucune créative encore. Lance ton premier batch.</div>
+    </div>
+
+    <!-- Angles actifs -->
+    <div class="sec-title" style="margin-top:12px">Angles — scores de confiance</div>
+    <div id="angle-scores-list"></div>
+
+    <button style="width:100%;background:var(--red);border:none;border-radius:10px;padding:12px;color:#fff;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px" onclick="openMetrics()">
+      + Saisir les métriques du jour
+    </button>
+  </div>
+
+  <!-- ===== VUE 4 : RÉGLAGES + CATALOGUE PRODUITS ===== -->
+  <div class="view" id="view-parametres">
+
+    <!-- COMPTE GLOBAL -->
+    <div class="sec-title">Compte &amp; Boutique</div>
+    <div class="ind-field-grid">
+      <div class="ind-field">
+        <div class="ind-field-lbl">URL boutique</div>
+        <input class="ind-field-inp" type="text" placeholder="ma-boutique.com" id="acc-url">
+      </div>
+      <div class="ind-field">
+        <div class="ind-field-lbl">Marché principal</div>
+        <input class="ind-field-inp" type="text" placeholder="FR" id="acc-market">
+      </div>
+      <div class="ind-field">
+        <div class="ind-field-lbl">Budget total (€)</div>
+        <input class="ind-field-inp" type="number" placeholder="2000" id="acc-budget">
+      </div>
+      <div class="ind-field">
+        <div class="ind-field-lbl">Budget restant (€)</div>
+        <input class="ind-field-inp" type="number" placeholder="1800" id="acc-budget-rem">
+      </div>
+    </div>
+    <button class="ind-submit" onclick="saveAccount()" style="margin-top:8px">Enregistrer le compte</button>
+
+    <!-- CATALOGUE PRODUITS -->
+    <div class="sec-title" style="margin-top:16px">
+      Catalogue produits
+      <span id="products-count" style="font-size:10px;color:var(--t3);font-weight:400;margin-left:8px"></span>
+    </div>
+    <div id="products-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+
+    <!-- Formulaire produit -->
+    <div id="product-form" style="background:var(--s1);border:0.5px solid var(--b2);border-radius:12px;padding:14px">
+      <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px" id="product-form-title">Nouveau produit</div>
+      <input type="hidden" id="pf-id">
+      <div class="ind-field-grid">
+        <div class="ind-field">
+          <div class="ind-field-lbl">Nom du produit *</div>
+          <input class="ind-field-inp" type="text" placeholder="Ex: Ceinture lombaire" id="pf-name">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">Prix de vente (€) *</div>
+          <input class="ind-field-inp" type="number" placeholder="60" id="pf-price" oninput="calcPfRoas()">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">COGS (€) *</div>
+          <input class="ind-field-inp" type="number" placeholder="20" id="pf-cogs" oninput="calcPfRoas()">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">AOV moyen (€)</div>
+          <input class="ind-field-inp" type="number" placeholder="60" id="pf-aov">
+        </div>
+      </div>
+      <div id="pf-roas-bar" style="display:none;background:var(--s2);border-radius:8px;padding:10px 14px;flex-wrap:wrap;margin:8px 0;gap:14px">
+        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">ROAS BE</div><div id="pf-be" style="font-size:17px;font-weight:700;color:var(--red)">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">Target</div><div id="pf-target" style="font-size:17px;font-weight:700;color:var(--amber)">—</div></div>
+        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">Seuil ATC</div><div id="pf-atc" style="font-size:17px;font-weight:700;color:var(--t2)">—€</div></div>
+        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">Marge brute</div><div id="pf-marge" style="font-size:17px;font-weight:700;color:var(--green)">—%</div></div>
+      </div>
+      <div class="ind-field" style="margin-top:4px">
+        <div class="ind-field-lbl">Douleur principale de l'avatar</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Douleurs lombaires chroniques" id="pf-pain">
+      </div>
+      <div class="ind-field" style="margin-top:6px">
+        <div class="ind-field-lbl">Headline above the fold (message match)</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Soulagez vos douleurs dos en 10 minutes" id="pf-headline">
+      </div>
+      <div class="ind-field-grid" style="margin-top:6px">
+        <div class="ind-field">
+          <div class="ind-field-lbl">Angles saturés (séparés par ,)</div>
+          <input class="ind-field-inp" type="text" placeholder="Urgence, Discount" id="pf-sat">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">Angles opportunités *</div>
+          <input class="ind-field-inp" type="text" placeholder="Transformation, Preuve sociale" id="pf-opp">
+        </div>
+      </div>
+      <div class="ind-field" style="margin-top:6px">
+        <div class="ind-field-lbl">Niveau conscience (1=Unaware → 5=Most Aware)</div>
+        <input class="ind-field-inp" type="number" min="1" max="5" placeholder="2" id="pf-awareness">
+      </div>
+      <!-- IMAGES -->
+      <div style="margin-top:12px">
+        <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Images produit</div>
+        <div style="font-size:10px;color:var(--t3);line-height:1.6;margin-bottom:8px">Ces images seront transmises à Higgsfield et Sora lors de la génération des créatives. Ajoute plusieurs angles : fond blanc, lifestyle, unboxing, plan serré.</div>
+        <label style="display:flex;align-items:center;gap:8px;background:var(--s2);border:0.5px dashed var(--b2);border-radius:10px;padding:12px 14px;cursor:pointer;font-size:11px;color:var(--t2)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 13l4-4 3 3 3-3 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor"/></svg>
+          Ajouter des images (JPG, PNG, WEBP)
+          <input type="file" id="pf-images" multiple accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+        </label>
+        <div id="pf-images-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      </div>
+      <div class="ind-field" style="margin-top:8px">
+        <div class="ind-field-lbl">Notes (mécanisme unique, différenciateur)</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Seul produit avec technologie X brevetée" id="pf-notes">
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="ind-submit" onclick="saveProduct()" style="flex:1">Enregistrer ce produit</button>
+        <button onclick="clearProductForm()" style="padding:12px 16px;background:transparent;border:0.5px solid var(--b2);border-radius:10px;color:var(--t3);font-size:12px;font-family:'Poppins',sans-serif;cursor:pointer">Annuler</button>
+      </div>
+    </div>
+
+    <!-- CONNEXIONS -->
+    <div class="sec-title" style="margin-top:16px">Connexions</div>
+    <div class="param-row">
+      <div><div class="param-lbl">Meta Ads MCP</div><div class="param-sub" id="mcp-sub">Non connecté · saisie manuelle</div></div>
+      <button class="connect-btn" id="mcp-btn" onclick="toggleMCP()">Connecter</button>
+    </div>
+    <div class="param-row">
+      <div><div class="param-lbl">Higgsfield MCP</div><div class="param-sub" id="hig-sub">Non connecté</div></div>
+      <button class="connect-btn" id="hig-btn" onclick="toggleHiggsfield()">Connecter</button>
+    </div>
+    <div class="param-row">
+      <div><div class="param-lbl">Rappel métriques quotidien</div><div class="param-sub">Bulle si métriques non saisies</div></div>
+      <div class="toggle on" id="toggle-rappel" onclick="toggleParam('toggle-rappel')"></div>
+    </div>
+
+    <!-- ÉTAT SYSTÈME -->
+    <div class="sec-title" style="margin-top:12px">État système</div>
+    <div id="sys-state-rows"></div>
+    <button onclick="resetCurrentCycle()" style="width:100%;background:transparent;border:0.5px solid var(--rborder);border-radius:10px;padding:11px;color:var(--red);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">Réinitialiser le cycle actuel</button>
+
+  </div>
+
+</div>
+<!-- DOCK NAVIGATION -->
+<div class="dock">
+  <button class="dock-btn on" id="dock-mission" onclick="goView('mission')">
+    <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="2.4" fill="currentColor"/></svg>
+    <span class="dock-lbl">Mission</span>
+  </button>
+  <button class="dock-btn" id="dock-indicateurs" onclick="goView('indicateurs')">
+    <svg viewBox="0 0 20 20" fill="none"><path d="M4 14V8M10 14V4M16 14v-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span class="dock-lbl">Indicateurs</span>
+  </button>
+  <button class="dock-btn" id="dock-memoire" onclick="goView('memoire')">
+    <svg viewBox="0 0 20 20" fill="none"><rect x="3.5" y="4" width="13" height="12" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 8h13" stroke="currentColor" stroke-width="1.6"/></svg>
+    <span class="dock-lbl">Mémoire</span>
+  </button>
+  <button class="dock-btn" id="dock-parametres" onclick="goView('parametres')">
+    <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.4" stroke="currentColor" stroke-width="1.6"/><path d="M10 3v2M10 15v2M17 10h-2M5 10H3M14.5 5.5l-1.4 1.4M6.9 13.1l-1.4 1.4M14.5 14.5l-1.4-1.4M6.9 6.9L5.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span class="dock-lbl">Réglages</span>
+  </button>
+</div>
+
+<!-- MINI CHAT BAR -->
+<div class="mini-chat-wrap">
+  <div class="mini-chat" id="mini-chat">
+    <span class="mini-chat-icon"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5.5" stroke="#fff" stroke-width="1.8"/><path d="M13.5 13.5L17 17" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+    <div class="mini-chat-reply" id="mini-chat-reply"></div>
+    <div class="mini-chat-row">
+      <input class="mini-chat-input" id="mini-chat-input" placeholder="Demander quelque chose..." onkeydown="if(event.key==='Enter')sendMiniChat()">
+      <button class="mini-chat-send" onclick="sendMiniChat()" aria-label="Envoyer">
+        <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M10 15V5M5 9l5-5 5 5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- FICHE MISSION -->
+<div class="mission-sheet" id="mission-sheet">
+  <div class="ms-head">
+    <div>
+      <div class="ms-id">Mission #18</div>
+      <div class="ms-date" id="ms-date">Créée le 18 juin</div>
+    </div>
+    <div class="ms-close" onclick="closeMissionSheet()">×</div>
+  </div>
+  <div class="ms-body">
+    <div class="ms-row">
+      <div class="ms-lbl">Statut</div>
+      <div class="ms-status"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M5 10l3.5 3.5L15 6.5" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Terminée</div>
+    </div>
+    <div class="ms-divider"></div>
+    <div class="ms-row">
+      <div class="ms-lbl">Objectif</div>
+      <div class="ms-val" id="ms-objectif">Créer 9 créatives Meta</div>
+    </div>
+    <div class="ms-divider"></div>
+    <div class="ms-row">
+      <div class="ms-lbl">Résultat</div>
+      <div class="ms-val" id="ms-resultat">9 créatives générées · 4 Transformation · 3 Preuve sociale · 2 Offer First · archivées dans la Creative Bank</div>
+    </div>
+    <div class="ms-divider"></div>
+    <div class="ms-row">
+      <div class="ms-lbl">Contexte de décision</div>
+      <div class="dc-box" id="ms-context">
+        <div class="dc-line"><span class="dc-line-lbl">KPI déclencheur</span><span class="dc-line-val">CTR moyen &lt; seuil de fatigue</span></div>
+        <div class="dc-line"><span class="dc-line-lbl">Signal</span><span class="dc-line-val">Fatigue créative détectée sur le batch précédent</span></div>
+        <div class="dc-line"><span class="dc-line-lbl">Source</span><span class="dc-line-val">Creative Bank + TrendTrack + métriques Meta</span></div>
+        <div class="dc-line"><span class="dc-line-lbl">Règle ASL</span><span class="dc-line-val">J4 · condition de renouvellement créatif atteinte</span></div>
+      </div>
+    </div>
+    <div class="ms-divider"></div>
+    <div class="ms-row">
+      <div class="ms-lbl">Variables modifiées</div>
+      <div class="var-grid" id="ms-variables">
+        <div class="var-row"><span class="var-name">Hook</span><span class="var-state new">Nouveau</span></div>
+        <div class="var-row"><span class="var-name">Format</span><span class="var-state changed">UGC → + statique testé</span></div>
+        <div class="var-row"><span class="var-name">Angle</span><span class="var-state kept">Transformation conservé</span></div>
+        <div class="var-row"><span class="var-name">Audience</span><span class="var-state kept">Inchangée</span></div>
+      </div>
+    </div>
+    <div class="ms-divider"></div>
+    <div class="ms-row">
+      <div class="ms-lbl">Temps d'exécution</div>
+      <div class="ms-val" id="ms-duree">7 secondes</div>
+    </div>
+    <button class="ms-btn" onclick="closeMissionSheet();goView('memoire')">Ouvrir dans la Creative Bank</button>
+  </div>
+</div>
+
+<!-- CHAT OVERLAY -->
+<div class="chat-overlay" id="chat-overlay">
+  <div class="chat-pull" onclick="closeChat()">
+    <div class="chat-pull-title" id="chat-title">Pourquoi cette décision ?</div>
+    <div class="chat-pull-close">×</div>
+  </div>
+  <div class="chat-body" id="chat-body">
+    <div class="chat-ctx">
+      <div class="chat-ctx-lbl">Contexte analysé</div>
+      <div class="chat-ctx-val" id="chat-ctx-val">—</div>
+    </div>
+    <div class="chat-msg brain" id="chat-brain-msg">
+      <div class="chat-tag">Prométhée</div>
+      <span id="chat-msg-text">...</span>
+    </div>
+  </div>
+  <div class="chat-bar">
+    <input class="chat-input" placeholder="Pose une question sur cette décision..." id="chat-input">
+    <button class="chat-send" onclick="sendChat()">↑</button>
+  </div>
+</div>
+
+<!-- METRIC SHEET -->
+<div class="metric-sheet" id="metric-sheet">
+  <div class="metric-sheet-title">
+    <div>
+      <div style="font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">Métriques du jour</div>
+      <div id="metric-cycle-label" style="font-size:13px;font-weight:600">Cycle J<span id="m-cycle-day">?</span> · <span id="m-cycle-spend">0</span>€ dépensés</div>
+    </div>
+    <span class="metric-close" onclick="closeMetrics()">×</span>
+  </div>
+
+  <div style="font-size:9px;color:var(--t3);margin-bottom:10px;line-height:1.5">
+    Depuis <span style="color:var(--amber)">Meta Ads Manager</span> : Spend · CTR · CPC · CPM · Thumbstop · Fréquence<br>
+    Depuis <span style="color:var(--green)">Shopify Analytics</span> : CA réel · Commandes · ATC
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Meta Ads</div>
+  <div class="metric-grid" style="margin-bottom:12px">
+    <div class="metric-field">
+      <div class="metric-lbl">Spend (€)</div>
+      <input class="metric-inp" type="number" step="0.01" placeholder="50" id="m-spend">
+    </div>
+    <div class="metric-field">
+      <div class="metric-lbl">CTR (%)</div>
+      <input class="metric-inp" type="number" step="0.01" placeholder="2.1" id="m-ctr">
+    </div>
+    <div class="metric-field">
+      <div class="metric-lbl">CPC (€)</div>
+      <input class="metric-inp" type="number" step="0.01" placeholder="0.82" id="m-cpc">
+    </div>
+    <div class="metric-field">
+      <div class="metric-lbl">CPM (€)</div>
+      <input class="metric-inp" type="number" step="0.01" placeholder="17" id="m-cpm">
+    </div>
+    <div class="metric-field">
+      <div class="metric-lbl">Thumbstop (%)</div>
+      <input class="metric-inp" type="number" step="0.01" placeholder="34" id="m-thumb">
+    </div>
+    <div class="metric-field">
+      <div class="metric-lbl">Fréquence</div>
+      <input class="metric-inp" type="number" step="0.01" placeholder="1.4" id="m-freq">
+    </div>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--green);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Shopify Analytics (source de vérité)</div>
+  <div class="metric-grid">
+    <div class="metric-field">
+      <div class="metric-lbl">CA réel (€)</div>
+      <input class="metric-inp" type="number" step="0.01" placeholder="155" id="m-rev">
+    </div>
+    <div class="metric-field">
+      <div class="metric-lbl">Commandes</div>
+      <input class="metric-inp" type="number" placeholder="3" id="m-orders">
+    </div>
+    <div class="metric-field">
+      <div class="metric-lbl">CVR landing (%)</div>
+      <input class="metric-inp" type="number" step="0.01" placeholder="2.4" id="m-cvr">
+    </div>
+    <div class="metric-field">
+      <div class="metric-lbl">ATC (#)</div>
+      <input class="metric-inp" type="number" placeholder="8" id="m-atc">
+    </div>
+  </div>
+
+  <div id="m-roas-preview" style="margin-top:12px;padding:10px 14px;background:var(--s2);border-radius:8px;font-size:12px;color:var(--t2);display:none">
+    ROAS réel calculé : <span id="m-roas-val" style="color:var(--t1);font-weight:700"></span> · ATC ratio : <span id="m-atc-val"></span>
+  </div>
+
+  <button class="metric-submit" onclick="submitMetrics()">Soumettre au cerveau</button>
+</div>
+
+</div>
+
+<script>
+var chatData={
+  instr:{
+    title:'Instruction du jour · Attendre',
+    ctx:'Attendre · J3 · Cycle #2 · ROAS 3.1x · Budget 150€/200€',
+    msg:'Le ROAS est bon à 3.1x — au-dessus du target de 2.8x. Mais il manque encore 50€ pour atteindre le seuil J4 de 200€. La double condition de scaling (ROAS 3j + dernier jour) ne peut pas être confirmée avant demain. Toucher quoi que ce soit maintenant déstabiliserait l\'algorithme Meta sans raison valide.'
+  },
+  crea1:{
+    title:'Transformation dos · UGC 20s',
+    ctx:'Winner · ROAS 3.1x · CTR 2.8% · Batch #2 · Variable : FORMAT vs batch 1',
+    msg:'Winner confirmé à J4 avec ROAS 3.1x. L\'angle Transformation avec un hook UGC face cam. La variable principale changée vs le batch précédent était le FORMAT — on est passé du statique à UGC 20s. Conclusion : c\'est le format qui a fait la différence, pas uniquement l\'angle. Score confiance Transformation : 67%.'
+  },
+  crea2:{
+    title:'Avant/Après · Statique',
+    ctx:'Mid-range · ROAS 1.8x · CTR 1.4% · Règle : garder 28 jours minimum',
+    msg:'Mid-range à 1.8x — entre le BE et le target. Règle ASL stricte : garder 28 jours minimum. Elle stabilise le CPA global de l\'adset. L\'algorithme Meta a besoin de cette créative pour équilibrer la distribution du budget. Couper prématurément = coût plus élevé sur les autres créatives.'
+  },
+  crea3:{
+    title:'Urgence promo · Text',
+    ctx:'Surveiller · ROAS 0.4x · CTR 0.6% · Double signal J2+J3 en cours',
+    msg:'CTR 0.6% sur 3 jours avec CPM normal. Signal : hook faible. Thumbstop rate à 14% — sous le seuil de 20%. Le hook "Dernières heures" ne stoppe pas le scroll. Si le double signal se confirme à J4 demain (ROAS en baisse ET spend en baisse simultanément), on coupe et on grise l\'angle Curiosité.'
+  },
+  crea4:{
+    title:'Preuve sociale · UGC 15s — Archivée',
+    ctx:'Loser · ROAS 0.6x · Coupée Batch #1 · Curiosité → confiance 17%',
+    msg:'Coupée à J4 du batch #1. Double signal confirmé. L\'angle Curiosité a maintenant 3 cycles sans winner et 17% de confiance — en dessous du seuil de 20% avec 150€+ de spend. Grisé automatiquement. La variable principale modifiée était l\'ANGLE, pas le format UGC. Donc le format reste disponible pour d\'autres angles.'
+  }
+}
+
+/*
+  RÈGLE ABSOLUE : une seule bulle principale à la fois.
+  Le cerveau choisit selon la hiérarchie de priorité ci-dessous.
+  Le front n'a jamais le droit d'afficher deux missions concurrentes.
+
+  HIÉRARCHIE DE PRIORITÉ (la plus haute gagne) :
+  1. mission      — action concrète recommandée par le cerveau
+  2. action       — le cerveau attend une donnée de l'utilisateur
+  3. alert        — anomalie détectée nécessitant surveillance
+  4. success      — confirmation qu'une étape vient de se terminer
+  5. opportunity  — suggestion non bloquante, ignorable
+  6. info         — observation, aucune intervention recommandée
+*/
+var PRIORITY_ORDER=['mission','action','alert','success','opportunity','info']
+
+/* ÉTAPE 6 FIX : plus d'états démo codés en dur.
+   instrStates ne contient que l'état neutre de chargement.
+   Le cerveau (runBrain) remplit instrStates avec de vraies décisions dès qu'il tourne. */
+var instrStates={
+  loading:{
+    orbType:'bs-wait',
+    tag:'Démarrage',
+    text:'Analyse en cours...',
+    sub:'Prométhée lit tes données et prépare sa décision.',
+    conf:'0%',confBg:'var(--t3)',confLbl:'Chargement',
+    missionKey:'loading'
+  }
+}
+
+var currentMission='loading'
+
+/* ═══════════════════════════════════════════════
+   BUBBLE RENDER ENGINE — brain output → UI
+   ═══════════════════════════════════════════════
+
+   Mapping :
+   action CUT/SCALE/CREATE + ownership SYSTEM → bs-action-system (rouge)
+   ownership USER                              → bs-action-user   (orange)
+   severity HIGH                               → bs-alert         (rouge vif)
+   action WAIT                                 → bs-wait          (gris)
+   action SUCCESS                              → bs-success       (vert)
+*/
+
+/* ── Noms d'affichage et couleurs par classe ── */
+var ORB_TYPES={
+  'bs-action-system': {label:'Mission · Action système', accentKey:'red'},
+  'bs-action-user':   {label:'Action requise',           accentKey:'amber'},
+  'bs-alert':         {label:'Alerte critique',          accentKey:'red'},
+  'bs-success':       {label:'Mission terminée',         accentKey:'green'},
+  'bs-wait':          {label:'En attente',               accentKey:'gray'}
+}
+
+/* ── Boutons par type de bulle principale ── */
+var ORB_BUTTONS={
+  'bs-action-system': [
+    {id:'go',    label:'Go',           cls:'primary', fn:'orbGo()'},
+    {id:'why',   label:'Pourquoi ?',   cls:'',        fn:'orbWhy()'},
+    {id:'plan',  label:'Voir le plan', cls:'',        fn:'orbViewPlan()'}
+  ],
+  'bs-action-user': [
+    {id:'done',  label:'Fait ✓',       cls:'primary', fn:'confirmExecuted()'},
+    {id:'why',   label:'Pourquoi ?',   cls:'',        fn:'orbWhy()'}
+  ],
+  'bs-alert': [
+    {id:'act',   label:'Agir',         cls:'primary', fn:'orbGo()'},
+    {id:'why',   label:'Pourquoi ?',   cls:'',        fn:'orbWhy()'},
+    {id:'diag',  label:'Diagnostic',   cls:'',        fn:'orbDiagnostic()'}
+  ],
+  'bs-success': [
+    {id:'view',  label:'Voir',         cls:'primary', fn:'orbView()'},
+    {id:'why',   label:'Pourquoi ?',   cls:'',        fn:'orbWhy()'}
+  ],
+  'bs-wait': [
+    {id:'why',   label:'Pourquoi ?',   cls:'',        fn:'orbWhy()'},
+    {id:'refresh',label:'Saisir données',cls:'primary',fn:"openMetrics()"}
+  ]
+}
+
+/* ── Rendu de la bulle principale ── */
+function renderOrb(){
+  var s=instrStates[currentMission]
+  if(!s) return
+  /* ÉTAPE 6 : état loading → aucun bouton, juste l'animation de chargement */
+  if(currentMission==='loading'){
+    var orb=document.getElementById('orb')
+    if(orb) orb.className='orb bs-wait'
+    var lbl=document.getElementById('orb-type-label')
+    if(lbl) lbl.textContent='Analyse'
+    var msg=document.getElementById('orb-msg')
+    if(msg) msg.textContent='Prométhée analyse ta situation...'
+    var sub=document.getElementById('orb-reason')
+    if(sub) sub.textContent='Lecture des données · décision dans un instant.'
+    var fill=document.getElementById('conf-fill')
+    if(fill){fill.style.width='0%';fill.style.background='var(--t3)'}
+    var acts=document.getElementById('orb-actions')
+    if(acts) acts.innerHTML=''
+    return
+  }
+  var orb=document.getElementById('orb')
+  /* Préserver la classe expanded si la bulle était déjà ouverte */
+  var wasExpanded=orb.classList.contains('expanded')
+  /* Classe de type */
+  orb.className='orb '+s.orbType+(wasExpanded?' expanded':'')
+  /* Contenu */
+  document.getElementById('orb-type-label').textContent=ORB_TYPES[s.orbType]?ORB_TYPES[s.orbType].label:s.tag
+  document.getElementById('orb-msg').textContent=s.text
+  document.getElementById('orb-reason').textContent=s.sub
+  /* Confiance */
+  var fill=document.getElementById('conf-fill')
+  if(fill){fill.style.width=s.conf;fill.style.background=s.confBg}
+  var confLbl=document.getElementById('conf-lbl')
+  if(confLbl) confLbl.textContent=s.confLbl
+  /* Boutons */
+  var actionsEl=document.getElementById('orb-actions')
+  if(actionsEl){
+    actionsEl.innerHTML=''
+    var btns=ORB_BUTTONS[s.orbType]||ORB_BUTTONS['bs-wait']
+    /* Si la mission a un actionLabel spécifique, remplacer le bouton primaire */
+    var finalBtns=btns.map(function(b){
+      if((b.id==='go'||b.id==='done'||b.id==='act'||b.id==='refresh')&&s.actionLabel){
+        return Object.assign({},b,{label:s.actionLabel})
+      }
+      return b
+    })
+    finalBtns.forEach(function(b){
+      var btn=document.createElement('button')
+      btn.className='orb-btn'+(b.cls?' '+b.cls:'')
+      btn.textContent=b.label
+      ;(function(fn){
+        btn.onclick=function(e){e.stopPropagation();eval(fn)}
+      })(b.fn)
+      actionsEl.appendChild(btn)
+    })
+  }
+  /* Brain bar next */
+  var nb=document.getElementById('brain-next')
+  if(nb) nb.textContent=s.orbType.replace('bs-','').toUpperCase()
+}
+
+function toggleOrb(){
+  var orb=document.getElementById('orb')
+  if(orb.classList.contains('thinking'))return
+  orb.classList.toggle('expanded')
+}
+
+/* ── Actions bulle principale ── */
+function orbWhy(){
+  var s=instrStates[currentMission]
+  if(!s) return
+  askWhy(s.tag+' — '+s.text, s.sub, s.why||s.dc?JSON.stringify(s.dc):'')
+}
+
+function orbGo(){
+  var s=instrStates[currentMission]
+  if(!s) return
+  if(s.missionKey==='CREATE_BATCH') runMissionSequence(s)
+  else showManualInstructions(s)
+}
+
+function orbView(){
+  var s=instrStates[currentMission]
+  if(s&&s.result) openMissionSheet(s)
+  else goView('memoire')
+}
+
+function orbViewPlan(){
+  var s=instrStates[currentMission]
+  pushToMiniChat(s?'Plan : '+s.sub+' — Décision context : '+(s.dc?JSON.stringify(s.dc):'—'):'Aucun plan disponible.')
+}
+
+function orbDiagnostic(){
+  pushToMiniChat('Diagnostic ASL : vérifier CVR boutique ≥ 1%, message match créa/site, scoring produit P1, et que le ROAS BE est réaliste. Si tout est OK, relancer un batch avec un angle différent.')
+}
+
+function showManualInstructions(s){
+  pushToMiniChat(getInstructions(s.missionKey))
+  var orb=document.getElementById('orb')
+  if(!orb.querySelector('.orb-executed')){
+    var btn=document.createElement('button')
+    btn.className='orb-executed orb-btn primary'
+    btn.textContent='Fait ✓'
+    btn.style.cssText='margin-top:8px;width:100%;display:block'
+    btn.onclick=function(e){e.stopPropagation();confirmExecuted();btn.remove()}
+    orb.appendChild(btn)
+  }
+}
+
+function getInstructions(k){
+  if(!k) return "Suis les regles ASL. Fait quand c'est fait."
+  if(k.startsWith('J1_CUT'))   return 'META : Desactiver la CBO Testing. Ne pas supprimer. Revenir. Fait.'
+  if(k.startsWith('J2_CUT'))   return 'META : Desactiver la CBO Testing. Identifier la variable echouee. Fait.'
+  if(k.startsWith('J4_GO'))    return 'META : Creer Master CBO Achat 50eur/j. Inserer uniquement les WINNER. Laisser CBO Testing tourner. Fait.'
+  if(k.startsWith('J4_OPTI'))  return 'P6 OPTI C1 : Ne pas couper la CBO. Changer le prix -10eur. Attendre 3 jours. Fait.'
+  if(k.startsWith('J1_GO')||k.startsWith('J2_GO')) return 'AUCUNE ACTION META. Laisser tourner. Prochain seuil : '+(k.startsWith('J1')?'J2 (100eur)':'J4 (200eur)')+'. Confirme.'
+  if(k==='AUDIT_WEEKLY') return 'AUDIT LUNDI : Query Meta 3 derniers jours. Couper/garder/scaler. Saisir metriques semaine. Fait.'
+  return "Suis les regles ASL. Fait quand c'est fait."
+}
+
+/* ── Séquence réflexion (CREATE_BATCH) ── */
+function runMissionSequence(s){
+  var orb=document.getElementById('orb')
+  orb.classList.remove('expanded')
+  orb.classList.add('thinking')
+  setBrainStatus('busy')
+  for(var i=0;i<5;i++){var el=document.getElementById('think-'+i);if(el)el.classList.remove('done')}
+  var delays=[700,1900,3300,4700,6200]
+  delays.forEach(function(d,i){setTimeout(function(){var el=document.getElementById('think-'+i);if(el)el.classList.add('done')},d)})
+
+  /* ÉTAPE 10 : vider les anciens briefs avant de générer les nouveaux.
+     Évite que d'anciens briefs d'une session précédente restent affichés
+     comme "en attente" alors qu'ils ne sont plus valides. */
+  localStorage.removeItem('promethee_pending_briefs')
+
+  /* Appel Claude briefs en parallèle */
+  var briefsResult=null
+  callClaudeForBriefs(memGet(),ASL.computeBatchSize(memGet())).then(function(r){briefsResult=r}).catch(function(){})
+
+  setTimeout(function(){
+    orb.classList.remove('thinking')
+    /* Passe en bs-success */
+    instrStates['MISSION_DONE']={
+      orbType:'bs-success',tag:'Mission terminée',
+      text:briefsResult?briefsResult.briefs.length+' briefs générés et prêts à produire':'Batch généré.',
+      sub:'Archivé dans la Creative Bank · téléchargeable dans Mémoire',
+      conf:'100%',confBg:'var(--green)',confLbl:'Terminé',
+      result:{objectif:s.text,resultat:briefsResult?briefsResult.briefs.length+' briefs Claude':'Batch généré',duree:'~7s'},
+      missionKey:'MISSION_DONE'
+    }
+    currentMission='MISSION_DONE'
+
+    /* ÉTAPE 10 : stocker les briefs avec metadata pour traçabilité.
+       batch_id unique + timestamp pour identifier le batch concerné. */
+    if(briefsResult){
+      var batchMeta={
+        batch_id:'batch_'+Date.now(),
+        generated_at:Date.now(),
+        mission:s.missionKey||'CREATE_BATCH',
+        product_id:memGet().active_product_id,
+        briefs:briefsResult.briefs
+      }
+      localStorage.setItem('promethee_pending_briefs',JSON.stringify(batchMeta))
+      var mem=memGet()
+      briefsResult.briefs.forEach(function(b){
+        mem.creative_bank.push({
+          id:b.id+'_'+Date.now(),name:b.format+' · '+b.angle+' · "'+b.hook+'"',
+          angle:b.angle,format:b.format,hook:b.hook,awareness:b.awareness_level,
+          variable_changed:b.variable_changed,status:'DRAFT',roas:null,spend:0,days:0,
+          winner_locked:false,mid_until:null,higgsfield_brief:b.higgsfield_brief,
+          ad_copy:b.ad_copy,why:b.why,metrics:{j1:null,j2:null,j4:null},created_at:Date.now()
+        })
+      })
+      memSet(mem)
+      refreshMemView()
+    }
+
+    renderOrb()
+    document.getElementById('orb').classList.add('expanded')
+    setBrainStatus('default')
+
+    /* Bulle secondaire succès */
+    setTimeout(function(){
+      renderBubble({
+        type:'sb-success',
+        label:'Batch terminé',
+        text:briefsResult?briefsResult.briefs.length+' créatives prêtes':'Batch généré',
+        sub:'Voir dans Mémoire · copier briefs Higgsfield',
+        why:'Le batch a été généré en tenant compte des angles disponibles, hooks déjà testés et winners actifs.',
+        buttons:[{label:'Voir',fn:"goView('memoire')",primary:true},{label:'Pourquoi ?',fn:'',isWhy:true}]
+      })
+    },500)
+  },7200)
+}
+
+function openMissionSheet(s){
+  var r=s.result||{objectif:'—',resultat:'—',duree:'—'}
+  document.getElementById('ms-objectif').textContent=r.objectif
+  document.getElementById('ms-resultat').textContent=r.resultat
+  document.getElementById('ms-duree').textContent=r.duree
+  document.getElementById('mission-sheet').classList.add('open')
+}
+function closeMissionSheet(){document.getElementById('mission-sheet').classList.remove('open')}
+
+function pushToMiniChat(text){
+  var mc=document.getElementById('mini-chat')
+  document.getElementById('mini-chat-reply').textContent=text
+  mc.classList.add('expanded')
+}
+
+/* ── Appel Claude pour expliquer (WHY) ── */
+async function askWhy(context,detail,extraCtx){
+  pushToMiniChat('Analyse en cours...')
+  try{
+    var mem=memGet()
+    var prod=getActiveProduct()
+    var ctx='Produit: '+(prod?prod.name+' ROAS BE '+prod.roas_be+'x':'non configure')+'. Phase: '+mem.campaign.asl_phase+' Cycle '+mem.campaign.cycle_number
+    var prompt='Promethee ASL v9. '+ctx+'. Observation: '+context+'. Donnees: '+detail+'. Explique en 3 phrases: regle ASL declenchee, chiffres cles, action recommandee. Direct, chiffre.'
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,messages:[{role:'user',content:prompt}]})
+    })
+    var data=await resp.json()
+    var txt=data.content&&data.content[0]?data.content[0].text:'(pas de réponse)'
+    pushToMiniChat('Prométhée : '+txt)
+  }catch(e){
+    pushToMiniChat(detail||context||'Erreur analyse.')
+  }
+}
+
+/* ── BULLES SECONDAIRES ── */
+function markRead(el){if(!el.classList.contains('read'))el.classList.add('read')}
+
+/*
+  renderBubble — crée une bulle secondaire depuis un objet structuré :
+  {
+    type:    'sb-alert' | 'sb-insight' | 'sb-success' | 'sb-info' | 'sb-user-action',
+    label:   string (pill en haut),
+    text:    string (titre principal),
+    sub:     string (sous-texte),
+    why:     string (contexte pour Claude),
+    buttons: [{label, fn, primary, isWhy}]
+  }
+*/
+function renderBubble(b){
+  var zone=document.getElementById('bubbles-zone')
+  if(!zone) return
+  /* Max 6 bulles */
+  var existing=zone.querySelectorAll('.bubble')
+  if(existing.length>=6) existing[0].remove()
+
+  var div=document.createElement('div')
+  div.className='bubble '+b.type
+
+  /* Dot non-lu */
+  var dot=document.createElement('span')
+  dot.className='bubble-dot'
+  div.appendChild(dot)
+
+  /* Corps */
+  var body=document.createElement('div')
+  body.className='bubble-body'
+
+  var label=document.createElement('div')
+  label.className='bubble-label'
+  label.textContent=b.label||'Info'
+  body.appendChild(label)
+
+  var txt=document.createElement('div')
+  txt.className='bubble-text'
+  txt.textContent=b.text||''
+  body.appendChild(txt)
+
+  if(b.sub){
+    var sub=document.createElement('div')
+    sub.className='bubble-sub'
+    sub.textContent=b.sub
+    body.appendChild(sub)
+  }
+  div.appendChild(body)
+
+  /* Boutons */
+  var acts=document.createElement('div')
+  acts.className='bubble-actions'
+  var btnDefs=b.buttons||[{label:'Pourquoi ?',fn:'',isWhy:true}]
+  btnDefs.forEach(function(bd){
+    var btn=document.createElement('button')
+    btn.className='bub-btn'+(bd.primary?' primary':'')
+    btn.textContent=bd.label
+    btn.onclick=function(e){
+      e.stopPropagation();markRead(div)
+      if(bd.isWhy) askWhy(b.label,b.text+' — '+b.sub,b.why)
+      else if(bd.fn) eval(bd.fn)
+    }
+    acts.appendChild(btn)
+  })
+  div.appendChild(acts)
+
+  div.onclick=function(){markRead(div)}
+  zone.appendChild(div)
+}
+
+/* Alias pour compatibilité */
+function spawnBubble(b){
+  /* Conversion ancien format → nouveau */
+  var typeMap={
+    't-info':'sb-info','t-success':'sb-success','t-action':'sb-user-action',
+    't-alert':'sb-alert','t-opportunity':'sb-insight'
+  }
+  renderBubble({
+    type:typeMap[b.type]||'sb-info',
+    label:b.tagTxt||'Info',
+    text:b.detail||b.txt||'',
+    sub:b.why||'',
+    why:b.why||'',
+    buttons:[
+      {label:'Pourquoi ?',fn:'',isWhy:true},
+      b.actionLabel?{label:b.actionLabel,fn:b.actionFn||'',primary:true}:null
+    ].filter(Boolean)
+  })
+}
+
+function setBrainStatus(mode){
+  var dot=document.getElementById('brain-dot')
+  var status=document.getElementById('brain-status')
+  var timing=document.getElementById('brain-timing')
+  var next=document.getElementById('brain-next')
+  dot.className='brain-dot '+(mode==='busy'?'busy':mode==='idle'?'idle':'')
+  if(mode==='busy'){
+    status.textContent='Réflexion en cours...'
+    timing.textContent='Analyse des nouvelles données'
+    next.textContent='—'
+  }else if(mode==='idle'){
+    status.textContent="En attente d'une action utilisateur"
+    timing.textContent='Aucune réévaluation automatique programmée'
+    next.textContent='WAIT'
+  }else{
+    status.textContent='Prométhée actif'
+    timing.textContent='Dernière analyse il y a 12 min · prochaine dans 47 min'
+    var s=instrStates[currentMission]
+    next.textContent=s?(s.orbType||'wait').replace('bs-','').toUpperCase():'WAIT'
+  }
+}
+
+function pushToMiniChat(text){
+  var mc=document.getElementById('mini-chat')
+  document.getElementById('mini-chat-reply').textContent=text
+  mc.classList.add('expanded')
+}
+
+/*
+  Bulles secondaires — statut non lu / lu.
+  Une bulle reste pleine (non lue) tant qu'elle n'a pas été survolée/ouverte.
+  Au premier hover, elle passe en "lue" (opacité réduite) mais reste visible
+  jusqu'à archivage explicite.
+*/
+
+function markRead(el){
+  if(!el.classList.contains('read'))el.classList.add('read')
+}
+
+/* Appel Claude pour expliquer une bulle */
+async function askWhyBubble(context,detail,why){
+  var preview='...'
+  pushToMiniChat('Prométhée analyse : '+context+' — en cours...')
+  try{
+    var mem=memGet()
+    var prod=getActiveProduct()
+    var prompt='Tu es Prométhée, cerveau IA e-commerce basé sur l\'ASL v9.\n\n'
+      +'Contexte produit : '+(prod?prod.name+' · ROAS BE '+prod.roas_be+'x':'Aucun produit actif')+'.\n'
+      +'Phase ASL : '+mem.campaign.asl_phase+' · Cycle '+mem.campaign.cycle_number+'.\n\n'
+      +'L\'utilisateur veut comprendre cette observation du système :\n'
+      +'Contexte : '+context+'\n'
+      +'Données : '+detail+'\n\n'
+      +'Explique en 3-4 phrases pourquoi c\'est important, quelle règle ASL s\'applique, et quelle action ça implique (si applicable). '
+      +'Sois direct, chiffré, orienté décision. Pas de jargon. Commence directement par l\'explication.'
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:prompt}]})
+    })
+    var data=await resp.json()
+    var txt=data.content&&data.content[0]?data.content[0].text:'(pas de réponse)'
+    pushToMiniChat('Prométhée : '+txt)
+  }catch(e){
+    pushToMiniChat(why||detail||'Erreur lors de l\'analyse.')
+  }
+}
+
+function goView(name){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on')})
+  document.querySelectorAll('.dock-btn').forEach(function(b){b.classList.remove('on')})
+  document.getElementById('view-'+name).classList.add('on')
+  document.getElementById('dock-'+name).classList.add('on')
+  if(name==='memoire') refreshMemView()
+  if(name==='parametres') refreshParamView()
+}
+
+var indicatorSets={
+  A:{note:"Tu n'as encore lancé aucune pub. On te demande seulement les indicateurs globaux de ta boutique pour calibrer le moteur — pas de ROAS, pas de CPC : ça n'existe pas encore.",fields:[
+    {lbl:'AOV global (€)',ph:'34'},
+    {lbl:'Trafic mensuel',ph:'1200'},
+    {lbl:'CVR site actuel (%)',ph:'1.1'},
+    {lbl:'Marge brute (%)',ph:'45'}
+  ]},
+  B:{note:"Tu as déjà testé des pubs sans résultats stables. On te demande tes derniers indicateurs connus, même approximatifs.",fields:[
+    {lbl:'ROAS moyen',ph:'1.4'},
+    {lbl:'CPC moyen (€)',ph:'0.9'},
+    {lbl:'CTR moyen (%)',ph:'1.1'},
+    {lbl:'Budget/jour testé (€)',ph:'30'}
+  ]},
+  C:{note:"Tu as déjà des ventes rentables. On rentre tes métriques actuelles pour que le moteur calibre la logique de duplication des winners.",fields:[
+    {lbl:'ROAS actuel',ph:'2.6'},
+    {lbl:'CPA actuel (€)',ph:'18'},
+    {lbl:'Budget/jour (€)',ph:'80'},
+    {lbl:'AOV (€)',ph:'42'}
+  ]},
+  D:{note:"Tu scales déjà avec des budgets importants. On rentre tes métriques de scale pour calibrer le contrôle de fatigue créative.",fields:[
+    {lbl:'ROAS actuel',ph:'3.2'},
+    {lbl:'Budget/jour (€)',ph:'400'},
+    {lbl:'CPA actuel (€)',ph:'15'},
+    {lbl:'LTV estimée (€)',ph:'95'}
+  ]}
+}
+var levelNames={A:'A · Jamais lancé',B:'B · Testé',C:'C · Rentable',D:'D · Scale'}
+
+function setLevel(lvl){
+  document.querySelectorAll('.ind-lvl').forEach(b=>b.classList.remove('on'))
+  document.getElementById('lvl-'+lvl).classList.add('on')
+  var data=indicatorSets[lvl]
+  document.getElementById('ind-note').textContent=data.note
+  var grid=document.getElementById('ind-fields')
+  grid.innerHTML=''
+  data.fields.forEach(function(f,i){
+    var div=document.createElement('div')
+    div.className='ind-field'
+    div.innerHTML='<div class="ind-field-lbl">'+f.lbl+'</div><input class="ind-field-inp" type="number" placeholder="'+f.ph+'" id="ind-f'+i+'"><div class="ind-field-hint" id="ind-h'+i+'"></div>'
+    var inp=div.querySelector('input')
+    inp.addEventListener('input',function(){
+      var val=parseFloat(this.value)
+      var hint=div.querySelector('.ind-field-hint')
+      if(this.value===''){ div.className='ind-field';hint.textContent='' }
+      else if(isNaN(val)||val<=0){ div.className='ind-field error';hint.textContent='Valeur invalide' }
+      else{ div.className='ind-field valid';hint.textContent='✓ Enregistré' }
+    })
+    grid.appendChild(div)
+  })
+  var pl=document.getElementById('param-level')
+  if(pl)pl.textContent=levelNames[lvl]
+}
+
+var mcpConnected=false
+var higConnected=false
+
+function toggleMCP(){
+  mcpConnected=!mcpConnected
+  var btn=document.getElementById('mcp-btn')
+  var sub=document.getElementById('mcp-sub')
+  if(mcpConnected){btn.textContent='Connecté';btn.className='connect-btn connected';sub.textContent='Connecté · lecture métriques automatique (V1.5)'}
+  else{btn.textContent='Connecter';btn.className='connect-btn';sub.textContent='Non connecté · saisie manuelle active'}
+}
+
+function toggleHiggsfield(){
+  higConnected=!higConnected
+  var btn=document.getElementById('hig-btn')
+  var sub=document.getElementById('hig-sub')
+  if(higConnected){btn.textContent='Connecté';btn.className='connect-btn connected';sub.textContent='Connecté · génération vidéo automatique'}
+  else{btn.textContent='Connecter';btn.className='connect-btn';sub.textContent='Clé API à configurer'}
+}
+
+function toggleParam(id){document.getElementById(id).classList.toggle('on')}
+
+/* ── ONBOARDING PRODUIT ───────────────────────────────────── */
+/* ── CATALOGUE PRODUITS ───────────────────────────────────── */
+var pfImages=[]  // images en attente pour le produit en cours d'édition
+
+function calcPfRoas(){
+  var price=parseFloat(document.getElementById('pf-price').value)
+  var cogs=parseFloat(document.getElementById('pf-cogs').value)
+  var bar=document.getElementById('pf-roas-bar')
+  if(price&&cogs&&price>cogs){
+    var be=price/(price-cogs)
+    var target=be*1.20
+    var aov=parseFloat(document.getElementById('pf-aov').value)||price
+    var atcT=aov*0.20
+    var marge=Math.round((price-cogs)/price*100)
+    document.getElementById('pf-be').textContent=be.toFixed(2)+'x'
+    document.getElementById('pf-target').textContent=target.toFixed(2)+'x'
+    document.getElementById('pf-atc').textContent=atcT.toFixed(0)+'€'
+    document.getElementById('pf-marge').textContent=marge+'%'
+    if(bar) bar.style.display='flex'
+  }
+}
+
+function handleImageUpload(event){
+  var files=Array.from(event.target.files)
+  var preview=document.getElementById('pf-images-preview')
+  files.forEach(function(file){
+    if(file.size>5*1024*1024){pushToMiniChat('Image trop lourde (max 5MB) : '+file.name);return}
+    var reader=new FileReader()
+    reader.onload=function(e){
+      var img={id:'img_'+Date.now(),name:file.name,base64:e.target.result,type:'product'}
+      pfImages.push(img)
+      var div=document.createElement('div')
+      div.style.cssText='position:relative;width:56px;height:56px;border-radius:8px;overflow:hidden;border:0.5px solid var(--b2)'
+      var imgEl=document.createElement('img');imgEl.src=e.target.result;imgEl.style.cssText='width:100%;height:100%;object-fit:cover';var delBtn=document.createElement('button');delBtn.textContent='×';delBtn.dataset.imgid=img.id;delBtn.onclick=function(){removeImage(this,this.dataset.imgid)};delBtn.style.cssText='position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);border:none;border-radius:50%;width:16px;height:16px;color:#fff;font-size:10px;cursor:pointer;line-height:1';div.appendChild(imgEl);div.appendChild(delBtn)
+      if(preview) preview.appendChild(div)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+function removeImage(btn,imgId){
+  pfImages=pfImages.filter(function(i){return i.id!==imgId})
+  btn.parentElement.remove()
+}
+
+function saveProduct(){
+  var name=document.getElementById('pf-name').value.trim()
+  var price=parseFloat(document.getElementById('pf-price').value)
+  var cogs=parseFloat(document.getElementById('pf-cogs').value)
+  if(!name||!price||!cogs){pushToMiniChat('Nom, prix et COGS sont obligatoires.');return}
+  if(price<=cogs){pushToMiniChat('Le prix doit être supérieur au COGS.');return}
+
+  var aov=parseFloat(document.getElementById('pf-aov').value)||price
+  var roas_be=price/(price-cogs)
+  var roas_target=roas_be*1.20
+  var angSat=document.getElementById('pf-sat').value.split(',').map(function(s){return s.trim()}).filter(Boolean)
+  var angOpp=document.getElementById('pf-opp').value.split(',').map(function(s){return s.trim()}).filter(Boolean)
+  var editId=document.getElementById('pf-id').value
+
+  var prodData={
+    id:editId||buildProductId(),
+    name:name,price:price,cogs:cogs,aov:aov,
+    roas_be:roas_be,roas_target:roas_target,atc_threshold:aov*0.20,
+    market:memGet().account?memGet().account.market||'FR':'FR',
+    avatar:{pain:document.getElementById('pf-pain').value.trim(),objections:[],awareness_level:parseInt(document.getElementById('pf-awareness').value)||2},
+    angles_saturated:angSat,angles_opportunities:angOpp,
+    headline:document.getElementById('pf-headline').value.trim(),
+    images:pfImages.slice(),
+    notes:document.getElementById('pf-notes').value.trim(),
+    status:editId?undefined:'STANDBY',
+    added_at:editId?undefined:Date.now()
+  }
+
+  var mem=memGet()
+  mem.products=mem.products||[]
+
+  if(editId){
+    var idx=mem.products.findIndex(function(p){return p.id===editId})
+    if(idx>=0){
+      var old=mem.products[idx]
+      prodData.status=old.status;prodData.added_at=old.added_at
+      mem.products[idx]=prodData
+    }else{prodData.status='STANDBY';prodData.added_at=Date.now();mem.products.push(prodData)}
+  }else{
+    prodData.status='STANDBY';prodData.added_at=Date.now()
+    mem.products.push(prodData)
+  }
+
+  /* Initialiser les angle scores si c'est le produit actif */
+  if(mem.active_product_id===prodData.id||!mem.active_product_id){
+    if(!mem.active_product_id){
+      mem.active_product_id=prodData.id
+      prodData.status='ACTIVE'
+      mem.products[mem.products.findIndex(function(p){return p.id===prodData.id})].status='ACTIVE'
+      mem.creative_bank=[]
+      mem.angle_scores={}
+    }
+    angOpp.forEach(function(a){if(!mem.angle_scores[a])mem.angle_scores[a]={tests:0,winners:0,confidence:0,status:'ACTIVE',spend:0,impressions:0}})
+  }
+
+  memSet(mem)
+  clearProductForm()
+  refreshParamView()
+  var isNew=!editId
+  pushToMiniChat((isNew?'Produit "':'Produit "'+name+'" mis à jour. ')+name+'" ajouté au catalogue. ROAS BE '+roas_be.toFixed(2)+'x · Target '+roas_target.toFixed(2)+'x.'+(mem.active_product_id===prodData.id?' Il est maintenant le produit actif en campagne.':' Il est en veille — Prométhée peut le croiser pour des offres et bundles.'))
+  if(isNew&&mem.active_product_id===prodData.id){goView('mission');setTimeout(function(){runBrain(false)},400)}
+}
+
+function saveAccount(){
+  var mem=memGet()
+  mem.account=mem.account||{}
+  mem.account.store_url=document.getElementById('acc-url').value.trim()
+  mem.account.market=document.getElementById('acc-market').value.trim()||'FR'
+  mem.account.budget_total=parseFloat(document.getElementById('acc-budget').value)||2000
+  mem.account.budget_remaining=parseFloat(document.getElementById('acc-budget-rem').value)||mem.account.budget_total
+  mem.account.configured=true
+  mem.campaign.budget_total=mem.account.budget_total
+  mem.campaign.budget_remaining=mem.account.budget_remaining
+  memSet(mem)
+  pushToMiniChat('Compte enregistré. Boutique : '+(mem.account.store_url||'—')+' · Budget : '+mem.account.budget_total+'€.')
+}
+
+function setActiveProduct(prodId){
+  var mem=memGet()
+  /* Mettre l'ancien en STANDBY */
+  mem.products.forEach(function(p){p.status=p.id===prodId?'ACTIVE':'STANDBY'})
+  mem.active_product_id=prodId
+  /* Reset cycle pour le nouveau produit actif */
+  mem.creative_bank=[]
+  mem.angle_scores={}
+  resetCycle(mem)
+  var prod=mem.products.find(function(p){return p.id===prodId})
+  if(prod){
+    var angOpp=prod.angles_opportunities||[]
+    angOpp.forEach(function(a){mem.angle_scores[a]={tests:0,winners:0,confidence:0,status:'ACTIVE',spend:0,impressions:0}})
+  }
+  memSet(mem)
+  refreshParamView()
+  refreshMemView()
+  pushToMiniChat('Produit actif changé : "'+(prod?prod.name:'')+'". Cycle réinitialisé. Le cerveau va lancer son analyse.')
+  setTimeout(function(){runBrain(false)},400)
+}
+
+function editProduct(prodId){
+  var mem=memGet()
+  var prod=mem.products.find(function(p){return p.id===prodId})
+  if(!prod) return
+  pfImages=prod.images?prod.images.slice():[]
+  setValue('pf-id',prod.id)
+  setValue('pf-name',prod.name)
+  setValue('pf-price',prod.price)
+  setValue('pf-cogs',prod.cogs)
+  setValue('pf-aov',prod.aov)
+  setValue('pf-pain',prod.avatar?prod.avatar.pain:'')
+  setValue('pf-headline',prod.headline)
+  setValue('pf-sat',(prod.angles_saturated||[]).join(', '))
+  setValue('pf-opp',(prod.angles_opportunities||[]).join(', '))
+  setValue('pf-awareness',prod.avatar?prod.avatar.awareness_level:2)
+  setValue('pf-notes',prod.notes||'')
+  document.getElementById('product-form-title').textContent='Modifier : '+prod.name
+  /* Preview images existantes */
+  var preview=document.getElementById('pf-images-preview')
+  if(preview){
+    preview.innerHTML=pfImages.map(function(img,i){
+      return '<div style="position:relative;width:56px;height:56px;border-radius:8px;overflow:hidden;border:0.5px solid var(--b2)">'
+        +'<img src="'+img.base64+'" style="width:100%;height:100%;object-fit:cover">'
+        +(function(id){var b=document.createElement('button');b.textContent='×';b.dataset.imgid=id;b.style.cssText='position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);border:none;border-radius:50%;width:16px;height:16px;color:#fff;font-size:10px;cursor:pointer;line-height:1';b.onclick=function(){removeImage(this,this.dataset.imgid)};return b.outerHTML})(img.id)
+        +'</div>'
+    }).join('')
+  }
+  calcPfRoas()
+  document.getElementById('product-form').scrollIntoView({behavior:'smooth'})
+}
+
+function clearProductForm(){
+  pfImages=[]
+  ;['pf-id','pf-name','pf-price','pf-cogs','pf-aov','pf-pain','pf-headline','pf-sat','pf-opp','pf-awareness','pf-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})
+  var preview=document.getElementById('pf-images-preview')
+  if(preview) preview.innerHTML=''
+  var bar=document.getElementById('pf-roas-bar')
+  if(bar) bar.style.display='none'
+  document.getElementById('product-form-title').textContent='Nouveau produit'
+}
+
+/* ── RENDU DYNAMIQUE — VUE MÉMOIRE ───────────────────────── */
+function refreshMemView(){
+  var mem=memGet()
+  var m=mem.last_metrics
+  var bank=mem.creative_bank||[]
+  var camp=mem.campaign
+  var prod=getActiveProduct()
+  var roas_be=prod?prod.roas_be||2.3:2.3
+
+  var roasEl=document.getElementById('mem-roas')
+  if(m.roas_real&&roasEl){
+    roasEl.textContent=m.roas_real.toFixed(2)+'x'
+    roasEl.style.color=m.roas_real>=roas_be?'var(--green)':'var(--red)'
+    document.getElementById('mem-roas-sub').textContent='BE '+roas_be.toFixed(2)+'x · '+(m.roas_real>=roas_be?'+':'')+(((m.roas_real-roas_be)/roas_be)*100).toFixed(0)+'%'
+  }
+  var spEl=document.getElementById('mem-spend')
+  if(spEl){
+    spEl.textContent=(camp.spend_cycle||0)+'€'
+    var nextSeuil=camp.spend_cycle<50?'50':camp.spend_cycle<100?'100':'200'
+    document.getElementById('mem-spend-sub').textContent='Prochain seuil · J'+nextSeuil+'€'
+  }
+  var winners=bank.filter(function(c){return c.status==='WINNER'})
+  var mids=bank.filter(function(c){return c.status==='MID'})
+  var tests=bank.filter(function(c){return c.status==='TESTING'||c.status==='DRAFT'})
+  var cEl=document.getElementById('mem-count')
+  if(cEl){cEl.textContent=bank.length;document.getElementById('mem-count-sub').textContent=winners.length+'W · '+mids.length+'M · '+tests.length+' test'}
+
+  var list=document.getElementById('mem-bank-list')
+  if(!list) return
+  if(!bank.length){
+    list.innerHTML='<div style="padding:24px;text-align:center;color:var(--t3);font-size:11px">Aucune créative encore. Configure un produit et lance ton premier batch.</div>'
+  }else{
+    var title=document.getElementById('mem-bank-title')
+    if(title) title.textContent='Creative Bank · '+bank.length+' créa(s)'+(prod?' · '+prod.name:'')
+    list.innerHTML=bank.map(function(c){
+      var dot=c.status==='WINNER'?'var(--green)':c.status==='MID'?'var(--amber)':c.status==='TESTING'?'var(--blue)':c.status==='DRAFT'?'var(--purple)':'var(--t3)'
+      var badge=c.status==='WINNER'?'<div class="badge b-win">Winner</div>':c.status==='MID'?'<div class="badge b-mid">Mid</div>':c.status==='TESTING'?'<div class="badge" style="background:var(--bdim);color:var(--blue);border:0.5px solid var(--bborder)">Test</div>':c.status==='DRAFT'?'<div class="badge" style="background:var(--pdim);color:var(--purple);border:0.5px solid var(--pborder)">Brief</div>':'<div class="badge b-arc">Archivée</div>'
+      var roasV=c.roas?'<div class="crea-roas" style="color:'+(c.roas>=roas_be?'var(--green)':'var(--red)')+'">'+c.roas.toFixed(1)+'x</div>':'<div class="crea-roas" style="color:var(--t3)">—</div>'
+      var ds=c.status==='WINNER'?'win':c.status==='TESTING'||c.status==='DRAFT'?'test':'mid'
+
+      /* Aperçu visuel si image ou vidéo générée */
+      var mediaPreview=''
+      if(c.image_base64){
+        mediaPreview='<div style="margin:8px 0;border-radius:8px;overflow:hidden">'
+          +'<img src="'+c.image_base64+'" style="width:100%;max-height:180px;object-fit:cover;display:block">'
+          +'<button onclick="downloadCreative(\''+c.id+'\',\'image\')" style="width:100%;padding:6px;background:var(--s2);border:none;border-top:0.5px solid var(--b1);color:var(--t2);font-size:10px;cursor:pointer;font-family:Poppins,sans-serif">⬇ Télécharger</button>'
+          +'</div>'
+      }else if(c.video_url){
+        mediaPreview='<div style="margin:8px 0;border-radius:8px;overflow:hidden">'
+          +'<video src="'+c.video_url+'" style="width:100%;max-height:180px;object-fit:cover;display:block" controls muted playsinline></video>'
+          +'<button onclick="downloadCreative(\''+c.id+'\',\'video\')" style="width:100%;padding:6px;background:var(--s2);border:none;border-top:0.5px solid var(--b1);color:var(--t2);font-size:10px;cursor:pointer;font-family:Poppins,sans-serif">⬇ Télécharger</button>'
+          +'</div>'
+      }
+
+      return '<div class="crea-row" data-status="'+ds+'" style="flex-direction:column;align-items:stretch;padding:12px">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:'+(mediaPreview?'0':'0')+'">'
+        +'<div class="crea-dot" style="background:'+dot+'"></div>'
+        +'<div class="crea-info" style="flex:1"><div class="crea-name">'+c.name+'</div>'
+        +'<div class="crea-detail">'+(c.angle||'')+(c.format?' · '+c.format:'')+(c.hook?' · "'+c.hook+'"':'')+'</div></div>'
+        +'<div class="crea-right">'+roasV+badge+'</div></div>'
+        +mediaPreview
+        +'</div>'
+    }).join('')
+  }
+
+  var aList=document.getElementById('angle-scores-list')
+  if(aList){
+    var scores=mem.angle_scores||{}
+    var keys=Object.keys(scores)
+    if(!keys.length){aList.innerHTML='<div style="font-size:11px;color:var(--t3);padding:8px 0">Aucun angle — ajoute un produit avec des angles pour commencer.</div>'}
+    else{aList.innerHTML=keys.map(function(a){
+      var s=scores[a];var pct=Math.round(s.confidence*100)
+      var col=s.status==='GRISED'?'var(--t3)':pct>=40?'var(--green)':pct>=20?'var(--amber)':'var(--red)'
+      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--s1);border:0.5px solid var(--b1);border-radius:8px;margin-bottom:5px">'
+        +'<div style="flex:1"><div style="font-size:11px;font-weight:600;color:'+(s.status==='GRISED'?'var(--t3)':'var(--t1)')+'">'+a+(s.status==='GRISED'?' · grisé':'')+' </div>'
+        +'<div style="font-size:10px;color:var(--t3);margin-top:2px">'+s.tests+' tests · '+s.winners+' winners</div></div>'
+        +'<div style="font-size:14px;font-weight:700;color:'+col+'">'+pct+'%</div></div>'
+    }).join('')}
+  }
+
+  /* ÉTAPE 10 : lire le nouveau format avec metadata {batch_id, generated_at, briefs:[]} */
+  var _raw=localStorage.getItem('promethee_pending_briefs')
+  var _parsed=_raw?JSON.parse(_raw):null
+  /* Compatibilité : ancien format = tableau direct, nouveau = objet avec .briefs */
+  var pending=_parsed?(_parsed.briefs||_parsed):[]
+  var batchMeta=_parsed&&_parsed.batch_id?_parsed:null
+  var briefSec=document.getElementById('briefs-section')
+  var briefList=document.getElementById('briefs-list')
+  if(briefSec&&briefList){
+    if(pending.length){
+      var batchLabel=batchMeta?(' · Batch '+new Date(batchMeta.generated_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})):''
+      if(briefSec.querySelector('.briefs-section-title')){briefSec.querySelector('.briefs-section-title').textContent='Briefs générés'+batchLabel+' — à envoyer dans Higgsfield'}
+      briefSec.style.display='block'
+      briefList.innerHTML=pending.map(function(b,i){
+        return '<div style="background:var(--s2);border:0.5px solid var(--bborder);border-radius:10px;padding:12px 14px;margin-bottom:8px">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'
+          +'<div style="font-size:11px;font-weight:600;color:var(--t1)">Brief '+b.id+' · '+b.format+' · '+b.angle+'</div>'
+          +'<div style="font-size:9px;color:var(--blue);font-weight:600">N'+(b.awareness_level||'?')+'</div></div>'
+          +'<div style="font-size:11px;color:var(--amber);margin-bottom:6px">Hook : "'+b.hook+'"</div>'
+          +'<div style="font-size:10px;color:var(--t2);line-height:1.6;margin-bottom:8px">'+b.why+'</div>'
+          +'<div style="background:var(--s1);border-radius:6px;padding:8px 10px;font-size:10px;color:var(--t3);line-height:1.7;margin-bottom:8px;white-space:pre-wrap">'+b.higgsfield_brief+'</div>'
+          +'<div style="display:flex;gap:6px">'
+          +'<button data-idx="'+i+'" onclick="copyBriefBtn(this)" style="flex:1;padding:7px;background:var(--bdim);border:0.5px solid var(--bborder);border-radius:7px;color:var(--blue);font-size:10px;font-weight:600;cursor:pointer">📋 Copier brief Higgsfield</button>'
+          +'<button data-idx="'+i+'" data-id="'+b.id+'" onclick="archiveBriefBtn(this)" style="padding:7px 12px;background:transparent;border:0.5px solid var(--b2);border-radius:7px;color:var(--t3);font-size:10px;cursor:pointer">✓ Uploadé dans Meta</button>'
+          +'</div></div>'
+      }).join('')
+    }else{briefSec.style.display='none'}
+  }
+}
+
+function copyBriefBtn(btn){copyBrief(parseInt(btn.dataset.idx))}
+function archiveBriefBtn(btn){archiveBrief(parseInt(btn.dataset.idx),btn.dataset.id)}
+function setActiveProdBtn(btn){setActiveProduct(btn.dataset.pid)}
+function editProdBtn(btn){editProduct(btn.dataset.pid)}
+
+function copyBrief(idx){
+  var _raw=localStorage.getItem('promethee_pending_briefs')
+  var _parsed=_raw?JSON.parse(_raw):null
+  var pending=_parsed?(_parsed.briefs||_parsed):[]
+  if(pending[idx]){
+    navigator.clipboard.writeText(pending[idx].higgsfield_brief).then(function(){
+      pushToMiniChat('Brief '+pending[idx].id+' copié. Colle-le dans Higgsfield pour générer la vidéo.')
+    }).catch(function(){pushToMiniChat('Brief Higgsfield : '+pending[idx].higgsfield_brief)})
+  }
+}
+
+function archiveBrief(idx,briefId){
+  var pending=JSON.parse(localStorage.getItem('promethee_pending_briefs')||'[]')
+  pending.splice(idx,1)
+  localStorage.setItem('promethee_pending_briefs',JSON.stringify(pending))
+  var mem=memGet()
+  if(briefId){var ex=mem.creative_bank.find(function(c){return c.id===briefId});if(ex)ex.status='TESTING'}
+  memSet(mem)
+  refreshMemView()
+  pushToMiniChat('Créative uploadée dans Meta. Statut TESTING dans la Creative Bank.')
+}
+
+/* ── RENDU DYNAMIQUE — VUE RÉGLAGES ──────────────────────── */
+function refreshParamView(){
+  var mem=memGet()
+  var camp=mem.campaign
+  var acc=mem.account||{}
+  var prod=getActiveProduct()
+
+  /* Pré-remplir compte */
+  setValue('acc-url',acc.store_url)
+  setValue('acc-market',acc.market||'FR')
+  setValue('acc-budget',acc.budget_total||2000)
+  setValue('acc-budget-rem',acc.budget_remaining||1800)
+
+  /* Liste des produits */
+  var list=document.getElementById('products-list')
+  var count=document.getElementById('products-count')
+  var products=mem.products||[]
+  if(count) count.textContent=products.length+' produit(s)'
+  if(list){
+    if(!products.length){
+      list.innerHTML='<div style="font-size:11px;color:var(--t3);padding:8px 0">Aucun produit encore. Remplis le formulaire ci-dessous.</div>'
+    }else{
+      list.innerHTML=products.map(function(p){
+        var isActive=p.id===mem.active_product_id
+        var statusCol=isActive?'var(--green)':p.status==='CUT'?'var(--red)':'var(--t3)'
+        var img=p.images&&p.images.length?'<img src="'+p.images[0].base64+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--s2);border-radius:6px;flex-shrink:0;border:0.5px solid var(--b2)"></div>'
+        return '<div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--s1);border:0.5px solid '+(isActive?'var(--gborder)':'var(--b1)')+';border-radius:10px">'
+          +img
+          +'<div style="flex:1;min-width:0">'
+            +'<div style="font-size:12px;font-weight:600;color:var(--t1)">'+(p.name||'—')+'</div>'
+            +'<div style="font-size:10px;color:var(--t3);margin-top:2px">'+(p.roas_be?'BE '+p.roas_be.toFixed(2)+'x · ':'')+(p.angles_opportunities||[]).slice(0,2).join(', ')+'</div>'
+          +'</div>'
+          +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
+            +'<div style="font-size:9px;font-weight:600;color:'+statusCol+'">'+(isActive?'ACTIF':p.status)+'</div>'
+            +'<div style="display:flex;gap:4px">'
+            +(!isActive?'<button data-pid="'+p.id+'" onclick="setActiveProdBtn(this)" style="font-size:9px;padding:3px 8px;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:5px;color:var(--green);cursor:pointer">Activer</button>':'')
+            +'<button data-pid="'+p.id+'" onclick="editProdBtn(this)" style="font-size:9px;padding:3px 8px;background:transparent;border:0.5px solid var(--b2);border-radius:5px;color:var(--t3);cursor:pointer">Éditer</button>'
+            +'</div></div></div>'
+      }).join('')
+    }
+  }
+
+  /* État système */
+  var sysRows=document.getElementById('sys-state-rows')
+  if(sysRows){
+    sysRows.innerHTML=[
+      ['Produit actif',prod?prod.name+' · ACTIF':'Aucun produit actif'],
+      ['ROAS BE / Target',prod?(prod.roas_be||'—')+'x / '+(prod.roas_target||'—')+'x':'—'],
+      ['Phase ASL',camp.asl_phase+' · Cycle '+camp.cycle_number],
+      ['Spend cycle',(camp.spend_cycle||0)+'€ / 200€ max'],
+      ['Budget restant',(camp.budget_remaining||0)+'€'],
+      ['Cuts',camp.cuts_count+' / 3'],
+      ['J1/J2/J4',(camp.j1_decided?'✓ ':'○ ')+(camp.j2_decided?'✓ ':'○ ')+(camp.j4_decided?'✓':'○')]
+    ].map(function(row){
+      return '<div class="param-row"><div><div class="param-lbl">'+row[0]+'</div></div><div class="param-val">'+row[1]+'</div></div>'
+    }).join('')
+  }
+}
+
+function setValue(id,val){var el=document.getElementById(id);if(el&&val!==undefined&&val!==null)el.value=val}
+
+function resetCurrentCycle(){
+  var mem=memGet()
+  resetCycle(mem)
+  mem.last_metrics={spend:null,ca_shopify:null,orders:null,ctr:null,cpc:null,cpm:null,thumbstop:null,freq:null,cvr:null,atc:null,roas_real:null,atc_ratio:null,saisie_at:null}
+  memSet(mem)
+  refreshParamView()
+  pushToMiniChat('Cycle réinitialisé. Spend remis à 0. J1/J2/J4 remis à zéro.')
+  setTimeout(function(){runBrain(false)},500)
+}
+
+function downloadCreative(creativeId,type){
+  var mem=memGet()
+  var c=mem.creative_bank.find(function(x){return x.id===creativeId})
+  if(!c) return
+  var a=document.createElement('a')
+  if(type==='image'&&c.image_base64){
+    a.href=c.image_base64
+    a.download=(c.angle||'creative')+'_'+c.format+'.jpg'
+  }else if(type==='video'&&c.video_url){
+    a.href=c.video_url
+    a.download=(c.angle||'creative')+'_'+c.format+'.mp4'
+    a.target='_blank'
+  }
+  a.click()
+}
+
+function filterMemLive(type,btn){
+  document.querySelectorAll('.mem-filter').forEach(function(b){b.classList.remove('on')})
+  btn.classList.add('on')
+  document.querySelectorAll('#mem-bank-list .crea-row').forEach(function(row){
+    if(type==='all')row.style.display=''
+    else if(type==='win')row.style.display=row.dataset.status==='win'?'':'none'
+    else if(type==='lose')row.style.display=(row.dataset.status==='test'||row.dataset.status==='mid')?'':'none'
+  })
+}
+
+function submitIndicators(){goView('mission');pushToMiniChat('Niveau noté.')}
+
+
+function openChat(key){
+  var d=chatData[key]||chatData.instr
+  document.getElementById('chat-title').textContent=d.title
+  document.getElementById('chat-ctx-val').textContent=d.ctx
+  document.getElementById('chat-msg-text').textContent=d.msg
+  // reset extra messages
+  var body=document.getElementById('chat-body')
+  var extra=body.querySelectorAll('.chat-extra')
+  extra.forEach(e=>e.remove())
+  document.getElementById('chat-overlay').classList.add('open')
+}
+function closeChat(){document.getElementById('chat-overlay').classList.remove('open')}
+
+function sendChat(){
+  var input=document.getElementById('chat-input')
+  if(!input.value.trim())return
+  var body=document.getElementById('chat-body')
+  var u=document.createElement('div')
+  u.className='chat-msg user chat-extra'
+  u.textContent=input.value
+  body.appendChild(u)
+  var r=document.createElement('div')
+  r.className='chat-msg brain chat-extra'
+  r.innerHTML='<div class="chat-tag">Prométhée</div>Analyse en cours selon les règles ASL et l\'historique de ta Creative Bank...'
+  body.appendChild(r)
+  input.value=''
+  body.scrollTop=body.scrollHeight
+}
+
+function openMetrics(){document.getElementById('metric-sheet').classList.add('open')}
+function closeMetrics(){document.getElementById('metric-sheet').classList.remove('open')}
+
+async function sendMiniChat(){
+  var input=document.getElementById('mini-chat-input')
+  var question=input.value.trim()
+  if(!question) return
+  input.value=''
+  pushToMiniChat('Promethee analyse...')
+  try{
+    var mem=memGet()
+    var prod=getActiveProduct()
+    var mission=instrStates[currentMission]
+    var ctx=[]
+    if(prod) ctx.push('Produit : '+prod.name+' | ROAS BE '+prod.roas_be+'x | Target '+prod.roas_target+'x')
+    ctx.push('Phase ASL : '+mem.campaign.asl_phase+' | Cycle '+mem.campaign.cycle_number+' | Spend cycle '+mem.campaign.spend_cycle+'EUR')
+    if(mem.last_metrics&&mem.last_metrics.spend){
+      var m=mem.last_metrics
+      ctx.push('Metriques : Spend '+m.spend+'EUR | CA Shopify '+m.ca_shopify+'EUR | ROAS reel '+(m.roas_real?m.roas_real.toFixed(2):'?')+'x | CTR '+m.ctr+'% | Freq '+m.freq)
+    }
+    if(mission&&mission.text) ctx.push('Mission en cours : '+mission.text)
+    var winners=(mem.creative_bank||[]).filter(function(c){return c.status==='WINNER'})
+    if(winners.length) ctx.push('Winners actifs : '+winners.map(function(c){return c.name}).join(', '))
+    var systemPrompt='Tu es Promethee, cerveau e-commerce ASL v9. Reponds uniquement depuis les donnees reelles du compte. Court, chiffre, actionnable. Si donnee manquante, dis-le.'
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,system:systemPrompt,
+        messages:[{role:'user',content:ctx.join(' | ')+'\n\nQuestion : '+question}]})
+    })
+    var data=await resp.json()
+    var txt=data.content&&data.content[0]?data.content[0].text:'(pas de reponse)'
+    pushToMiniChat('Promethee : '+txt)
+  }catch(e){
+    pushToMiniChat('Erreur connexion. Verifie ta cle API.')
+  }
+}
+
+/* ============================================================
+   PROMÉTHÉE — CERVEAU v1 — MOTEUR ASL
+   Décisions déterministes J1/J2/J4 · Claude pour briefs créatifs
+   Higgsfield MCP pour génération vidéo
+   ============================================================ */
+
+/* ── MÉMOIRE PERSISTANTE (localStorage) ─────────────────── */
+var MEM_KEY='promethee_v1'
+
+/* ── CLÉS API ─────────────────────────────────────────────── */
+var KEYS={
+  fal:    '6a4f11de-3b3f-40c3-9279-afece5f0f7b3:9e4104884d634a78b0dca5cb7fd76985',
+  higgs_id:     '92d7d6d1-92d4-430e-86c7-b25615a0f7aa',
+  higgs_secret: '0db26f4201bfe31fe627e645eaf67ed58e5b78f1bbdca3ec2a2565851635747f'
+}
+function memGet(){
+  try{var r=localStorage.getItem(MEM_KEY);return r?JSON.parse(r):defaultMemory()}
+  catch(e){return defaultMemory()}
+}
+function memSet(data){try{localStorage.setItem(MEM_KEY,JSON.stringify(data))}catch(e){}}
+
+/* ÉTAPE 13 — Migration mémoire : vérifier et réparer le localStorage au chargement.
+   Si l'ancien format existe (mem.product au lieu de mem.products[]), on migre proprement. */
+function migrateMemoryIfNeeded(){
+  try{
+    var raw=localStorage.getItem(MEM_KEY)
+    if(!raw) return /* rien à migrer */
+    var mem=JSON.parse(raw)
+
+    var dirty=false
+
+    /* Ancien format : mem.product (objet unique) au lieu de mem.products (tableau) */
+    if(mem.product&&!mem.products){
+      mem.products=[Object.assign({},mem.product,{
+        id:'prod_migrated_'+Date.now(),
+        status:'ACTIVE',
+        added_at:Date.now()
+      })]
+      mem.active_product_id=mem.products[0].id
+      delete mem.product
+      dirty=true
+    }
+
+    /* Assurer que account existe */
+    if(!mem.account){
+      mem.account={
+        store_url:'',market:'FR',meta_level:'B',
+        budget_total:mem.campaign&&mem.campaign.budget_total||2000,
+        budget_remaining:mem.campaign&&mem.campaign.budget_remaining||1800,
+        daily_budget:50,configured:false
+      }
+      dirty=true
+    }
+
+    /* Assurer que products est un tableau */
+    if(!Array.isArray(mem.products)){
+      mem.products=[]
+      mem.active_product_id=null
+      dirty=true
+    }
+
+    /* Assurer que decisions_log existe */
+    if(!mem.decisions_log) { mem.decisions_log=[]; dirty=true }
+
+    /* Assurer que weekly_patterns existe */
+    if(!mem.weekly_patterns) { mem.weekly_patterns=[]; dirty=true }
+
+    /* Assurer que creative_bank existe */
+    if(!mem.creative_bank) { mem.creative_bank=[]; dirty=true }
+
+    /* Assurer que angle_scores existe */
+    if(!mem.angle_scores) { mem.angle_scores={}; dirty=true }
+
+    if(dirty){
+      localStorage.setItem(MEM_KEY,JSON.stringify(mem))
+      console.log('[Prométhée] Mémoire migrée vers le format actuel.')
+    }
+  }catch(e){
+    /* Mémoire corrompue → reset complet */
+    console.warn('[Prométhée] Mémoire corrompue, reset.')
+    localStorage.removeItem(MEM_KEY)
+  }
+}
+function memUpdate(key,val){var m=memGet();m[key]=val;m[key+'_updated_at']=Date.now();memSet(m)}
+
+function defaultMemory(){
+  return{
+    /* COMPTE GLOBAL */
+    account:{
+      store_url:'',
+      market:'FR',
+      meta_level:'B',      // A/B/C/D niveau Meta Ads
+      budget_total:2000,
+      budget_remaining:1800,
+      daily_budget:50,
+      configured:false
+    },
+    /* CATALOGUE PRODUITS (N produits) */
+    products:[],           // tableau de produits (voir schéma ci-dessous)
+    active_product_id:null,// ID du produit en campagne active
+
+    /* ÉTAT CAMPAGNE DU PRODUIT ACTIF */
+    campaign:{
+      product_id:null,
+      phase:'P5',
+      asl_phase:'TESTING',
+      cycle_number:1,
+      cycle_start:Date.now(),
+      spend_cycle:0,
+      spend_yesterday_cpm:null,
+      j1_decided:false,
+      j2_decided:false,
+      j4_decided:false,
+      cartouche:null,
+      cuts_count:0,
+      is_monday_audit_done:false
+    },
+    /* MÉTRIQUES DERNIÈRE SAISIE */
+    last_metrics:{
+      spend:null,ca_shopify:null,orders:null,
+      ctr:null,cpc:null,cpm:null,thumbstop:null,freq:null,cvr:null,atc:null,
+      roas_real:null,atc_ratio:null,saisie_at:null
+    },
+    /* CREATIVE BANK (liée au produit actif) */
+    creative_bank:[],
+    /* SCORES ANGLES (par produit actif) */
+    angle_scores:{},
+    /* HISTORIQUE */
+    decisions_log:[],
+    weekly_patterns:[]
+  }
+}
+
+/* Schéma d'un produit dans le catalogue :
+{
+  id: string (unique),
+  name: string,
+  store_url: string,
+  price: number,
+  cogs: number,
+  roas_be: number,
+  roas_target: number,
+  aov: number,
+  atc_threshold: number,
+  market: string,
+  avatar: { pain, objections[], awareness_level },
+  angles_saturated: [],
+  angles_opportunities: [],
+  headline: string,
+  images: [{ id, name, base64, url, type:'product'|'lifestyle'|'ugc' }],
+  status: 'ACTIVE'|'STANDBY'|'CUT'|'SCALING',
+  added_at: number,
+  notes: string
+}
+*/
+
+function getActiveProduct(){
+  var mem=memGet()
+  if(!mem.active_product_id||!mem.products||!mem.products.length) return null
+  return mem.products.find(function(p){return p.id===mem.active_product_id})||null
+}
+
+function buildProductId(){return 'prod_'+Date.now()+'_'+Math.random().toString(36).slice(2,6)}
+
+/* ── CALCULS ASL PURS ─────────────────────────────────────── */
+var ASL={
+  computeRoasBe:function(price,cogs){return price/(price-cogs)},
+  computeRoasTarget:function(roas_be){return roas_be*1.20},
+  computeAtcThreshold:function(aov){return aov*0.20},
+
+  decideJ1:function(sales,cpc){
+    if(sales>=1) return{verdict:'GO',next:'J2',reason:'≥1 vente · signal positif'}
+    if(sales===0&&cpc<1) return{verdict:'GO',next:'J2',reason:'0 vente + CPC <1€ · signal CPC prometteur'}
+    return{verdict:'CUT',reason:'0 vente + CPC >1€ · angle ou créa à changer'}
+  },
+
+  decideJ2:function(roas,roas_be,atc,aov){
+    var atc_ratio=aov>0?atc/aov:999
+    if(roas>roas_be) return{verdict:'GO',next:'J4',reason:'ROAS '+roas.toFixed(2)+'x > BE '+roas_be.toFixed(2)+'x'}
+    if(roas>=1&&roas<=roas_be&&atc_ratio<0.20)
+      return{verdict:'GO',next:'J4',reason:'ROAS entre 1 et BE · ATC ratio '+Math.round(atc_ratio*100)+'% < 20% AOV · signal funnel'}
+    if(roas<1) return{verdict:'CUT',reason:'ROAS '+roas.toFixed(2)+'x < 1 · couper'}
+    return{verdict:'CUT',reason:'ROAS entre 1 et BE + ATC ratio '+Math.round(atc_ratio*100)+'% > 20% AOV · funnel faible'}
+  },
+
+  decideJ4:function(roas,roas_be,roas_target){
+    if(roas>=roas_target) return{verdict:'GO',next:'P7',reason:'ROAS '+roas.toFixed(2)+'x ≥ Target '+roas_target.toFixed(2)+'x · GO Scaling'}
+    if(roas>=roas_be&&roas<roas_target)
+      return{verdict:'OPTI',next:'P6',reason:'ROAS entre BE et Target · 3 cartouches P6'}
+    if(roas>=roas_be*0.8&&roas<roas_be)
+      return{verdict:'OPTI',next:'P6',reason:'ROAS entre Target-20% et BE · P6'}
+    return{verdict:'CUT',next:'P0',reason:'ROAS '+roas.toFixed(2)+'x < BE-20% · produit ou angle invalidé · retour P0'}
+  },
+
+  detectAnomalies:function(metrics,campaign){
+    var alerts=[]
+    if(metrics.cpm&&campaign.spend_yesterday_cpm&&metrics.cpm>campaign.spend_yesterday_cpm*1.5)
+      alerts.push({type:'CPM',msg:'CPM +'+Math.round((metrics.cpm/campaign.spend_yesterday_cpm-1)*100)+'% vs hier · signal audience saturée (pas les créas)',rule:'LOI 3 — INTERRUPTION'})
+    if(metrics.cvr&&metrics.cvr<0.3)
+      alerts.push({type:'CVR',msg:'CVR landing '+metrics.cvr+'% < 0.3% · problème funnel · corriger le site avant de toucher aux pubs',rule:'Diagnostic créas vs funnel ASL'})
+    if(metrics.freq&&metrics.freq>=2.5)
+      alerts.push({type:'FREQ',msg:'Fréquence '+metrics.freq+' ≥ 2.5 · refresh créas nécessaire',rule:'Seuil fréquence ASL P6'})
+    /* Budget : lire account.budget_remaining en priorité (source de vérité après décrémentation auto) */
+    var _budgetCheck=memGet().account&&memGet().account.budget_remaining!=null?memGet().account.budget_remaining:(campaign.budget_remaining||0)
+    if(_budgetCheck<200)
+      alerts.push({type:'BUDGET',msg:'Budget restant '+Math.round(_budgetCheck)+'€ · danger zone · mode conservateur activé',rule:'Règle trésorerie ASL P10'})
+    return alerts
+  },
+
+  checkWinnerLock:function(creative){
+    return creative.winner_locked||creative.status==='WINNER'
+  },
+
+  checkMidProtection:function(creative){
+    if(creative.status!=='MID') return false
+    return creative.mid_until&&Date.now()<creative.mid_until
+  },
+
+  shouldGrisAngle:function(score){
+    return score.tests>=3&&score.spend>=150&&score.impressions>=3000&&score.confidence<0.20
+  },
+
+  computeBatchSize:function(mem){
+    var camp=mem.campaign
+    var winners=mem.creative_bank.filter(function(c){return c.status==='WINNER'})
+    /* Règle P5 Testing : 3-6 créas max au départ */
+    if(camp.asl_phase==='TESTING'){
+      if(camp.cycle_number===1) return 3
+      return Math.min(6,winners.length*2+2)
+    }
+    /* P6 Opti : 3-4 créas par cartouche */
+    if(camp.asl_phase==='OPTI') return 4
+    /* P7 Scaling : Double Down 10-20 créas */
+    if(camp.asl_phase==='SCALING') return Math.min(20,winners.length*5)
+    return 6
+  },
+
+  getAvailableAngles:function(mem){
+    return Object.keys(mem.angle_scores).filter(function(angle){
+      return mem.angle_scores[angle].status==='ACTIVE'
+    })
+  },
+
+  updateAngleScore:function(mem,angle,won){
+    if(!mem.angle_scores[angle]) return
+    var s=mem.angle_scores[angle]
+    s.tests++;if(won)s.winners++
+    s.confidence=s.winners/s.tests
+    if(ASL.shouldGrisAngle(s)){
+      s.status='GRISED'
+      pushToMiniChat('Angle "'+angle+'" grisé · confiance '+Math.round(s.confidence*100)+'% après '+s.tests+' tests · il ne sera plus proposé dans les prochains batchs')
+    }
+    memUpdate('angle_scores',mem.angle_scores)
+  }
+}
+
+/* ── DECISION ENGINE ─────────────────────────────────────── */
+function runDecisionEngine(){
+  var mem=memGet()
+  var camp=mem.campaign
+  var metrics=mem.last_metrics
+  var prod=getActiveProduct()
+
+  /* Pas de produit actif → demander de configurer */
+  if(!prod){
+    return buildMission('NO_PRODUCT',{
+      type:'t-action',tag:'Configuration requise',
+      text:'Aucun produit actif. Configure ton catalogue dans Réglages.',
+      sub:'Ajoute ton premier produit pour que Prométhée commence à travailler',
+      conf:'0%',confBg:'var(--amber)',confLbl:'En attente',
+      actionable:true,actionLabel:'Aller aux Réglages',
+      dc:{trigger:'Catalogue vide',signal:'Aucun produit actif',source:'Catalogue produits',rule:'Onboarding requis'},
+      why:'Je n\'ai pas encore de produit sur lequel travailler. Va dans Réglages, ajoute ton produit avec prix, COGS, images et angles — je pourrai alors générer tes premières créatives.',
+      vars:[{name:'Catalogue',state:'new',label:'Vide'}]
+    })
+  }
+
+  /* Calculer ROAS BE/Target si manquant */
+  if(!prod.roas_be&&prod.price&&prod.cogs){
+    prod.roas_be=ASL.computeRoasBe(prod.price,prod.cogs)
+    prod.roas_target=ASL.computeRoasTarget(prod.roas_be)
+    prod.atc_threshold=ASL.computeAtcThreshold(prod.aov)
+    /* Mettre à jour dans le catalogue */
+    var _m=memGet()
+    var _p=_m.products.find(function(p){return p.id===prod.id})
+    if(_p){Object.assign(_p,{roas_be:prod.roas_be,roas_target:prod.roas_target,atc_threshold:prod.atc_threshold})}
+    memSet(_m)
+  }
+
+  var roas_be=prod.roas_be||2.3
+  var roas_target=prod.roas_target||2.76
+
+  /* PRIORITÉ 0 — Lundi matin : audit hebdo */
+  var today=new Date()
+  if(today.getDay()===1&&!camp.is_monday_audit_done){
+    return buildMission('AUDIT_WEEKLY',{
+      type:'t-action',tag:'Audit lundi matin',
+      text:'Bilan hebdomadaire automatique — analyse de la semaine.',
+      sub:'Patterns · winners · angles · configuration batch suivant',
+      conf:'100%',confBg:'var(--amber)',confLbl:'Audit programmé',
+      actionable:true,actionLabel:'Lancer l\'audit',
+      dc:{trigger:'Lundi matin détecté',signal:'Audit hebdomadaire ASL',
+        source:'Règle P7 ASL · lundi matin 1h',rule:'Protocole lundi P7'},
+      why:'Chaque lundi, l\'ASL prescrit un bilan de 1h : analyser les 3 derniers jours, couper/garder/scaler, configurer le batch suivant. Je lance cette analyse maintenant.',
+      vars:[{name:'Semaine',state:'new',label:'Analyse complète'}]
+    })
+  }
+
+  /* PRIORITÉ 1 — Données manquantes */
+  if(!metrics.spend&&camp.asl_phase!=='P0'){
+    return buildMission('DATA_NEEDED',{
+      type:'t-action',tag:'Action requise',
+      text:'Rentre les métriques du jour pour que je décide.',
+      sub:'Sans données réelles, aucune décision ne sera prise — LOI 1 respectée',
+      conf:'0%',confBg:'var(--amber)',confLbl:'En attente de données',
+      actionable:true,actionLabel:'Saisir maintenant',
+      dc:{trigger:'Métriques absentes',signal:'Cycle en cours sans data',
+        source:'Saisie manuelle requise',rule:'LOI 1 — aucun jugement sans données'},
+      why:'Je ne peux pas décider sans métriques réelles. L\'ASL interdit toute décision sur intuition ou extrapolation. Ouvre la saisie de métriques et rentre les chiffres de Meta + Shopify.',
+      vars:[{name:'Données',state:'new',label:'Requises maintenant'}]
+    })
+  }
+
+  /* PRIORITÉ 2 — Anomalies (override tout) */
+  if(metrics.spend){
+    var anomalies=ASL.detectAnomalies(metrics,camp)
+    if(anomalies.length>0){
+      var a=anomalies[0]
+      return buildMission('ANOMALY_'+a.type,{
+        type:'t-alert',tag:'Alerte détectée',
+        text:a.msg,
+        sub:'Intervention recommandée · ne pas ignorer',
+        conf:'92%',confBg:'var(--red)',confLbl:'Signal critique · '+a.rule,
+        actionable:true,actionLabel:'Comprendre',
+        dc:{trigger:a.type,signal:a.msg,source:'Métriques J'+camp.cycle_number,rule:a.rule},
+        why:a.msg+' — '+a.rule+'. C\'est une anomalie qui doit être diagnostiquée avant de continuer.',
+        vars:[{name:a.type,state:'changed',label:'Anomalie détectée'}]
+      })
+    }
+  }
+
+  /* PRIORITÉ 3 — 2 cuts consécutifs → Diagnostic obligatoire */
+  if(camp.cuts_count>=2){
+    return buildMission('DIAGNOSTIC',{
+      type:'t-alert',tag:'Diagnostic requis',
+      text:'2 cuts consécutifs · diagnostic obligatoire avant de continuer.',
+      sub:'CVR boutique · message match · scoring produit · ROAS BE réaliste',
+      conf:'100%',confBg:'var(--red)',confLbl:'Bloquant',
+      actionable:true,actionLabel:'Faire le diagnostic',
+      dc:{trigger:'cuts_count ≥ 2',signal:'Pattern d\'échec répété',
+        source:'decisions_log',rule:'ASL — arrêt obligatoire après 2 cuts'},
+      why:'L\'ASL est formel : 2 cuts consécutifs = stop obligatoire. Il faut diagnostiquer avant de lancer un 3ème test. Les 4 questions : CVR boutique ≥1% ? Message match OK ? Scoring produit P1 refait ? ROAS BE réaliste ?',
+      vars:[{name:'Cuts',state:'changed',label:'×'+camp.cuts_count},{name:'Génération',state:'changed',label:'Bloquée'}]
+    })
+  }
+
+  /* PRIORITÉ 4 — Décisions J1/J2/J4 */
+  if(metrics.spend){
+    var spendCumul=camp.spend_cycle+(metrics.spend||0)
+    var roas_real=metrics.roas_real||(metrics.ca_shopify&&metrics.spend?metrics.ca_shopify/metrics.spend:null)
+    var atc=metrics.atc||0
+
+    /* J1 — 50€ */
+    if(spendCumul>=50&&!camp.j1_decided){
+      var j1=ASL.decideJ1(metrics.orders||0,metrics.cpc||999)
+      var j1Mission=j1.verdict==='GO'?{
+        type:'t-success',tag:'Décision J1 · 50€',
+        text:'Signal positif J1 · '+j1.reason,
+        sub:'Continuer vers J2 · maintenir la CBO · ne rien toucher',
+        conf:'88%',confBg:'var(--green)',confLbl:'GO · Continuer J2',
+        actionable:true,actionLabel:'Exécuté ✓ — Je continue'
+      }:{
+        type:'t-alert',tag:'Décision J1 · 50€',
+        text:'CUT J1 · '+j1.reason,
+        sub:'Couper la CBO · changer angle ou créas · relancer',
+        conf:'95%',confBg:'var(--red)',confLbl:'CUT',
+        actionable:true,actionLabel:'Exécuté ✓ — CBO coupée'
+      }
+      return buildMission('J1_'+j1.verdict,Object.assign(j1Mission,{
+        dc:{trigger:'Spend ≥ 50€ · J1 atteint',signal:j1.reason,
+          source:'Shopify orders + Meta CPC',rule:'ASL J1 — Méthode Zezinho'},
+        why:'J1 atteint à 50€ de spend. Règle Zezinho : '+(metrics.orders>=1?'≥1 vente = GO J2.':'0 vente + CPC '+(metrics.cpc<1?'<':'>')+'1€ = '+(metrics.cpc<1?'GO J2 (signal CPC).':'CUT.')),
+        vars:[{name:'Ventes',state:'new',label:metrics.orders||0},{name:'CPC',state:'new',label:(metrics.cpc||0)+'€'},{name:'Décision',state:'new',label:j1.verdict}]
+      }))
+    }
+
+    /* J2 — 100€ */
+    if(spendCumul>=100&&camp.j1_decided&&!camp.j2_decided&&roas_real!==null){
+      var j2=ASL.decideJ2(roas_real,roas_be,atc,prod.aov)
+      var j2Mission=j2.verdict==='GO'?{
+        type:'t-success',tag:'Décision J2 · 100€',
+        text:'GO J2 · '+j2.reason,
+        sub:'Continuer vers J4 · maintenir la CBO · pas de modification',
+        conf:'85%',confBg:'var(--green)',confLbl:'GO · Continuer J4',
+        actionable:true,actionLabel:'Exécuté ✓ — Je continue'
+      }:{
+        type:'t-alert',tag:'Décision J2 · 100€',
+        text:'CUT J2 · '+j2.reason,
+        sub:'Couper la CBO · reset cycle · nouveau batch',
+        conf:'93%',confBg:'var(--red)',confLbl:'CUT',
+        actionable:true,actionLabel:'Exécuté ✓ — CBO coupée'
+      }
+      return buildMission('J2_'+j2.verdict,Object.assign(j2Mission,{
+        dc:{trigger:'Spend ≥ 100€ · J2 atteint',signal:j2.reason,
+          source:'CA Shopify + ATC',rule:'ASL J2 — ROAS BE + ATC ratio'},
+        why:'J2 atteint à 100€ de spend. ROAS réel (Shopify/Meta) = '+roas_real.toFixed(2)+'x · BE = '+roas_be.toFixed(2)+'x · ATC ratio = '+Math.round((atc/prod.aov)*100)+'%.',
+        vars:[{name:'ROAS réel',state:'new',label:roas_real.toFixed(2)+'x'},{name:'BE',state:'kept',label:roas_be.toFixed(2)+'x'},{name:'ATC ratio',state:'new',label:Math.round((atc/prod.aov)*100)+'%'}]
+      }))
+    }
+
+    /* J4 — 200€ */
+    if(spendCumul>=200&&camp.j2_decided&&!camp.j4_decided&&roas_real!==null){
+      var j4=ASL.decideJ4(roas_real,roas_be,roas_target)
+      var j4Type=j4.verdict==='GO'?'t-mission':j4.verdict==='OPTI'?'t-action':'t-alert'
+      return buildMission('J4_'+j4.verdict,{
+        type:j4Type,tag:'Décision J4 · 200€ · FINALE',
+        text:j4.verdict==='GO'?'GO Scaling · '+j4.reason:j4.verdict==='OPTI'?'P6 Opti · '+j4.reason:'CUT · Retour P0 · '+j4.reason,
+        sub:j4.verdict==='GO'?'Winners → Master CBO · Paliers Zezinho':j4.verdict==='OPTI'?'3 cartouches · 3j chacune · juger sur le profit':'Produit ou angle invalidé · pas juste changer une créa',
+        conf:j4.verdict==='GO'?'95%':j4.verdict==='OPTI'?'80%':'97%',
+        confBg:j4.verdict==='GO'?'var(--green)':j4.verdict==='OPTI'?'var(--amber)':'var(--red)',
+        confLbl:j4.verdict,
+        actionable:true,actionLabel:'Exécuté ✓',
+        dc:{trigger:'Spend ≥ 200€ · J4 atteint',signal:j4.reason,source:'CA Shopify 4 jours',rule:'ASL J4 — Décision finale'},
+        why:'J4 atteint à 200€. Décision finale basée sur le ROAS réel cumulé de '+roas_real.toFixed(2)+'x. '+j4.reason+'. '+(j4.next==='P7'?'Les winners passent en Master CBO.':j4.next==='P6'?'3 cartouches disponibles : prix, offre+créas, above fold.':'Retour P0 — recommencer la recherche produit ou changer l\'angle.'),
+        vars:[{name:'ROAS réel',state:'new',label:roas_real.toFixed(2)+'x'},{name:'Target',state:'kept',label:roas_target.toFixed(2)+'x'},{name:'Verdict',state:'new',label:j4.verdict}],
+        result:{objectif:'Décision J4',resultat:j4.reason,duree:'Immédiat'}
+      })
+    }
+  }
+
+  /* PRIORITÉ 5 — CREATE (nouveau batch nécessaire) */
+  var needsBatch=(camp.j4_decided&&camp.asl_phase!=='P7')||(camp.cycle_number===1&&!camp.j1_decided&&!metrics.spend)
+  if(needsBatch){
+    var batchSize=ASL.computeBatchSize(mem)
+    var availAngles=ASL.getAvailableAngles(mem)
+    return buildMission('CREATE_BATCH',{
+      type:'t-mission',tag:'Aujourd\'hui · Créer',
+      text:'Générer '+batchSize+' créatives pour le batch suivant.',
+      sub:'Angles disponibles : '+availAngles.join(' · ')+' · Format dominant : UGC 20s',
+      conf:'78%',confBg:'var(--red)',confLbl:'Basé sur Creative Bank + ASL',
+      actionable:true,actionLabel:'Go — Générer',
+      dc:{trigger:'Nouveau batch requis',signal:camp.cycle_number===1?'Premier batch P4':'Post-décision J4',
+        source:'Creative Bank + Angle scores',rule:'ASL P4 — 3-6 créas testing'},
+      why:'Le système a calculé '+batchSize+' créatives optimales selon ta phase ('+camp.asl_phase+'), ton budget restant ('+camp.budget_remaining+'€) et les '+availAngles.length+' angles disponibles. Je vais générer les briefs via Claude et envoyer à Higgsfield.',
+      vars:availAngles.map(function(a,i){return{name:'Angle '+(i+1),state:'new',label:a}}),
+      result:{objectif:'Générer batch créatif',resultat:batchSize+' créatives · briefs Claude + Higgsfield',duree:'5-15 min'}
+    })
+  }
+
+  /* PRIORITÉ 6 — WAIT (tout est OK, rien à faire) */
+  var waitSub=metrics.spend?'ROAS '+((metrics.roas_real||0).toFixed(2))+'x · données reçues · système en équilibre':'Saisie métriques attendue · aucune anomalie détectée'
+  return buildMission('WAIT',{
+    type:'t-info',tag:'Aujourd\'hui',
+    text:'Je surveille. Aucune intervention recommandée.',
+    sub:waitSub,
+    conf:'88%',confBg:'var(--t3)',confLbl:'Système en équilibre',
+    actionable:false,
+    dc:{trigger:'Aucun signal actif',signal:'Toutes conditions vérifiées — aucune règle ASL activée',
+      source:'Toutes sources · Cycle '+camp.cycle_number,rule:'LOI 1-5 vérifiées · aucune condition remplie'},
+    why:'J\'ai vérifié les 5 lois ASL : pas d\'anomalie (LOI 3), données suffisantes, pas de double signal négatif (LOI 2), winners protégés (LOI 5), seuil de spend pas encore atteint pour la prochaine décision. Le meilleur move maintenant est de ne pas toucher.',
+    vars:[{name:'Phase',state:'kept',label:camp.asl_phase},{name:'Cycle',state:'kept',label:'J'+camp.cycle_number}]
+  })
+}
+
+function buildMission(key,data){
+  /* Mapping brain action → orbType */
+  var typeMap={
+    't-action':'bs-action-user',
+    't-alert':'bs-alert',
+    't-mission':'bs-action-system',
+    't-info':'bs-wait',
+    't-success':'bs-success',
+    't-opportunity':'bs-action-system'
+  }
+  data.orbType=typeMap[data.type]||'bs-wait'
+  return Object.assign({missionKey:key},data)
+}
+
+/* ── CREATIVE ENGINE — Claude + Higgsfield ─────────────────── */
+/* ── SCRAPER SITE — extrait les données clés de la boutique ── */
+async function scrapeSite(url){
+  if(!url||!url.startsWith('http')) return null
+  try{
+    /* Utiliser allorigins.win comme proxy CORS — fonctionne depuis un fichier local */
+    var proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(url)
+    var resp=await fetch(proxyUrl)
+    var data=await resp.json()
+    var html=data.contents||''
+    /* Parser le HTML brut pour extraire les éléments clés */
+    var parser=new DOMParser()
+    var doc=parser.parseFromString(html,'text/html')
+    var extract=function(selectors){
+      for(var i=0;i<selectors.length;i++){
+        var el=doc.querySelector(selectors[i])
+        if(el&&el.textContent.trim()) return el.textContent.trim().slice(0,200)
+      }
+      return null
+    }
+    return {
+      headline: extract(['h1','.hero h1','.product-title','[class*="hero"] h1','[class*="title"]']),
+      subheadline: extract(['h2','.hero h2','.hero p','[class*="hero"] p','[class*="subtitle"]']),
+      cta: extract(['.btn-primary','[class*="add-to-cart"]','[class*="buy"]','button[class*="primary"]']),
+      offer: extract(['.price','.product-price','[class*="price"]','[class*="offer"]']),
+      guarantee: extract(['.guarantee','[class*="garantie"]','[class*="guarantee"]','[class*="trust"]']),
+      social_proof: extract(['.reviews','.testimonial','[class*="review"]','[class*="stars"]']),
+      description: extract(['.product-description','.description','[class*="description"]','main p'])
+    }
+  }catch(e){
+    return null
+  }
+}
+
+/* ── CREATIVE ENGINE COMPLET ─────────────────────────────── */
+async function callClaudeForBriefs(mem,batchSize){
+  var prod=getActiveProduct()
+  if(!prod){throw new Error("Aucun produit actif")}
+
+  var winners=mem.creative_bank.filter(function(c){return c.status==='WINNER'})
+  var usedHooks=mem.creative_bank.map(function(c){return c.hook}).filter(Boolean)
+  var availAngles=ASL.getAvailableAngles(mem)
+  var weeklyPatterns=mem.weekly_patterns&&mem.weekly_patterns.length?mem.weekly_patterns[mem.weekly_patterns.length-1]:null
+  var produitsVeille=(mem.products||[]).filter(function(p){return p.status==='STANDBY'})
+
+  /* Scraper le site pour le message match */
+  var siteData=null
+  var storeUrl=mem.account&&mem.account.store_url?mem.account.store_url:prod.store_url
+  if(storeUrl){
+    pushToMiniChat('Lecture de ton site en cours...')
+    siteData=await scrapeSite(storeUrl.startsWith('http')?storeUrl:'https://'+storeUrl)
+  }
+
+  /* Construire le contexte site */
+  var ctxSite=''
+  if(siteData){
+    ctxSite='\n\nDONNEES SITE (message match obligatoire) :'
+    if(siteData.headline) ctxSite+='\nHeadline above fold : '+siteData.headline
+    if(siteData.subheadline) ctxSite+='\nSous-headline : '+siteData.subheadline
+    if(siteData.cta) ctxSite+='\nCTA principal : '+siteData.cta
+    if(siteData.offer) ctxSite+='\nOffre/prix affiché : '+siteData.offer
+    if(siteData.guarantee) ctxSite+='\nGarantie : '+siteData.guarantee
+    if(siteData.social_proof) ctxSite+='\nPreuve sociale : '+siteData.social_proof
+    if(siteData.description) ctxSite+='\nDescription produit : '+siteData.description
+    ctxSite+='\nREGLE ABSOLUE : le hook et le message de la créa doivent matcher exactement le langage du site. Si le site dit "douleurs lombaires", la créa dit "douleurs lombaires", pas "mal de dos".'
+  }
+
+  /* Contexte patterns hebdo */
+  var ctxPatterns=''
+  if(weeklyPatterns){
+    ctxPatterns='\n\nPATTERNS DE LA SEMAINE DERNIERE :'
+    ctxPatterns+='\nFormat dominant : '+weeklyPatterns.dominant_format
+    ctxPatterns+='\nAngle dominant : '+weeklyPatterns.dominant_angle
+    ctxPatterns+='\nROAS moyen winners : '+weeklyPatterns.roas_average+'x'
+  }
+
+  /* Contexte bundles */
+  var ctxBundles=produitsVeille.length?'\n\nProduits en veille (bundles possibles) : '+produitsVeille.map(function(p){return p.name+' ('+p.price+'EUR)'}).join(', '):''
+
+  /* Images produit disponibles */
+  var hasImages=prod.images&&prod.images.length>0
+  var ctxImages=hasImages?'\n\nImages produit disponibles : '+prod.images.length+' photo(s) uploadée(s) (fond blanc + lifestyle). Utilise-les comme référence visuelle dans les briefs Higgsfield.':''
+
+  var prompt='Tu es le cerveau créatif de Prométhée, expert Meta Ads e-commerce. Tu suis ASL v9 à la lettre.'
+    +'\n\nPRODUIT ACTIF :'
+    +'\nNom : '+prod.name
+    +'\nPrix : '+prod.price+'EUR | COGS : '+prod.cogs+'EUR'
+    +'\nROAS BE : '+(prod.roas_be||'?')+'x | ROAS Target : '+(prod.roas_target||'?')+'x'
+    +'\nDouleur avatar : '+(prod.avatar&&prod.avatar.pain?prod.avatar.pain:'Non renseigné')
+    +'\nNiveau conscience : '+(prod.avatar&&prod.avatar.awareness_level?prod.avatar.awareness_level:2)+'/5'
+    +'\nHeadline boutique : '+(prod.headline||'Non renseigné')
+    +'\nAngles saturés (INTERDITS) : '+((prod.angles_saturated||[]).join(', ')||'aucun')
+    +ctxSite
+    +ctxImages
+    +'\n\nCREATIVE BANK :'
+    +'\nAngles disponibles : '+(availAngles.length?availAngles.join(', '):'Tous disponibles')
+    +'\nHooks déjà testés (NE PAS répéter) : '+(usedHooks.join(' | ')||'aucun')
+    +'\nWinners actifs : '+(winners.map(function(c){return c.name+' (ROAS '+c.roas+'x)'}).join(', ')||'aucun encore')
+    +ctxPatterns
+    +ctxBundles
+    +'\n\nREGLES ASL P4 :'
+    +'\n- 1 seule variable changée par créa vs la précédente (angle OU format OU hook OU awareness)'
+    +'\n- Jamais répéter un hook déjà testé'
+    +'\n- Win rates ASL : Unboxing 10% | Offer First 9% | UGC Testimonial 7.6% | Text-based 5% | Creator Partnership 4%'
+    +'\n- Pour les vidéos UGC : fournir un SCRIPT COMPLET mot à mot (pas juste le hook), avec instructions de mise en scène précises'
+    +'\n- Pour les statiques : décrire précisément la composition visuelle, le texte overlay, les couleurs'
+    +'\n- Le message de la créa DOIT matcher le langage exact de la page produit (message match)'
+    +'\n\nGénère exactement '+batchSize+' briefs. Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible.'
+    +'\nRéponds UNIQUEMENT en JSON valide :'
+    +'\n{"briefs":[{'
+    +'\n  "id":1,'
+    +'\n  "format":"UGC 20s | Statique | Offer First | Unboxing | Text-based",'
+    +'\n  "type_media":"video | image",'
+    +'\n  "angle":"Transformation",'
+    +'\n  "awareness_level":2,'
+    +'\n  "hook":"max 8 mots accrocheurs",'
+    +'\n  "variable_changed":"ce qui change vs brief précédent",'
+    +'\n  "script_complet":"Pour vidéo : script mot à mot 15-30 secondes avec [PAUSE] [ZOOM] [CUT] etc. Pour statique : description détaillée layout + textes + couleurs",'
+    +'\n  "ad_copy":"texte publicitaire complet 100-150 mots pour le post",'
+    +'\n  "higgsfield_brief":"instructions techniques précises pour Higgsfield : cadrage / mouvement caméra / ambiance / éclairage / acteur / produit visible comment / durée chaque scène",'
+    +'\n  "message_match":"comment ce brief matche exactement le langage du site",'
+    +'\n  "why":"pourquoi cette créa maintenant selon ASL et les données"'
+    +'\n}]}'
+
+  var resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,
+      messages:[{role:'user',content:prompt}]})
+  })
+  var data=await resp.json()
+  var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
+  return JSON.parse(text.replace(/```json|```/g,'').trim())
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PIPELINES DE GÉNÉRATION CRÉATIVE
+   video  → Higgsfield API
+   image  → fal.ai (Ideogram v3 pour texte, Flux Pro pour lifestyle)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── PIPELINE IMAGE (fal.ai) ──────────────────────────────── */
+async function generateImage(brief){
+  /* Choisir le modèle selon le format :
+     - Offer First, Text-based, prix/CTA → Ideogram v3 (meilleur pour le texte)
+     - Lifestyle, fond blanc, ambiance   → Flux Pro v1.1 (meilleur pour le réalisme) */
+  var needsText=brief.format==='Offer First'||brief.format==='Text-based'||
+                (brief.script_complet&&brief.script_complet.toLowerCase().indexOf('texte')>=0)
+  var model=needsText?'fal-ai/ideogram/v3':'fal-ai/flux-pro/v1.1'
+  var endpoint='https://fal.run/'+model
+
+  /* Images produit en référence si disponibles */
+  var prod=getActiveProduct()
+  var styleRef=[]
+  if(prod&&prod.images&&prod.images.length){
+    /* fal.ai accepte des URLs — on uploadera les base64 via l'API storage fal */
+    /* Pour l'instant on passe les images les plus légères (max 2) */
+    styleRef=prod.images.slice(0,2).map(function(img){return img.base64})
+  }
+
+  /* Format selon le type de créa */
+  var aspectRatio=brief.format==='Statique'?'4:5':'1:1'  /* 4:5 = format feed Instagram */
+  if(brief.format==='Story'||brief.format==='UGC vertical') aspectRatio='9:16'
+
+  var payload={
+    prompt:brief.script_complet||brief.higgsfield_brief||brief.hook,
+    aspect_ratio:aspectRatio,
+    rendering_speed:'QUALITY',
+    num_images:1
+  }
+
+  try{
+    pushToMiniChat('Génération image '+brief.format+' en cours...')
+    var resp=await fetch(endpoint,{
+      method:'POST',
+      headers:{
+        'Authorization':'Key '+KEYS.fal,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify(payload)
+    })
+    var data=await resp.json()
+
+    /* fal.ai retourne { images:[{url, content_type}] } */
+    if(data.images&&data.images.length){
+      var imgUrl=data.images[0].url
+      /* Télécharger et convertir en base64 pour stockage persistant */
+      var imgBase64=await urlToBase64(imgUrl)
+      return{
+        type:'image',
+        url:imgUrl,
+        base64:imgBase64,
+        model:model,
+        format:brief.format,
+        request_id:data.request_id||null
+      }
+    }else{
+      console.error('[fal.ai] Réponse inattendue:',data)
+      return null
+    }
+  }catch(e){
+    console.error('[fal.ai] Erreur:',e)
+    pushToMiniChat('Erreur génération image : '+e.message)
+    return null
+  }
+}
+
+/* ── PIPELINE VIDÉO (Higgsfield) ──────────────────────────── */
+async function generateVideo(brief){
+  /* Higgsfield : text-to-video ou image-to-video si image produit disponible */
+  var prod=getActiveProduct()
+  var hasProductImage=prod&&prod.images&&prod.images.length>0
+
+  var payload={
+    prompt:brief.higgsfield_brief||brief.script_complet||brief.hook,
+    duration:10,          /* 10 secondes — optimal pour UGC pub */
+    resolution:'720p',    /* 720p = bon équilibre qualité/vitesse */
+    aspect_ratio:'9:16'   /* Format vertical TikTok/Reels/Stories */
+  }
+
+  /* Image-to-video si on a une photo produit */
+  if(hasProductImage){
+    var firstImg=prod.images[0].base64
+    payload.image_url=firstImg
+  }
+
+  try{
+    pushToMiniChat('Génération vidéo '+brief.format+' en cours (30-60s)...')
+    var resp=await fetch('https://api.higgsfield.ai/v1/generations',{
+      method:'POST',
+      headers:{
+        'Authorization':'Bearer '+KEYS.higgs_id+':'+KEYS.higgs_secret,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify(payload)
+    })
+    var data=await resp.json()
+
+    if(data.generation_id||data.request_id){
+      var jobId=data.generation_id||data.request_id
+      /* Polling jusqu'à completion (max 120s) */
+      return await pollHiggsfield(jobId,brief)
+    }else{
+      console.error('[Higgsfield] Réponse inattendue:',data)
+      return null
+    }
+  }catch(e){
+    console.error('[Higgsfield] Erreur:',e)
+    pushToMiniChat('Erreur génération vidéo : '+e.message)
+    return null
+  }
+}
+
+/* Polling Higgsfield — vérifie le statut toutes les 5 secondes */
+async function pollHiggsfield(jobId,brief,attempt){
+  attempt=attempt||0
+  if(attempt>24) return null /* timeout 120s */
+
+  await new Promise(function(r){setTimeout(r,5000)})
+
+  try{
+    var resp=await fetch('https://api.higgsfield.ai/v1/generations/'+jobId,{
+      headers:{'Authorization':'Bearer '+KEYS.higgs_id+':'+KEYS.higgs_secret}
+    })
+    var data=await resp.json()
+
+    if(data.status==='COMPLETED'||data.status==='completed'){
+      var videoUrl=data.video_url||data.output_url||data.url
+      pushToMiniChat('Vidéo générée : '+brief.format+' · '+brief.angle)
+      return{type:'video',url:videoUrl,job_id:jobId,format:brief.format}
+    }else if(data.status==='FAILED'||data.status==='failed'){
+      pushToMiniChat('Erreur Higgsfield sur brief '+brief.id)
+      return null
+    }else{
+      /* Encore en cours */
+      return await pollHiggsfield(jobId,brief,attempt+1)
+    }
+  }catch(e){
+    return await pollHiggsfield(jobId,brief,attempt+1)
+  }
+}
+
+/* ── ORCHESTRATEUR — route vers le bon pipeline ─────────────── */
+async function sendToCreativeEngine(brief){
+  var isVideo=brief.type_media==='video'||
+    brief.format==='UGC 20s'||brief.format==='UGC'||
+    brief.format==='Unboxing'||brief.format==='Vidéo'||
+    (brief.format&&brief.format.toLowerCase().indexOf('ugc')>=0)||
+    (brief.format&&brief.format.toLowerCase().indexOf('video')>=0)||
+    (brief.format&&brief.format.toLowerCase().indexOf('vidéo')>=0)
+
+  if(isVideo) return await generateVideo(brief)
+  else return await generateImage(brief)
+}
+
+/* Alias pour compatibilité avec runBrain */
+async function sendToHiggsfield(brief){
+  return await sendToCreativeEngine(brief)
+}
+
+/* ── AFFICHAGE DES CRÉATIVES DANS PROMÉTHÉE ─────────────────── */
+function displayCreative(result,brief,mem){
+  if(!result) return
+
+  /* Mettre à jour le statut dans creative_bank */
+  var entry=mem.creative_bank.find(function(c){
+    return c.angle===brief.angle&&c.format===brief.format&&c.hook===brief.hook
+  })
+  if(entry){
+    entry.status='TESTING'
+    if(result.url) entry.video_url=result.url
+    if(result.base64) entry.image_base64=result.base64
+    entry.generated_at=Date.now()
+  }
+  memSet(mem)
+  refreshMemView()
+
+  /* Signal dans le feed */
+  var icon=result.type==='video'?'🎬':'🖼️'
+  pushToMiniChat(icon+' '+brief.format+' généré · Angle "'+brief.angle+'" · disponible dans Mémoire')
+}
+
+/* ── UTILITAIRE : URL → base64 ─────────────────────────────── */
+async function urlToBase64(url){
+  try{
+    var resp=await fetch(url)
+    var blob=await resp.blob()
+    return await new Promise(function(resolve){
+      var reader=new FileReader()
+      reader.onloadend=function(){resolve(reader.result)}
+      reader.readAsDataURL(blob)
+    })
+  }catch(e){
+    return null
+  }
+}
+
+
+
+/* ── SAISIE MÉTRIQUES ─────────────────────────────────────── */
+
+/* Preview ROAS en temps réel pendant la saisie */
+document.addEventListener('DOMContentLoaded',function(){
+  function updateRoasPreview(){
+    var spend=parseFloat(document.getElementById('m-spend').value)
+    var ca=parseFloat(document.getElementById('m-rev').value)
+    var atc=parseFloat(document.getElementById('m-atc').value)||0
+    var orders=parseFloat(document.getElementById('m-orders').value)||1
+    var mem=memGet()
+    var activeProd=getActiveProduct()
+    var aov=activeProd&&activeProd.aov?activeProd.aov:60
+    if(spend&&ca){
+      var roas=(ca/spend).toFixed(2)
+      var atc_ratio=Math.round((atc/aov)*100)
+      var el=document.getElementById('m-roas-preview')
+      var rv=document.getElementById('m-roas-val')
+      var av=document.getElementById('m-atc-val')
+      if(el&&rv&&av){
+        rv.textContent=roas+'x'
+        rv.style.color=parseFloat(roas)>=(activeProd&&activeProd.roas_be?activeProd.roas_be:2.3)?'var(--green)':'var(--red)'
+        av.textContent=atc_ratio+'% AOV'
+        el.style.display='block'
+      }
+    }
+  }
+  ['m-spend','m-rev','m-atc','m-orders'].forEach(function(id){
+    var el=document.getElementById(id)
+    if(el) el.addEventListener('input',updateRoasPreview)
+  })
+})
+
+function submitMetrics(){
+  var spend=parseFloat(document.getElementById('m-spend').value)||null
+  var ca=parseFloat(document.getElementById('m-rev').value)||null
+  var orders=parseFloat(document.getElementById('m-orders').value)||0
+  var ctr=parseFloat(document.getElementById('m-ctr').value)||null
+  var cpc=parseFloat(document.getElementById('m-cpc').value)||null
+  var cpm=parseFloat(document.getElementById('m-cpm').value)||null
+  var thumb=parseFloat(document.getElementById('m-thumb').value)||null
+  var freq=parseFloat(document.getElementById('m-freq').value)||null
+  var cvr=parseFloat(document.getElementById('m-cvr').value)||null
+  var atc=parseFloat(document.getElementById('m-atc').value)||0
+
+  if(!spend||!ca){pushToMiniChat('Spend et CA Shopify sont obligatoires pour que je puisse décider.');return}
+
+  var roas_real=ca/spend
+  var atc_ratio=atc/(document.getElementById('m-orders').value&&orders?orders:1)
+
+  var mem=memGet()
+  var prevCpm=mem.last_metrics.cpm
+
+  mem.last_metrics={
+    spend:spend,ca_shopify:ca,orders:orders,
+    ctr:ctr,cpc:cpc,cpm:cpm,thumbstop:thumb,freq:freq,cvr:cvr,atc:atc,
+    roas_real:roas_real,atc_ratio:atc_ratio,saisie_at:Date.now()
+  }
+  /* Mémoriser CPM hier pour détection anomalie */
+  if(prevCpm) mem.campaign.spend_yesterday_cpm=prevCpm
+  /* ASL : spend_cycle = cumul des jours CONFIRMÉS (via confirmExecuted).
+     Le spend du jour courant reste dans last_metrics.spend uniquement.
+     runDecisionEngine calcule spendCumul = spend_cycle + last_metrics.spend.
+     Ne PAS incrémenter spend_cycle ici — double-comptage évité. */
+
+  /* ÉTAPE 3 FIX : décrémenter budget_remaining automatiquement à chaque saisie.
+     L'ASL dit que 200€ max par test produit. Le budget restant doit refléter la réalité.
+     On décrémente dans account ET campaign pour garder les deux en sync. */
+  if(mem.account&&mem.account.budget_remaining!=null){
+    mem.account.budget_remaining=Math.max(0,mem.account.budget_remaining-spend)
+  }
+  if(mem.campaign&&mem.campaign.budget_remaining!=null){
+    mem.campaign.budget_remaining=Math.max(0,mem.campaign.budget_remaining-spend)
+  }
+  memSet(mem)
+  closeMetrics()
+  goView('mission')
+  setTimeout(function(){runBrain(true)},200)
+}
+
+/* ── RUN BRAIN ─────────────────────────────────────────────── */
+/* ÉTAPE 12 — Guard contre double exécution concurrente de runBrain.
+   Problème : runBrain est async. Si le timer 60min déclenche un 2e appel
+   pendant qu'un await callClaudeForBriefs est en cours, les deux s'exécutent
+   en parallèle et le 2e écrase currentMission + instrStates du 1er.
+   Fix : flag _brainRunning qui bloque tout appel entrant pendant une exécution. */
+var _brainRunning=false
+var _brainPendingCall=false  /* un appel a été bloqué → le relancer après */
+
+async function runBrain(manual){
+  /* Guard principal */
+  if(_brainRunning){
+    /* Mémoriser qu'un appel a été bloqué pour le relancer après */
+    _brainPendingCall=true
+    return
+  }
+  _brainRunning=true
+  _brainPendingCall=false
+
+  var orb=document.getElementById('orb')
+  /* Ne pas interrompre une séquence créatives en cours */
+  if(orb&&orb.classList.contains('thinking')){
+    _brainRunning=false
+    return
+  }
+
+  try{
+    setBrainStatus('busy')
+    lastAnalysisMin=0
+
+    var decision=runDecisionEngine()
+    currentMission=decision.missionKey||'wait'
+    instrStates[currentMission]=decision
+
+    /* Si CREATE → appel Claude + Higgsfield */
+    if(decision.missionKey==='CREATE_BATCH'){
+      try{
+        var mem=memGet()
+        var batchSize=ASL.computeBatchSize(mem)
+        var result=await callClaudeForBriefs(mem,batchSize)
+        decision.briefsGenerated=result.briefs
+        decision.sub=result.briefs.length+' briefs générés · '+result.briefs[0].format+' · '+result.briefs[0].angle
+        instrStates[currentMission]=decision
+
+        /* Stocker les briefs en attente d'upload */
+        localStorage.setItem('promethee_pending_briefs',JSON.stringify(result.briefs))
+
+        /* Archiver dans creative_bank en statut DRAFT */
+        var memNow=memGet()
+        result.briefs.forEach(function(b){
+          memNow.creative_bank.push({
+            id:b.id+'_'+Date.now(),
+            name:b.format+' · '+b.angle+' · "'+b.hook+'"',
+            angle:b.angle,format:b.format,hook:b.hook,
+            awareness:b.awareness_level,
+            variable_changed:b.variable_changed,
+            status:'DRAFT',
+            roas:null,spend:0,days:0,
+            winner_locked:false,mid_until:null,
+            higgsfield_brief:b.higgsfield_brief,
+            ad_copy:b.ad_copy,
+            why:b.why,
+            metrics:{j1:null,j2:null,j4:null},
+            created_at:Date.now()
+          })
+        })
+        memSet(memNow)
+        refreshMemView()
+
+        /* Génération créatives — vidéo ou image selon le format */
+        var memForDisplay=memGet()
+        for(var i=0;i<result.briefs.length;i++){
+          var genResult=await sendToCreativeEngine(result.briefs[i])
+          if(genResult) displayCreative(genResult,result.briefs[i],memForDisplay)
+        }
+      }catch(e){
+        decision.sub='Mode offline — briefs pré-configurés (Claude indisponible): '+e.message
+      }
+    }
+
+    spawnDecisionBubbles(decision)
+    renderOrb()
+    setBrainStatus('default')
+    /* Ouvrir la bulle automatiquement — boutons toujours visibles */
+    var _orb=document.getElementById('orb')
+    if(_orb&&!_orb.classList.contains('expanded')&&!_orb.classList.contains('thinking')) _orb.classList.add('expanded')
+
+    var nb=document.getElementById('brain-next')
+    if(nb) nb.textContent=(decision.orbType||'bs-wait').replace('bs-','').toUpperCase()
+
+    /* Journaliser la décision */
+    logDecision(decision)
+
+  }finally{
+    /* Toujours libérer le flag, même en cas d'erreur inattendue */
+    _brainRunning=false
+    /* Si un appel a été bloqué pendant cette exécution, le relancer maintenant */
+    if(_brainPendingCall){
+      _brainPendingCall=false
+      setTimeout(function(){runBrain(false)},200)
+    }
+  }
+}
+
+function logDecision(decision){
+  var mem=memGet()
+  var logId='d_'+Date.now()
+  var entry={
+    id:logId,
+    type:decision.missionKey,
+    cycle:mem.campaign.cycle_number,
+    metrics_snapshot:mem.last_metrics,
+    output:{verdict:decision.missionKey,reason:decision.why,rule:decision.dc?decision.dc.rule:'',confidence:decision.confLbl},
+    executed:false,
+    logged_at:Date.now()
+  }
+  mem.decisions_log=mem.decisions_log||[]
+  mem.decisions_log.push(entry)
+  if(mem.decisions_log.length>100) mem.decisions_log=mem.decisions_log.slice(-100)
+  memSet(mem)
+  /* ÉTAPE 5 FIX : stocker l'ID du log dans instrStates pour que confirmExecuted
+     retrouve exactement cette entrée, même si runBrain() a tourné entre-temps. */
+  if(instrStates[decision.missionKey]) instrStates[decision.missionKey]._logId=logId
+}
+
+/* ── PALIERS ZEZINHO ASL P7 ──────────────────────────────────── */
+var PALIERS_ZEZINHO=[50,100,150,200,300,400,500]
+
+function getPalierSuivant(budgetActuel,roas,roasTarget){
+  var idx=PALIERS_ZEZINHO.indexOf(budgetActuel)
+  if(idx===-1){
+    /* budget non standard → trouver le palier juste au-dessus */
+    for(var i=0;i<PALIERS_ZEZINHO.length;i++){if(PALIERS_ZEZINHO[i]>budgetActuel)return PALIERS_ZEZINHO[i]}
+    return budgetActuel
+  }
+  /* ASL : ROAS > 3.5x Target → sauter 1 palier directement */
+  if(roas&&roasTarget&&roas>roasTarget*1.35&&idx+2<PALIERS_ZEZINHO.length) return PALIERS_ZEZINHO[idx+2]
+  if(idx+1<PALIERS_ZEZINHO.length) return PALIERS_ZEZINHO[idx+1]
+  return budgetActuel /* déjà au max */
+}
+
+/* ── BOUTON EXÉCUTÉ ─────────────────────────────────────────── */
+function confirmExecuted(){
+  var mem=memGet()
+  var key=currentMission
+  var mission=instrStates[key]
+  /* ASL : à chaque confirmation d'un GO, on consolide le spend du jour dans spend_cycle. */
+  var spendDuJour=mem.last_metrics&&mem.last_metrics.spend?mem.last_metrics.spend:0
+
+  /* Mettre à jour l'état campagne selon la décision confirmée */
+  if(key.startsWith('J1_GO')){
+    mem.campaign.j1_decided=true
+    mem.campaign.spend_cycle=(mem.campaign.spend_cycle||0)+spendDuJour
+  }
+  if(key.startsWith('J1_CUT')){mem.campaign.cuts_count++;mem.campaign.j1_decided=true;resetCycle(mem)}
+  if(key.startsWith('J2_GO')){
+    mem.campaign.j1_decided=true;mem.campaign.j2_decided=true
+    mem.campaign.spend_cycle=(mem.campaign.spend_cycle||0)+spendDuJour
+  }
+  if(key.startsWith('J2_CUT')){mem.campaign.cuts_count++;resetCycle(mem)}
+  if(key.startsWith('J4_GO')){mem.campaign.j4_decided=true;mem.campaign.asl_phase='SCALING'}
+  if(key.startsWith('J4_OPTI')){mem.campaign.j4_decided=true;mem.campaign.asl_phase='OPTI';mem.campaign.cartouche='C1'}
+  if(key.startsWith('J4_CUT')){mem.campaign.cuts_count++;mem.campaign.asl_phase='TESTING';resetCycle(mem)}
+  if(key==='AUDIT_WEEKLY') mem.campaign.is_monday_audit_done=true
+
+  /* ÉTAPE 4 FIX : déduire du budget le montant engagé quand tu cliques "Fait ✓"
+     sur une mission budget (SCALE, J4_GO, palier Zezinho).
+     C'est le moment où tu as réellement mis l'argent dans Meta. */
+  var budgetEngage=0
+  if(mission&&mission.budgetEngage){
+    budgetEngage=mission.budgetEngage
+  }else if(key.startsWith('J4_GO')||key.startsWith('SCALE')){
+    /* Par défaut : on engage le budget journalier du prochain palier × 4 jours (cycle test) */
+    var prod=getActiveProduct()
+    var roasReal=mem.last_metrics&&mem.last_metrics.roas_real?mem.last_metrics.roas_real:0
+    var roasTarget=prod&&prod.roas_target?prod.roas_target:2.76
+    var budgetActuel=mem.account&&mem.account.daily_budget?mem.account.daily_budget:50
+    var palierSuivant=getPalierSuivant(budgetActuel,roasReal,roasTarget)
+    budgetEngage=palierSuivant*4 /* 4 jours au nouveau palier */
+    /* Mettre à jour le daily_budget dans account */
+    if(mem.account) mem.account.daily_budget=palierSuivant
+  }
+
+  if(budgetEngage>0){
+    if(mem.account&&mem.account.budget_remaining!=null){
+      mem.account.budget_remaining=Math.max(0,mem.account.budget_remaining-budgetEngage)
+    }
+    if(mem.campaign&&mem.campaign.budget_remaining!=null){
+      mem.campaign.budget_remaining=Math.max(0,mem.campaign.budget_remaining-budgetEngage)
+    }
+  }
+
+  /* ÉTAPE 5 FIX : retrouver l'entrée du log par son ID unique. */
+  var logId=mission&&mission._logId?mission._logId:null
+  if(mem.decisions_log&&mem.decisions_log.length){
+    var logEntry=logId
+      ?mem.decisions_log.find(function(e){return e.id===logId})
+      :mem.decisions_log[mem.decisions_log.length-1]
+    if(logEntry){
+      logEntry.executed=true
+      logEntry.executed_at=Date.now()
+    }
+  }
+
+  /* ÉTAPE 11A — updateAngleScore : enregistrer le résultat du cycle sur l'angle testé.
+     Appelé sur J4 car c'est la décision finale du cycle — on sait si l'angle a gagné ou perdu.
+     ASL : angle grisé si confidence < 20% après 3 tests + 150€ spend + 3000 impressions. */
+  if(key.startsWith('J4')){
+    var bank=mem.creative_bank||[]
+    /* Trouver les créatives du cycle en cours (statut TESTING ou DRAFT) */
+    var cycleCreatives=bank.filter(function(c){
+      return c.status==='TESTING'||c.status==='DRAFT'
+    })
+    var won=key.startsWith('J4_GO') /* GO = angle performant, CUT/OPTI = pas gagné */
+    /* Mettre à jour chaque angle unique impliqué */
+    var anglesVus={}
+    cycleCreatives.forEach(function(c){
+      if(c.angle&&!anglesVus[c.angle]){
+        anglesVus[c.angle]=true
+        /* Incrémenter spend et impressions estimés */
+        var s=mem.angle_scores[c.angle]
+        if(s){
+          s.spend=(s.spend||0)+(mem.last_metrics&&mem.last_metrics.spend?mem.last_metrics.spend/Math.max(1,cycleCreatives.length):0)
+          s.impressions=(s.impressions||0)+(mem.last_metrics&&mem.last_metrics.spend&&mem.last_metrics.cpm?Math.round(mem.last_metrics.spend/mem.last_metrics.cpm*1000/Math.max(1,cycleCreatives.length)):0)
+        }
+        ASL.updateAngleScore(mem,c.angle,won)
+      }
+    })
+    /* Mettre à jour le statut des créatives selon la décision */
+    bank.forEach(function(c){
+      if(c.status==='TESTING'||c.status==='DRAFT'){
+        if(key.startsWith('J4_GO')){
+          /* GO scaling → les créatives passent en WINNER si ROAS > target */
+          var roasReal=mem.last_metrics&&mem.last_metrics.roas_real?mem.last_metrics.roas_real:0
+          var prod=getActiveProduct()
+          var roasTarget=prod&&prod.roas_target?prod.roas_target:2.76
+          c.status=roasReal>=roasTarget?'WINNER':'MID'
+          if(c.status==='WINNER') c.winner_locked=true
+          if(c.status==='MID') c.mid_until=Date.now()+(28*24*60*60*1000)
+        }else if(key.startsWith('J4_CUT')){
+          c.status='LOSER'
+        }else if(key.startsWith('J4_OPTI')){
+          c.status='MID'
+          c.mid_until=Date.now()+(28*24*60*60*1000)
+        }
+        c.roas=mem.last_metrics&&mem.last_metrics.roas_real?mem.last_metrics.roas_real:c.roas
+        c.spend=(c.spend||0)+(mem.last_metrics&&mem.last_metrics.spend?mem.last_metrics.spend:0)
+      }
+    })
+    mem.creative_bank=bank
+  }
+
+  /* ÉTAPE 11B — writeWeeklyPattern : enregistrer le pattern de la semaine chaque lundi.
+     Utilisé pour calibrer les prochains batchs (format dominant, angle dominant, wins/cuts). */
+  if(key==='AUDIT_WEEKLY'){
+    var bank2=mem.creative_bank||[]
+    var winners2=bank2.filter(function(c){return c.status==='WINNER'})
+    var cuts2=bank2.filter(function(c){return c.status==='LOSER'})
+    /* Format dominant : le format qui revient le plus dans les winners */
+    var formatCount={}
+    winners2.forEach(function(c){formatCount[c.format]=(formatCount[c.format]||0)+1})
+    var dominantFormat=Object.keys(formatCount).sort(function(a,b){return formatCount[b]-formatCount[a]})[0]||'UGC 20s'
+    /* Angle dominant */
+    var angleCount={}
+    winners2.forEach(function(c){angleCount[c.angle]=(angleCount[c.angle]||0)+1})
+    var dominantAngle=Object.keys(angleCount).sort(function(a,b){return angleCount[b]-angleCount[a]})[0]||'Inconnu'
+    /* ROAS moyen des winners */
+    var roasMoy=winners2.length?winners2.reduce(function(acc,c){return acc+(c.roas||0)},0)/winners2.length:0
+
+    var pattern={
+      week:new Date().toISOString().slice(0,10),
+      cycle_number:mem.campaign.cycle_number,
+      dominant_format:dominantFormat,
+      dominant_angle:dominantAngle,
+      winners_count:winners2.length,
+      cuts_count:cuts2.length,
+      roas_average:Math.round(roasMoy*100)/100,
+      winner_ids:winners2.map(function(c){return c.id}),
+      created_at:Date.now()
+    }
+    mem.weekly_patterns=mem.weekly_patterns||[]
+    mem.weekly_patterns.push(pattern)
+    /* Garder max 12 semaines */
+    if(mem.weekly_patterns.length>12) mem.weekly_patterns=mem.weekly_patterns.slice(-12)
+    pushToMiniChat('Pattern semaine enregistré · Format dominant : '+dominantFormat+' · Angle dominant : '+dominantAngle+' · '+winners2.length+' winner(s) · ROAS moyen : '+roasMoy.toFixed(2)+'x')
+  }
+  memSet(mem)
+  var msg='Action confirmée.'
+  if(budgetEngage>0) msg+=' Budget engagé : '+budgetEngage+'€. Restant : '+Math.round(mem.account&&mem.account.budget_remaining!=null?mem.account.budget_remaining:0)+'€.'
+  pushToMiniChat(msg+' Prométhée recalibré.')
+  setTimeout(function(){runBrain(false)},600)
+}
+
+function resetCycle(mem){
+  mem.campaign.cycle_number++
+  mem.campaign.cycle_start=Date.now()
+  mem.campaign.spend_cycle=0
+  mem.campaign.j1_decided=false
+  mem.campaign.j2_decided=false
+  mem.campaign.j4_decided=false
+}
+
+/* ── SIMULATION ⋆ ─────────────────────────────────────────── */
+function simulateData(){
+  var scenarios=[
+    {spend:52,ca:163,orders:3,ctr:1.4,cpc:0.61,cpm:8.5,thumb:38,freq:1.4,cvr:2.1,atc:6,label:'J1 GO'},
+    {spend:108,ca:98,orders:1,ctr:0.8,cpc:1.1,cpm:11,thumb:22,freq:1.9,cvr:0.8,atc:4,label:'J2 mauvais'},
+    {spend:205,ca:580,orders:9,ctr:1.8,cpc:0.55,cpm:7.2,thumb:45,freq:1.6,cvr:2.8,atc:12,label:'J4 GO Scale'},
+    {spend:60,ca:42,orders:0,ctr:0.5,cpc:1.4,cpm:18,thumb:15,freq:2.6,cvr:0.4,atc:1,label:'Anomalie'},
+    {spend:75,ca:135,orders:2,ctr:1.1,cpc:0.85,cpm:8.8,thumb:31,freq:1.7,cvr:1.6,atc:5,label:'En cours'}
+  ]
+  var s=scenarios[Math.floor(Math.random()*scenarios.length)]
+  var mem=memGet()
+  mem.last_metrics={spend:s.spend,ca_shopify:s.ca,orders:s.orders,ctr:s.ctr,cpc:s.cpc,cpm:s.cpm,thumbstop:s.thumb,freq:s.freq,cvr:s.cvr,atc:s.atc,roas_real:s.ca/s.spend,atc_ratio:s.atc/s.orders,saisie_at:Date.now()}
+  /* ASL : même règle que submitMetrics — spend_cycle pas incrémenté ici */
+  memSet(mem)
+  var t=document.getElementById('brain-timing')
+  if(t) t.textContent='Scénario "'+s.label+'" injecté · ROAS '+(s.ca/s.spend).toFixed(2)+'x'
+  setTimeout(function(){runBrain(true)},350)
+}
+
+/* ── BULLES SECONDAIRES CONTEXTUELLES ─────────────────────── */
+/* ÉTAPE 9 — elevateToMissionBoard : override la Mission Board depuis un signal critique.
+   Utilisé quand un signal secondaire est assez grave pour bloquer toute autre décision.
+   Il écrase currentMission et re-rend la Mission Board immédiatement. */
+function elevateToMissionBoard(missionData){
+  missionData.orbType=missionData.orbType||'bs-alert'
+  instrStates[missionData.missionKey]=missionData
+  currentMission=missionData.missionKey
+  renderOrb()
+  document.getElementById('orb').classList.add('expanded')
+  /* Log comme une décision normale */
+  logDecision(missionData)
+}
+
+function spawnDecisionBubbles(decision){
+  var zone=document.getElementById('bubbles-zone')
+  if(zone) zone.innerHTML=''
+  var mem=memGet()
+  var m=mem.last_metrics
+  var prod=getActiveProduct()
+  var roas_be=prod?prod.roas_be||2.3:2.3
+  var bank=mem.creative_bank||[]
+
+  /* ── ÉTAT NEUTRE — aucun produit ── */
+  if(!prod||!mem.products||!mem.products.length){
+    setTimeout(function(){
+      renderBubble({
+        type:'sb-info',label:'Démarrer',
+        text:'Configure ton catalogue pour que je commence.',
+        sub:'Réglages → ajoute ton produit → je prends la main.',
+        why:'Prométhée est prêt. Il me faut un produit actif (prix, COGS, angles) pour lancer mon premier plan.',
+        buttons:[
+          {label:'Aller aux Réglages',fn:"goView('parametres')",primary:true},
+          {label:'Pourquoi ?',fn:'',isWhy:true}
+        ]
+      })
+    },600)
+    return
+  }
+
+  var queue=[]
+
+  /* ROAS du jour */
+  if(m.roas_real){
+    var isGood=m.roas_real>=roas_be
+    queue.push({
+      type:isGood?'sb-success':'sb-alert',
+      label:isGood?'ROAS ✓':'ROAS ⚠',
+      text:'ROAS réel '+m.roas_real.toFixed(2)+'x',
+      sub:'BE '+roas_be.toFixed(2)+'x · '+(isGood?'Au-dessus du break-even':'Sous le break-even'),
+      why:'ROAS calculé sur CA Shopify ÷ Spend Meta (iOS14-proof, pas le ROAS Meta affiché). BE = prix ÷ (prix - COGS).',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]
+    })
+  }
+
+  /* Winners actifs */
+  var winners=bank.filter(function(c){return c.status==='WINNER'})
+  if(winners.length){
+    queue.push({
+      type:'sb-success',
+      label:winners.length+'W · Winner Lock',
+      text:winners.length+' creative(s) protegee(s)',
+      sub:winners.slice(0,2).map(function(c){return c.name.split(' ·')[0]}).join(' / '),
+      why:'LOI 5 WINNER LOCK : ces créatives ne peuvent jamais être coupées par un signal court terme. Elles passent en Master CBO au scaling.',
+      buttons:[
+        {label:'Voir',fn:"goView('memoire')",primary:true},
+        {label:'Pourquoi ?',fn:'',isWhy:true}
+      ]
+    })
+  }
+
+  /* ── ÉTAPE 9 : ELEVATE — signaux critiques → Mission Board ── */
+
+  /* Budget critique < 200 → override Mission Board */
+  var budgetRem=mem.account?mem.account.budget_remaining:mem.campaign?mem.campaign.budget_remaining||0:0
+  if(budgetRem>0&&budgetRem<200){
+    elevateToMissionBoard({
+      orbType:'bs-alert',tag:'Danger budget',
+      text:'Budget critique : '+Math.round(budgetRem)+'EUR restants.',
+      sub:'ASL P10 - mode conservateur absolu - aucun test - aucun scaling',
+      conf:'100%',confBg:'var(--red)',confLbl:'Critique',missionKey:'ELEVATE_BUDGET',
+      why:'Sous 200EUR restants le risque est trop eleve. ASL P10 : stopper tout spend non essentiel.'
+    })
+    return
+  }
+  /* Budget 200-400 → bulle secondaire */
+  if(budgetRem>0&&budgetRem<400){
+    queue.push({type:'sb-alert',label:'Budget ⚠',
+      text:Math.round(budgetRem)+'EUR restants',sub:'Mode conservateur - pas de scaling',
+      why:'ASL P10 : sous 400EUR chaque decision doit etre irreprochable.',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
+  }
+
+  /* CPM x1.5 → override Mission Board (LOI 3 ASL) */
+  if(m.cpm&&mem.campaign&&mem.campaign.spend_yesterday_cpm&&m.cpm>mem.campaign.spend_yesterday_cpm*1.5){
+    var hausse=Math.round((m.cpm/mem.campaign.spend_yesterday_cpm-1)*100)
+    elevateToMissionBoard({
+      orbType:'bs-alert',tag:'Anomalie CPM - LOI 3',
+      text:'CPM +'+hausse+'% vs hier - signal audience, pas les creas.',
+      sub:'Ne pas toucher aux creatives - verifier taille audience et frequence',
+      conf:'92%',confBg:'var(--red)',confLbl:'Anomalie detectee',missionKey:'ELEVATE_CPM',
+      why:'LOI 3 ASL INTERRUPTION : hausse CPM x1.5 = audience saturee. Toucher aux creas maintenant serait une erreur.'
+    })
+    return
+  }
+  /* CPM +10-50% → bulle secondaire */
+  if(m.cpm&&mem.campaign&&mem.campaign.spend_yesterday_cpm&&m.cpm>mem.campaign.spend_yesterday_cpm*1.1){
+    var hausse2=Math.round((m.cpm/mem.campaign.spend_yesterday_cpm-1)*100)
+    queue.push({type:'sb-alert',label:'CPM +'+hausse2+'%',
+      text:'CPM '+m.cpm.toFixed(1)+'EUR vs hier',sub:'Signal audience - pas les creatives',
+      why:'Hausse CPM = audience qui se sature. Verifier frequence avant de toucher aux creas.',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
+  }
+
+  /* Frequence >= 2.5 → override Mission Board (seuil ASL P6) */
+  if(m.freq&&m.freq>=2.5){
+    elevateToMissionBoard({
+      orbType:'bs-action-system',tag:'Frequence - Seuil ASL P6',
+      text:'Frequence '+m.freq.toFixed(1)+' - refresh creatives requis.',
+      sub:'ASL P6 : seuil 2.5 atteint - audience fatiguee - injecter nouvelles creas',
+      conf:'95%',confBg:'var(--red)',confLbl:'Action immediate',missionKey:'ELEVATE_FREQ',
+      why:'ASL P6 : frequence >= 2.5 = audience surchargee. ROAS va baisser sans nouvelles creatives dans 24-48h.'
+    })
+    return
+  }
+  /* Frequence 2-2.5 → bulle secondaire */
+  if(m.freq&&m.freq>=2){
+    queue.push({type:'sb-user-action',label:'Frequence '+m.freq.toFixed(1),
+      text:'Frequence a surveiller',sub:'Seuil ASL : 2.5 - actuel : '+m.freq.toFixed(1),
+      why:'Frequence qui monte. Pas encore critique. Si elle depasse 2.5 je la remonte en mission principale.',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
+  }
+
+  /* Métriques manquantes */
+  if(!m.spend&&prod&&mem.campaign&&mem.campaign.spend_cycle>0){
+    queue.push({
+      type:'sb-user-action',label:'Action requise',
+      text:'Métriques du jour à saisir',
+      sub:'Sans données, aucune décision J1/J2/J4',
+      why:'LOI 1 : aucun jugement sans données. Rentre Spend Meta + CA Shopify pour que je décide.',
+      buttons:[
+        {label:'Saisir',fn:'openMetrics()',primary:true},
+        {label:'Pourquoi ?',fn:'',isWhy:true}
+      ]
+    })
+  }
+
+  /* Briefs générés */
+  if(decision.briefsGenerated&&decision.briefsGenerated.length){
+    queue.push({
+      type:'sb-success',label:'Briefs prêts',
+      text:decision.briefsGenerated.length+' créatives générées',
+      sub:'Prêtes à copier dans Higgsfield',
+      why:'Claude a généré les briefs en tenant compte des angles déjà testés, hooks utilisés et winners actifs.',
+      buttons:[
+        {label:'Voir',fn:"goView('memoire')",primary:true},
+        {label:'Pourquoi ?',fn:'',isWhy:true}
+      ]
+    })
+  }
+
+  /* Insights marché (TrendTrack — placeholder) */
+  if(decision.marketInsight){
+    queue.push({
+      type:'sb-insight',label:'Opportunité marché',
+      text:decision.marketInsight.text,
+      sub:decision.marketInsight.sub,
+      why:decision.marketInsight.why,
+      buttons:[
+        {label:'Appliquer',fn:"orbGo()",primary:true},
+        {label:'Pourquoi ?',fn:'',isWhy:true}
+      ]
+    })
+  }
+
+  queue.forEach(function(b,i){
+    setTimeout(function(){renderBubble(b)},600+i*1200)
+  })
+}
+
+/* ── INIT ─────────────────────────────────────────────────── */
+migrateMemoryIfNeeded()
+setLevel('B')
+renderOrb()
+setBrainStatus('default')
+refreshMemView()
+refreshParamView()
+/* Reset lundi audit flag en semaine (si pas lundi) */
+var nowDay=new Date().getDay()
+if(nowDay!==1){
+  var _m=memGet();_m.campaign.is_monday_audit_done=false;memSet(_m)
+}
+/* Lancement cerveau auto */
+setTimeout(function(){runBrain(false)},1000)
+var lastAnalysisMin=0,nextAnalysisMin=60
+setInterval(function(){
+  lastAnalysisMin++;nextAnalysisMin=Math.max(0,nextAnalysisMin-1)
+  var t=document.getElementById('brain-timing')
+  if(t&&!document.getElementById('orb').classList.contains('thinking'))
+    t.textContent='Dernière analyse il y a '+lastAnalysisMin+' min · prochaine dans '+nextAnalysisMin+' min'
+  if(nextAnalysisMin===0){lastAnalysisMin=0;nextAnalysisMin=60;runBrain(false)}
+},60000)
+</script>
