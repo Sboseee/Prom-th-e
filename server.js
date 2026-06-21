@@ -3,6 +3,8 @@ const express = require('express')
 const cors = require('cors')
 const https = require('https')
 const http = require('http')
+const fs = require('fs')
+const path = require('path')
 const app = express()
 
 app.use(cors())
@@ -103,6 +105,28 @@ app.post('/api/claude', async (req, res) => {
     const data = await r.json()
     res.json(data)
   } catch(e) {
+    res.status(500).json({ error: e.message })
+  }
+})
+
+/* ── SAUVEGARDE DES CRÉATIVES GÉNÉRÉES (fichiers locaux, pas de base64 en localStorage) ──
+   Le serveur télécharge lui-même l'asset distant (fal.ai/Higgsfield) et l'écrit dans ./creatives/.
+   Nommage : <product_id>__<creative_id>.<ext> → traçabilité directe par le nom de fichier.
+   Servi automatiquement par app.use(express.static('.')) à /creatives/<fichier>. */
+app.post('/api/save-creative', async (req, res) => {
+  try {
+    const { url, ext, name } = req.body
+    if (!url || !ext || !name) return res.status(400).json({ error: 'url, ext et name requis' })
+    const safeName = String(name).replace(/[^a-zA-Z0-9_-]/g, '_')
+    const dir = path.join(__dirname, 'creatives')
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    const r = await fetchNative(url)
+    if (!r.ok) return res.status(502).json({ error: 'téléchargement asset échoué : HTTP ' + r.status })
+    const buf = Buffer.from(await r.arrayBuffer())
+    const filename = safeName + '.' + ext
+    fs.writeFileSync(path.join(dir, filename), buf)
+    res.json({ path: '/creatives/' + filename })
+  } catch (e) {
     res.status(500).json({ error: e.message })
   }
 })

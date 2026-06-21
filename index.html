@@ -705,6 +705,7 @@
     <!-- ÉTAT SYSTÈME -->
     <div class="sec-title" style="margin-top:12px">État système</div>
     <div id="sys-state-rows"></div>
+    <button onclick="exportMemoryJSON()" style="width:100%;background:var(--bdim);border:0.5px solid var(--bborder);border-radius:10px;padding:11px;color:var(--blue);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">⬇ Exporter ma mémoire (sauvegarde JSON)</button>
     <button onclick="resetCurrentCycle()" style="width:100%;background:transparent;border:0.5px solid var(--rborder);border-radius:10px;padding:11px;color:var(--red);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">Réinitialiser le cycle actuel</button>
 
   </div>
@@ -1076,7 +1077,7 @@ function orbWhy(){
 function orbGo(){
   var s=instrStates[currentMission]
   if(!s) return
-  if(s.missionKey==='CREATE_BATCH') runMissionSequence(s)
+  if(s.missionKey==='CREATE_BATCH') executeCreateBatch(s)
   else showManualInstructions(s)
 }
 
@@ -1119,79 +1120,129 @@ function getInstructions(k){
   return "Suis les regles ASL. Fait quand c'est fait."
 }
 
-/* ── Séquence réflexion (CREATE_BATCH) ── */
-function runMissionSequence(s){
+/* ── GÉNÉRATION DE BATCH — CHEMIN UNIQUE (BLOC 1 / Modification 1.1) ──
+   Avant : deux implémentations divergentes (runMissionSequence vs la branche CREATE_BATCH de runBrain).
+   L'une (liée au bouton "Go — Générer") ne générait jamais de média malgré un message de succès affiché.
+   Maintenant : un seul chemin, utilisé à la fois par le clic manuel (orbGo) et par le déclenchement
+   automatique (runBrain). L'animation "thinking" reste la même identité visuelle qu'avant, mais elle
+   n'annonce jamais "terminé" avant la vraie réponse de Claude ET la vraie génération média. */
+var _batchRunning=false
+
+async function executeCreateBatch(s){
+  if(_batchRunning){pushToMiniChat('Un batch est déjà en cours de génération — patiente.');return}
+  _batchRunning=true
+
   var orb=document.getElementById('orb')
   orb.classList.remove('expanded')
   orb.classList.add('thinking')
   setBrainStatus('busy')
   for(var i=0;i<5;i++){var el=document.getElementById('think-'+i);if(el)el.classList.remove('done')}
-  var delays=[700,1900,3300,4700,6200]
-  delays.forEach(function(d,i){setTimeout(function(){var el=document.getElementById('think-'+i);if(el)el.classList.add('done')},d)})
+  /* Animation décorative — purement visuelle, ne pilote jamais la fin réelle de l'opération */
+  var stepTimers=[700,1900,3300,4700,6200].map(function(d,i){
+    return setTimeout(function(){var el=document.getElementById('think-'+i);if(el)el.classList.add('done')},d)
+  })
+  function lightAllSteps(){
+    stepTimers.forEach(function(t){clearTimeout(t)})
+    for(var i=0;i<5;i++){var el=document.getElementById('think-'+i);if(el)el.classList.add('done')}
+  }
 
-  /* ÉTAPE 10 : vider les anciens briefs avant de générer les nouveaux.
-     Évite que d'anciens briefs d'une session précédente restent affichés
-     comme "en attente" alors qu'ils ne sont plus valides. */
+  /* Vider les anciens briefs avant de générer les nouveaux — évite l'affichage de briefs obsolètes */
   localStorage.removeItem('promethee_pending_briefs')
 
-  /* Appel Claude briefs en parallèle */
-  var briefsResult=null
-  callClaudeForBriefs(memGet(),ASL.computeBatchSize(memGet())).then(function(r){briefsResult=r}).catch(function(){})
+  var mem=memGet()
+  var batchSize=ASL.computeBatchSize(mem)
+  var batchId='batch_'+Date.now()
+  var productId=mem.active_product_id
 
-  setTimeout(function(){
+  try{
+    var result=await callClaudeForBriefs(mem,batchSize)
+    if(!result||!result.briefs||!result.briefs.length) throw new Error('Aucun brief retourné par Claude')
+
+    /* Archivage DRAFT — id stable généré ici, utilisé ensuite pour corréler la génération média
+       (corrige aussi le matching fragile angle+format+hook de l'ancien displayCreative) */
+    var entries=result.briefs.map(function(b){
+      return {
+        id:'creative_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+        product_id:productId,
+        batch_id:batchId,
+        name:b.format+' · '+b.angle+' · "'+b.hook+'"',
+        angle:b.angle,format:b.format,hook:b.hook,awareness:b.awareness_level,
+        variable_changed:b.variable_changed,status:'DRAFT',roas:null,spend:0,days:0,
+        winner_locked:false,mid_until:null,higgsfield_brief:b.higgsfield_brief,
+        ad_copy:b.ad_copy,why:b.why,metrics:{j1:null,j2:null,j4:null},created_at:Date.now(),
+        type_media:b.type_media,
+        _brief:b /* utilisé pour la génération qui suit — jamais écrit tel quel en mémoire */
+      }
+    })
+    var memNow=memGet()
+    memNow.creative_bank=memNow.creative_bank.concat(entries.map(function(e){
+      var copy=Object.assign({},e);delete copy._brief;return copy
+    }))
+    memSet(memNow)
+    refreshMemView()
+
+    localStorage.setItem('promethee_pending_briefs',JSON.stringify({
+      batch_id:batchId,generated_at:Date.now(),mission:s.missionKey||'CREATE_BATCH',
+      product_id:productId,briefs:result.briefs
+    }))
+
+    /* Génération média réelle (Claude → fal.ai/Higgsfield) puis sauvegarde en fichier local (server.js) */
+    var produced=0
+    for(var i=0;i<entries.length;i++){
+      var entry=entries[i]
+      var genResult=await sendToCreativeEngine(entry._brief)
+      if(genResult){
+        var savedPath=await saveCreativeAsset(genResult,entry.id,productId)
+        applyGeneratedMedia(entry.id,genResult,savedPath)
+        produced++
+      }
+    }
+
+    lightAllSteps()
     orb.classList.remove('thinking')
-    /* Passe en bs-success */
     instrStates['MISSION_DONE']={
       orbType:'bs-success',tag:'Mission terminée',
-      text:briefsResult?briefsResult.briefs.length+' briefs générés et prêts à produire':'Batch généré.',
-      sub:'Archivé dans la Creative Bank · téléchargeable dans Mémoire',
+      text:produced+'/'+entries.length+' créatives générées (média réel inclus)',
+      sub:'Archivé dans la Creative Bank · disponible dans Mémoire',
       conf:'100%',confBg:'var(--green)',confLbl:'Terminé',
-      result:{objectif:s.text,resultat:briefsResult?briefsResult.briefs.length+' briefs Claude':'Batch généré',duree:'~7s'},
+      result:{objectif:s.text,resultat:produced+'/'+entries.length+' créatives produites',duree:'réel'},
       missionKey:'MISSION_DONE'
     }
     currentMission='MISSION_DONE'
-
-    /* ÉTAPE 10 : stocker les briefs avec metadata pour traçabilité.
-       batch_id unique + timestamp pour identifier le batch concerné. */
-    if(briefsResult){
-      var batchMeta={
-        batch_id:'batch_'+Date.now(),
-        generated_at:Date.now(),
-        mission:s.missionKey||'CREATE_BATCH',
-        product_id:memGet().active_product_id,
-        briefs:briefsResult.briefs
-      }
-      localStorage.setItem('promethee_pending_briefs',JSON.stringify(batchMeta))
-      var mem=memGet()
-      briefsResult.briefs.forEach(function(b){
-        mem.creative_bank.push({
-          id:b.id+'_'+Date.now(),name:b.format+' · '+b.angle+' · "'+b.hook+'"',
-          angle:b.angle,format:b.format,hook:b.hook,awareness:b.awareness_level,
-          variable_changed:b.variable_changed,status:'DRAFT',roas:null,spend:0,days:0,
-          winner_locked:false,mid_until:null,higgsfield_brief:b.higgsfield_brief,
-          ad_copy:b.ad_copy,why:b.why,metrics:{j1:null,j2:null,j4:null},created_at:Date.now()
-        })
-      })
-      memSet(mem)
-      refreshMemView()
-    }
-
     renderOrb()
     document.getElementById('orb').classList.add('expanded')
     setBrainStatus('default')
 
-    /* Bulle secondaire succès */
     setTimeout(function(){
       renderBubble({
         type:'sb-success',
         label:'Batch terminé',
-        text:briefsResult?briefsResult.briefs.length+' créatives prêtes':'Batch généré',
-        sub:'Voir dans Mémoire · copier briefs Higgsfield',
-        why:'Le batch a été généré en tenant compte des angles disponibles, hooks déjà testés et winners actifs.',
+        text:produced+'/'+entries.length+' créatives prêtes (image/vidéo générées)',
+        sub:'Voir dans Mémoire',
+        why:'Le batch a été généré en tenant compte des angles disponibles, hooks déjà testés et winners actifs. Chaque créative a été réellement produite (Claude → fal.ai/Higgsfield) et sauvegardée localement, pas seulement le texte du brief.',
         buttons:[{label:'Voir',fn:"goView('memoire')",primary:true},{label:'Pourquoi ?',fn:'',isWhy:true}]
       })
-    },500)
-  },7200)
+    },300)
+
+  }catch(e){
+    lightAllSteps()
+    orb.classList.remove('thinking')
+    setBrainStatus('default')
+    instrStates['MISSION_DONE']={
+      orbType:'bs-alert',tag:'Génération échouée',
+      text:'Le batch n\'a pas pu être généré : '+e.message,
+      sub:'Aucune créative facturée n\'a été perdue — réessaie depuis la Mission Board',
+      conf:'0%',confBg:'var(--red)',confLbl:'Erreur',
+      result:{objectif:s.text,resultat:'Échec : '+e.message,duree:'—'},
+      missionKey:'MISSION_DONE'
+    }
+    currentMission='MISSION_DONE'
+    renderOrb()
+    document.getElementById('orb').classList.add('expanded')
+    pushToMiniChat('⚠️ Génération de batch échouée : '+e.message)
+  }finally{
+    _batchRunning=false
+  }
 }
 
 function openMissionSheet(s){
@@ -1695,17 +1746,20 @@ function refreshMemView(){
       var roasV=c.roas?'<div class="crea-roas" style="color:'+(c.roas>=roas_be?'var(--green)':'var(--red)')+'">'+c.roas.toFixed(1)+'x</div>':'<div class="crea-roas" style="color:var(--t3)">—</div>'
       var ds=c.status==='WINNER'?'win':c.status==='TESTING'||c.status==='DRAFT'?'test':'mid'
 
-      /* Aperçu visuel si image ou vidéo générée */
+      /* Aperçu visuel si image ou vidéo générée — média servi en fichier local par server.js
+         (Bloc 1 / Modification 1.2). Si la sauvegarde locale a échoué, on retombe sur l'URL
+         distante (remote_url) plutôt que de ne rien afficher. */
       var mediaPreview=''
-      if(c.image_base64){
+      var mediaSrc=c.media_path?(SERVER+c.media_path):(c.remote_url||null)
+      if(mediaSrc&&c.media_type==='image'){
         mediaPreview='<div style="margin:8px 0;border-radius:8px;overflow:hidden">'
-          +'<img src="'+c.image_base64+'" style="width:100%;max-height:180px;object-fit:cover;display:block">'
-          +'<button onclick="downloadCreative(\''+c.id+'\',\'image\')" style="width:100%;padding:6px;background:var(--s2);border:none;border-top:0.5px solid var(--b1);color:var(--t2);font-size:10px;cursor:pointer;font-family:Poppins,sans-serif">⬇ Télécharger</button>'
+          +'<img src="'+mediaSrc+'" style="width:100%;max-height:180px;object-fit:cover;display:block">'
+          +'<button onclick="downloadCreative(\''+c.id+'\',\'image\')" style="width:100%;padding:6px;background:var(--s2);border:none;border-top:0.5px solid var(--b1);color:var(--t2);font-size:10px;cursor:pointer;font-family:Poppins,sans-serif">⬇ Télécharger'+(c.media_path?'':' (lien distant)')+'</button>'
           +'</div>'
-      }else if(c.video_url){
+      }else if(mediaSrc&&c.media_type==='video'){
         mediaPreview='<div style="margin:8px 0;border-radius:8px;overflow:hidden">'
-          +'<video src="'+c.video_url+'" style="width:100%;max-height:180px;object-fit:cover;display:block" controls muted playsinline></video>'
-          +'<button onclick="downloadCreative(\''+c.id+'\',\'video\')" style="width:100%;padding:6px;background:var(--s2);border:none;border-top:0.5px solid var(--b1);color:var(--t2);font-size:10px;cursor:pointer;font-family:Poppins,sans-serif">⬇ Télécharger</button>'
+          +'<video src="'+mediaSrc+'" style="width:100%;max-height:180px;object-fit:cover;display:block" controls muted playsinline></video>'
+          +'<button onclick="downloadCreative(\''+c.id+'\',\'video\')" style="width:100%;padding:6px;background:var(--s2);border:none;border-top:0.5px solid var(--b1);color:var(--t2);font-size:10px;cursor:pointer;font-family:Poppins,sans-serif">⬇ Télécharger'+(c.media_path?'':' (lien distant)')+'</button>'
           +'</div>'
       }
 
@@ -1863,19 +1917,32 @@ function resetCurrentCycle(){
   setTimeout(function(){runBrain(false)},500)
 }
 
+/* BLOC 1 / Modification 1.4 : filet de sécurité anti-perte — aucune sauvegarde n'existait
+   en dehors du localStorage de ce navigateur précis. */
+function exportMemoryJSON(){
+  var mem=memGet()
+  var blob=new Blob([JSON.stringify(mem,null,2)],{type:'application/json'})
+  var url=URL.createObjectURL(blob)
+  var a=document.createElement('a')
+  a.href=url
+  a.download='promethee_backup_'+new Date().toISOString().slice(0,10)+'.json'
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+  pushToMiniChat('Mémoire exportée — fichier téléchargé.')
+}
+
 function downloadCreative(creativeId,type){
   var mem=memGet()
   var c=mem.creative_bank.find(function(x){return x.id===creativeId})
   if(!c) return
+  var src=c.media_path?(SERVER+c.media_path):c.remote_url
+  if(!src) return
   var a=document.createElement('a')
-  if(type==='image'&&c.image_base64){
-    a.href=c.image_base64
-    a.download=(c.angle||'creative')+'_'+c.format+'.jpg'
-  }else if(type==='video'&&c.video_url){
-    a.href=c.video_url
-    a.download=(c.angle||'creative')+'_'+c.format+'.mp4'
-    a.target='_blank'
-  }
+  a.href=src
+  a.download=(c.angle||'creative')+'_'+c.format+'.'+(type==='video'?'mp4':'png')
+  a.target='_blank'
   a.click()
 }
 
@@ -1975,7 +2042,18 @@ function memGet(){
   try{var r=localStorage.getItem(MEM_KEY);return r?JSON.parse(r):defaultMemory()}
   catch(e){return defaultMemory()}
 }
-function memSet(data){try{localStorage.setItem(MEM_KEY,JSON.stringify(data))}catch(e){}}
+/* BLOC 1 / Modification 1.3 : un échec de sauvegarde doit être visible, jamais avalé en silence.
+   Avant : catch(e){} vide — au-delà du quota localStorage, toute la mémoire (campagne, décisions,
+   métriques) cessait de se sauvegarder sans aucun signal. */
+function memSet(data){
+  try{
+    localStorage.setItem(MEM_KEY,JSON.stringify(data))
+  }catch(e){
+    var msg=(e&&e.name==='QuotaExceededError')?'quota de stockage du navigateur dépassé':(e&&e.message)||'erreur inconnue'
+    console.error('[memSet] ÉCHEC DE SAUVEGARDE :',e)
+    if(typeof pushToMiniChat==='function') pushToMiniChat('⚠️ Sauvegarde échouée — '+msg+'. Les dernières actions ne sont pas persistées.')
+  }
+}
 
 /* ÉTAPE 13 — Migration mémoire : vérifier et réparer le localStorage au chargement.
    Si l'ancien format existe (mem.product au lieu de mem.products[]), on migre proprement. */
@@ -2612,15 +2690,14 @@ async function generateImage(brief){
     })
     var data=await resp.json()
 
-    /* fal.ai retourne { images:[{url, content_type}] } */
+    /* fal.ai retourne { images:[{url, content_type}] }.
+       La persistance se fait désormais côté serveur (saveCreativeAsset → /api/save-creative) —
+       on ne convertit plus en base64 ici, on ne fait que renvoyer l'URL distante. */
     if(data.images&&data.images.length){
       var imgUrl=data.images[0].url
-      /* Télécharger et convertir en base64 pour stockage persistant */
-      var imgBase64=await urlToBase64(imgUrl)
       return{
         type:'image',
         url:imgUrl,
-        base64:imgBase64,
         model:model,
         format:brief.format,
         request_id:data.request_id||null
@@ -2724,41 +2801,52 @@ async function sendToHiggsfield(brief){
   return await sendToCreativeEngine(brief)
 }
 
-/* ── AFFICHAGE DES CRÉATIVES DANS PROMÉTHÉE ─────────────────── */
-function displayCreative(result,brief,mem){
-  if(!result) return
+/* ── SAUVEGARDE DE LA CRÉATIVE EN FICHIER LOCAL (BLOC 1 / Modification 1.2) ──
+   Avant : les images étaient converties en base64 et stockées dans le même blob localStorage
+   que tout le reste (campagne, décisions, métriques) — sans limite de taille. Au-delà du quota
+   navigateur, memSet() échouait en silence et plus rien ne se sauvegardait.
+   Maintenant : le serveur local télécharge l'asset distant et l'écrit dans ./creatives/.
+   creative_bank ne garde qu'un chemin local léger, jamais le contenu binaire. */
+async function saveCreativeAsset(genResult,creativeId,productId){
+  if(!genResult||!genResult.url) return null
+  try{
+    var ext=genResult.type==='video'?'mp4':'png'
+    var resp=await fetch(SERVER+'/api/save-creative',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({url:genResult.url,ext:ext,name:(productId||'noprod')+'__'+creativeId})
+    })
+    var data=await resp.json()
+    if(data.error){console.error('[save-creative]',data.error);return null}
+    return data.path||null
+  }catch(e){
+    console.error('[save-creative] échec :',e)
+    return null
+  }
+}
 
-  /* Mettre à jour le statut dans creative_bank */
-  var entry=mem.creative_bank.find(function(c){
-    return c.angle===brief.angle&&c.format===brief.format&&c.hook===brief.hook
-  })
+/* ── AFFICHAGE DES CRÉATIVES DANS PROMÉTHÉE ─────────────────── */
+/* Matching par id stable (corrige l'ancien matching fragile angle+format+hook qui pouvait
+   ne jamais retrouver l'entrée DRAFT si deux briefs partageaient un hook trop proche). */
+function applyGeneratedMedia(creativeId,genResult,savedPath){
+  if(!genResult) return
+  var mem=memGet()
+  var entry=mem.creative_bank.find(function(c){return c.id===creativeId})
   if(entry){
     entry.status='TESTING'
-    if(result.url) entry.video_url=result.url
-    if(result.base64) entry.image_base64=result.base64
+    entry.media_type=genResult.type
+    entry.media_path=savedPath||null
+    /* Filet de sécurité : si la sauvegarde locale a échoué, on garde l'URL distante
+       plutôt que de perdre la référence — signalé comme tel dans la Creative Bank. */
+    entry.remote_url=genResult.url||null
     entry.generated_at=Date.now()
   }
   memSet(mem)
   refreshMemView()
 
-  /* Signal dans le feed */
-  var icon=result.type==='video'?'🎬':'🖼️'
-  pushToMiniChat(icon+' '+brief.format+' généré · Angle "'+brief.angle+'" · disponible dans Mémoire')
-}
-
-/* ── UTILITAIRE : URL → base64 ─────────────────────────────── */
-async function urlToBase64(url){
-  try{
-    var resp=await fetch(url)
-    var blob=await resp.blob()
-    return await new Promise(function(resolve){
-      var reader=new FileReader()
-      reader.onloadend=function(){resolve(reader.result)}
-      reader.readAsDataURL(blob)
-    })
-  }catch(e){
-    return null
-  }
+  var icon=genResult.type==='video'?'🎬':'🖼️'
+  var label=entry?entry.format+' · Angle "'+entry.angle+'"':'Créative'
+  if(savedPath) pushToMiniChat(icon+' '+label+' généré · sauvegardé localement · disponible dans Mémoire')
+  else pushToMiniChat(icon+' '+label+' généré · ⚠️ sauvegarde locale échouée, lien distant utilisé en secours')
 }
 
 
@@ -2876,63 +2964,24 @@ async function runBrain(manual){
     currentMission=decision.missionKey||'wait'
     instrStates[currentMission]=decision
 
-    /* Si CREATE → appel Claude + Higgsfield */
+    /* Si CREATE → chemin unique partagé avec le clic manuel "Go — Générer" (Bloc 1 / Modification 1.1).
+       executeCreateBatch gère elle-même toute sa mise en scène (orb, bulle, succès/erreur) —
+       on ne refait pas de rendu ici pour éviter d'écraser son état final avec la décision périmée. */
     if(decision.missionKey==='CREATE_BATCH'){
-      try{
-        var mem=memGet()
-        var batchSize=ASL.computeBatchSize(mem)
-        var result=await callClaudeForBriefs(mem,batchSize)
-        decision.briefsGenerated=result.briefs
-        decision.sub=result.briefs.length+' briefs générés · '+result.briefs[0].format+' · '+result.briefs[0].angle
-        instrStates[currentMission]=decision
-
-        /* Stocker les briefs en attente d'upload */
-        localStorage.setItem('promethee_pending_briefs',JSON.stringify(result.briefs))
-
-        /* Archiver dans creative_bank en statut DRAFT */
-        var memNow=memGet()
-        result.briefs.forEach(function(b){
-          memNow.creative_bank.push({
-            id:b.id+'_'+Date.now(),
-            name:b.format+' · '+b.angle+' · "'+b.hook+'"',
-            angle:b.angle,format:b.format,hook:b.hook,
-            awareness:b.awareness_level,
-            variable_changed:b.variable_changed,
-            status:'DRAFT',
-            roas:null,spend:0,days:0,
-            winner_locked:false,mid_until:null,
-            higgsfield_brief:b.higgsfield_brief,
-            ad_copy:b.ad_copy,
-            why:b.why,
-            metrics:{j1:null,j2:null,j4:null},
-            created_at:Date.now()
-          })
-        })
-        memSet(memNow)
-        refreshMemView()
-
-        /* Génération créatives — vidéo ou image selon le format */
-        var memForDisplay=memGet()
-        for(var i=0;i<result.briefs.length;i++){
-          var genResult=await sendToCreativeEngine(result.briefs[i])
-          if(genResult) displayCreative(genResult,result.briefs[i],memForDisplay)
-        }
-      }catch(e){
-        decision.sub='Mode offline — briefs pré-configurés (Claude indisponible): '+e.message
-      }
+      await executeCreateBatch(decision)
+    }else{
+      spawnDecisionBubbles(decision)
+      renderOrb()
+      setBrainStatus('default')
+      /* Ouvrir la bulle automatiquement — boutons toujours visibles */
+      var _orb=document.getElementById('orb')
+      if(_orb&&!_orb.classList.contains('expanded')&&!_orb.classList.contains('thinking')) _orb.classList.add('expanded')
     }
-
-    spawnDecisionBubbles(decision)
-    renderOrb()
-    setBrainStatus('default')
-    /* Ouvrir la bulle automatiquement — boutons toujours visibles */
-    var _orb=document.getElementById('orb')
-    if(_orb&&!_orb.classList.contains('expanded')&&!_orb.classList.contains('thinking')) _orb.classList.add('expanded')
 
     var nb=document.getElementById('brain-next')
     if(nb) nb.textContent=(decision.orbType||'bs-wait').replace('bs-','').toUpperCase()
 
-    /* Journaliser la décision */
+    /* Journaliser la décision — toujours, y compris CREATE_BATCH */
     logDecision(decision)
 
   }finally{
