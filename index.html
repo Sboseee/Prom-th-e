@@ -1268,10 +1268,10 @@ async function askWhy(context,detail,extraCtx){
     var prod=getActiveProduct()
     var ctx='Produit: '+(prod?prod.name+' ROAS BE '+prod.roas_be+'x':'non configure')+'. Phase: '+mem.campaign.asl_phase+' Cycle '+mem.campaign.cycle_number
     var prompt='Promethee ASL v9. '+ctx+'. Observation: '+context+'. Donnees: '+detail+'. Explique en 3 phrases: regle ASL declenchee, chiffres cles, action recommandee. Direct, chiffre.'
-    var resp=await fetch(SERVER+'/api/claude',{
+    var resp=await fetchWithTimeout(SERVER+'/api/claude',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,messages:[{role:'user',content:prompt}]})
-    })
+    },20000)
     var data=await resp.json()
     var txt=data.content&&data.content[0]?data.content[0].text:'(pas de réponse)'
     pushToMiniChat('Prométhée : '+txt)
@@ -1426,11 +1426,11 @@ async function askWhyBubble(context,detail,why){
       +'Données : '+detail+'\n\n'
       +'Explique en 3-4 phrases pourquoi c\'est important, quelle règle ASL s\'applique, et quelle action ça implique (si applicable). '
       +'Sois direct, chiffré, orienté décision. Pas de jargon. Commence directement par l\'explication.'
-    var resp=await fetch(SERVER+'/api/claude',{
+    var resp=await fetchWithTimeout(SERVER+'/api/claude',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:prompt}]})
-    })
+    },20000)
     var data=await resp.json()
     var txt=data.content&&data.content[0]?data.content[0].text:'(pas de réponse)'
     pushToMiniChat('Prométhée : '+txt)
@@ -2012,11 +2012,11 @@ async function sendMiniChat(){
     var winners=(mem.creative_bank||[]).filter(function(c){return c.status==='WINNER'})
     if(winners.length) ctx.push('Winners actifs : '+winners.map(function(c){return c.name}).join(', '))
     var systemPrompt='Tu es Promethee, cerveau e-commerce ASL v9. Reponds uniquement depuis les donnees reelles du compte. Court, chiffre, actionnable. Si donnee manquante, dis-le.'
-    var resp=await fetch(SERVER+'/api/claude',{
+    var resp=await fetchWithTimeout(SERVER+'/api/claude',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,system:systemPrompt,
         messages:[{role:'user',content:ctx.join(' | ')+'\n\nQuestion : '+question}]})
-    })
+    },20000)
     var data=await resp.json()
     var txt=data.content&&data.content[0]?data.content[0].text:'(pas de reponse)'
     pushToMiniChat('Promethee : '+txt)
@@ -2038,6 +2038,25 @@ var MEM_KEY='promethee_v1'
 /* Les clés API vivent UNIQUEMENT dans .env, lues côté serveur (server.js). */
 /* Le front n'a jamais connaissance des clés : il appelle SERVER+'/api/...' */
 var SERVER='http://localhost:4200'
+
+/* BLOC 2 / Modification 2.4 : timeout cohérent sur tous les appels réseau.
+   Avant : aucun fetch() n'avait de limite de temps — un appel qui ne répond jamais
+   bloquait indéfiniment l'UI (l'orb pouvait rester en "thinking" pour toujours). */
+async function fetchWithTimeout(url,options,timeoutMs){
+  timeoutMs=timeoutMs||30000
+  var controller=new AbortController()
+  var timer=setTimeout(function(){controller.abort()},timeoutMs)
+  try{
+    var opts=Object.assign({},options||{},{signal:controller.signal})
+    return await fetch(url,opts)
+  }catch(e){
+    if(e&&e.name==='AbortError') throw new Error('Délai dépassé ('+Math.round(timeoutMs/1000)+'s) — '+url.replace(SERVER,''))
+    throw e
+  }finally{
+    clearTimeout(timer)
+  }
+}
+
 function memGet(){
   try{var r=localStorage.getItem(MEM_KEY);return r?JSON.parse(r):defaultMemory()}
   catch(e){return defaultMemory()}
@@ -2518,7 +2537,7 @@ async function scrapeSite(url){
   if(!url||!url.startsWith('http')) return null
   try{
     /* Passe par le proxy local (server.js relaie vers allorigins.win) */
-    var resp=await fetch(SERVER+'/api/scrape?url='+encodeURIComponent(url))
+    var resp=await fetchWithTimeout(SERVER+'/api/scrape?url='+encodeURIComponent(url),{},15000)
     var data=await resp.json()
     var html=data.contents||''
     /* Parser le HTML brut pour extraire les éléments clés */
@@ -2541,6 +2560,11 @@ async function scrapeSite(url){
       description: extract(['.product-description','.description','[class*="description"]','main p'])
     }
   }catch(e){
+    /* BLOC 2 / Modification 2.2 : ne plus avaler l'échec en silence.
+       Le prompt créatif présente le message match comme une "RÈGLE ABSOLUE" —
+       si le scraping échoue, il faut le savoir, pas le découvrir après coup. */
+    console.error('[scrapeSite] échec :',e)
+    pushToMiniChat('⚠️ Scraping du site échoué ('+e.message+') — créatives générées sans message match garanti.')
     return null
   }
 }
@@ -2635,15 +2659,23 @@ async function callClaudeForBriefs(mem,batchSize){
     +'\n  "why":"pourquoi cette créa maintenant selon ASL et les données"'
     +'\n}]}'
 
-  var resp=await fetch(SERVER+'/api/claude',{
+  var resp=await fetchWithTimeout(SERVER+'/api/claude',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,
       messages:[{role:'user',content:prompt}]})
-  })
+  },45000)
   var data=await resp.json()
+  /* BLOC 2 / Modification 2.2 : erreurs explicites plutôt qu'un crash générique illisible
+     (ex: clé Anthropic invalide → data.content est undefined → TypeError cryptique sinon). */
+  if(data.error) throw new Error('Claude a renvoyé une erreur : '+(data.error.message||data.error.type||JSON.stringify(data.error)))
+  if(!data.content) throw new Error('Réponse Claude inattendue (pas de champ "content") : '+JSON.stringify(data).slice(0,200))
   var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
-  return JSON.parse(text.replace(/```json|```/g,'').trim())
+  try{
+    return JSON.parse(text.replace(/```json|```/g,'').trim())
+  }catch(e){
+    throw new Error('Réponse Claude non parsable en JSON ('+e.message+') — début de la réponse : '+text.slice(0,150))
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2683,11 +2715,11 @@ async function generateImage(brief){
 
   try{
     pushToMiniChat('Génération image '+brief.format+' en cours...')
-    var resp=await fetch(SERVER+'/api/fal',{
+    var resp=await fetchWithTimeout(SERVER+'/api/fal',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:model,payload:payload})
-    })
+    },45000)
     var data=await resp.json()
 
     /* fal.ai retourne { images:[{url, content_type}] }.
@@ -2703,12 +2735,15 @@ async function generateImage(brief){
         request_id:data.request_id||null
       }
     }else{
+      /* BLOC 2 / Modification 2.2 : ne plus avaler en silence — la console seule
+         ne suffit pas, l'utilisateur doit savoir qu'une créative n'a pas été produite. */
       console.error('[fal.ai] Réponse inattendue:',data)
+      pushToMiniChat('⚠️ fal.ai a renvoyé une réponse inattendue pour "'+brief.format+'" — '+(data.error||data.detail||JSON.stringify(data).slice(0,150)))
       return null
     }
   }catch(e){
     console.error('[fal.ai] Erreur:',e)
-    pushToMiniChat('Erreur génération image : '+e.message)
+    pushToMiniChat('⚠️ Erreur génération image ("'+brief.format+'") : '+e.message)
     return null
   }
 }
@@ -2734,11 +2769,11 @@ async function generateVideo(brief){
 
   try{
     pushToMiniChat('Génération vidéo '+brief.format+' en cours (30-60s)...')
-    var resp=await fetch(SERVER+'/api/higgsfield',{
+    var resp=await fetchWithTimeout(SERVER+'/api/higgsfield',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload)
-    })
+    },30000)
     var data=await resp.json()
 
     if(data.generation_id||data.request_id){
@@ -2746,12 +2781,14 @@ async function generateVideo(brief){
       /* Polling jusqu'à completion (max 120s) */
       return await pollHiggsfield(jobId,brief)
     }else{
+      /* BLOC 2 / Modification 2.2 : signal visible, pas seulement console */
       console.error('[Higgsfield] Réponse inattendue:',data)
+      pushToMiniChat('⚠️ Higgsfield a renvoyé une réponse inattendue pour "'+brief.format+'" — '+(data.error||data.detail||JSON.stringify(data).slice(0,150)))
       return null
     }
   }catch(e){
     console.error('[Higgsfield] Erreur:',e)
-    pushToMiniChat('Erreur génération vidéo : '+e.message)
+    pushToMiniChat('⚠️ Erreur génération vidéo ("'+brief.format+'") : '+e.message)
     return null
   }
 }
@@ -2759,12 +2796,17 @@ async function generateVideo(brief){
 /* Polling Higgsfield — vérifie le statut toutes les 5 secondes */
 async function pollHiggsfield(jobId,brief,attempt){
   attempt=attempt||0
-  if(attempt>24) return null /* timeout 120s */
+  if(attempt>24){
+    /* BLOC 2 / Modification 2.2 : avant, un timeout de polling retournait null en silence —
+       l'utilisateur ne savait jamais qu'une vidéo avait expiré sans résultat. */
+    pushToMiniChat('⚠️ Higgsfield : délai dépassé (120s) pour "'+brief.format+'" — aucune vidéo produite.')
+    return null
+  }
 
   await new Promise(function(r){setTimeout(r,5000)})
 
   try{
-    var resp=await fetch(SERVER+'/api/higgsfield/'+jobId)
+    var resp=await fetchWithTimeout(SERVER+'/api/higgsfield/'+jobId,{},15000)
     var data=await resp.json()
 
     if(data.status==='COMPLETED'||data.status==='completed'){
@@ -2811,10 +2853,10 @@ async function saveCreativeAsset(genResult,creativeId,productId){
   if(!genResult||!genResult.url) return null
   try{
     var ext=genResult.type==='video'?'mp4':'png'
-    var resp=await fetch(SERVER+'/api/save-creative',{
+    var resp=await fetchWithTimeout(SERVER+'/api/save-creative',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({url:genResult.url,ext:ext,name:(productId||'noprod')+'__'+creativeId})
-    })
+    },45000)
     var data=await resp.json()
     if(data.error){console.error('[save-creative]',data.error);return null}
     return data.path||null
