@@ -1217,7 +1217,7 @@ async function askWhy(context,detail,extraCtx){
     var prod=getActiveProduct()
     var ctx='Produit: '+(prod?prod.name+' ROAS BE '+prod.roas_be+'x':'non configure')+'. Phase: '+mem.campaign.asl_phase+' Cycle '+mem.campaign.cycle_number
     var prompt='Promethee ASL v9. '+ctx+'. Observation: '+context+'. Donnees: '+detail+'. Explique en 3 phrases: regle ASL declenchee, chiffres cles, action recommandee. Direct, chiffre.'
-    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+    var resp=await fetch(SERVER+'/api/claude',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,messages:[{role:'user',content:prompt}]})
     })
@@ -1375,7 +1375,7 @@ async function askWhyBubble(context,detail,why){
       +'Données : '+detail+'\n\n'
       +'Explique en 3-4 phrases pourquoi c\'est important, quelle règle ASL s\'applique, et quelle action ça implique (si applicable). '
       +'Sois direct, chiffré, orienté décision. Pas de jargon. Commence directement par l\'explication.'
-    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+    var resp=await fetch(SERVER+'/api/claude',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:prompt}]})
@@ -1945,7 +1945,7 @@ async function sendMiniChat(){
     var winners=(mem.creative_bank||[]).filter(function(c){return c.status==='WINNER'})
     if(winners.length) ctx.push('Winners actifs : '+winners.map(function(c){return c.name}).join(', '))
     var systemPrompt='Tu es Promethee, cerveau e-commerce ASL v9. Reponds uniquement depuis les donnees reelles du compte. Court, chiffre, actionnable. Si donnee manquante, dis-le.'
-    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+    var resp=await fetch(SERVER+'/api/claude',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,system:systemPrompt,
         messages:[{role:'user',content:ctx.join(' | ')+'\n\nQuestion : '+question}]})
@@ -1967,12 +1967,10 @@ async function sendMiniChat(){
 /* ── MÉMOIRE PERSISTANTE (localStorage) ─────────────────── */
 var MEM_KEY='promethee_v1'
 
-/* ── CLÉS API ─────────────────────────────────────────────── */
-var KEYS={
-  fal:    '6a4f11de-3b3f-40c3-9279-afece5f0f7b3:9e4104884d634a78b0dca5cb7fd76985',
-  higgs_id:     '92d7d6d1-92d4-430e-86c7-b25615a0f7aa',
-  higgs_secret: '0db26f4201bfe31fe627e645eaf67ed58e5b78f1bbdca3ec2a2565851635747f'
-}
+/* ── SERVEUR PROXY LOCAL ──────────────────────────────────── */
+/* Les clés API vivent UNIQUEMENT dans .env, lues côté serveur (server.js). */
+/* Le front n'a jamais connaissance des clés : il appelle SERVER+'/api/...' */
+var SERVER='http://localhost:4200'
 function memGet(){
   try{var r=localStorage.getItem(MEM_KEY);return r?JSON.parse(r):defaultMemory()}
   catch(e){return defaultMemory()}
@@ -2441,9 +2439,8 @@ function buildMission(key,data){
 async function scrapeSite(url){
   if(!url||!url.startsWith('http')) return null
   try{
-    /* Utiliser allorigins.win comme proxy CORS — fonctionne depuis un fichier local */
-    var proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(url)
-    var resp=await fetch(proxyUrl)
+    /* Passe par le proxy local (server.js relaie vers allorigins.win) */
+    var resp=await fetch(SERVER+'/api/scrape?url='+encodeURIComponent(url))
     var data=await resp.json()
     var html=data.contents||''
     /* Parser le HTML brut pour extraire les éléments clés */
@@ -2560,7 +2557,7 @@ async function callClaudeForBriefs(mem,batchSize){
     +'\n  "why":"pourquoi cette créa maintenant selon ASL et les données"'
     +'\n}]}'
 
-  var resp=await fetch('https://api.anthropic.com/v1/messages',{
+  var resp=await fetch(SERVER+'/api/claude',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,
@@ -2585,7 +2582,6 @@ async function generateImage(brief){
   var needsText=brief.format==='Offer First'||brief.format==='Text-based'||
                 (brief.script_complet&&brief.script_complet.toLowerCase().indexOf('texte')>=0)
   var model=needsText?'fal-ai/ideogram/v3':'fal-ai/flux-pro/v1.1'
-  var endpoint='https://fal.run/'+model
 
   /* Images produit en référence si disponibles */
   var prod=getActiveProduct()
@@ -2609,13 +2605,10 @@ async function generateImage(brief){
 
   try{
     pushToMiniChat('Génération image '+brief.format+' en cours...')
-    var resp=await fetch(endpoint,{
+    var resp=await fetch(SERVER+'/api/fal',{
       method:'POST',
-      headers:{
-        'Authorization':'Key '+KEYS.fal,
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify(payload)
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:model,payload:payload})
     })
     var data=await resp.json()
 
@@ -2664,12 +2657,9 @@ async function generateVideo(brief){
 
   try{
     pushToMiniChat('Génération vidéo '+brief.format+' en cours (30-60s)...')
-    var resp=await fetch('https://api.higgsfield.ai/v1/generations',{
+    var resp=await fetch(SERVER+'/api/higgsfield',{
       method:'POST',
-      headers:{
-        'Authorization':'Bearer '+KEYS.higgs_id+':'+KEYS.higgs_secret,
-        'Content-Type':'application/json'
-      },
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload)
     })
     var data=await resp.json()
@@ -2697,9 +2687,7 @@ async function pollHiggsfield(jobId,brief,attempt){
   await new Promise(function(r){setTimeout(r,5000)})
 
   try{
-    var resp=await fetch('https://api.higgsfield.ai/v1/generations/'+jobId,{
-      headers:{'Authorization':'Bearer '+KEYS.higgs_id+':'+KEYS.higgs_secret}
-    })
+    var resp=await fetch(SERVER+'/api/higgsfield/'+jobId)
     var data=await resp.json()
 
     if(data.status==='COMPLETED'||data.status==='completed'){
