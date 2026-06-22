@@ -648,6 +648,23 @@
         <div class="ind-field-lbl">Douleur principale de l'avatar</div>
         <input class="ind-field-inp" type="text" placeholder="Ex: Douleurs lombaires chroniques" id="pf-pain">
       </div>
+      <!-- BLOC 3 / Modification 3.1 : champs stratégiques manquants (objections/désir/USP/garantie) -->
+      <div class="ind-field" style="margin-top:6px">
+        <div class="ind-field-lbl">Désir / transformation recherchée</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Reprendre le sport sans douleur" id="pf-desire">
+      </div>
+      <div class="ind-field" style="margin-top:6px">
+        <div class="ind-field-lbl">Objections principales (séparées par ,)</div>
+        <input class="ind-field-inp" type="text" placeholder="Trop cher, Ça marche vraiment ?, Déjà essayé sans succès" id="pf-objections">
+      </div>
+      <div class="ind-field" style="margin-top:6px">
+        <div class="ind-field-lbl">USP — différenciation vs concurrents</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Seul produit certifié X, livré en 24h" id="pf-usp">
+      </div>
+      <div class="ind-field" style="margin-top:6px">
+        <div class="ind-field-lbl">Garantie / bonus (structure d'offre)</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Garantie 30 jours satisfait ou remboursé" id="pf-guarantee">
+      </div>
       <div class="ind-field" style="margin-top:6px">
         <div class="ind-field-lbl">Headline above the fold (message match)</div>
         <input class="ind-field-inp" type="text" placeholder="Ex: Soulagez vos douleurs dos en 10 minutes" id="pf-headline">
@@ -706,6 +723,7 @@
     <div class="sec-title" style="margin-top:12px">État système</div>
     <div id="sys-state-rows"></div>
     <button onclick="exportMemoryJSON()" style="width:100%;background:var(--bdim);border:0.5px solid var(--bborder);border-radius:10px;padding:11px;color:var(--blue);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">⬇ Exporter ma mémoire (sauvegarde JSON)</button>
+    <button onclick="openSOPSheet()" style="width:100%;background:var(--pdim);border:0.5px solid var(--pborder);border-radius:10px;padding:11px;color:var(--purple);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">⚙ Modifier le SOP créatif</button>
     <button onclick="resetCurrentCycle()" style="width:100%;background:transparent;border:0.5px solid var(--rborder);border-radius:10px;padding:11px;color:var(--red);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">Réinitialiser le cycle actuel</button>
 
   </div>
@@ -889,6 +907,24 @@
   </div>
 
   <button class="metric-submit" onclick="submitMetrics()">Soumettre au cerveau</button>
+</div>
+
+<!-- SOP SHEET (BLOC 3 / Modification 3.3) -->
+<div class="metric-sheet" id="sop-sheet">
+  <div class="metric-sheet-title">
+    <div>
+      <div style="font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">Méthodologie</div>
+      <div style="font-size:13px;font-weight:600">SOP créatif — règles ASL P4 &amp; win-rates</div>
+    </div>
+    <span class="metric-close" onclick="closeSOPSheet()">×</span>
+  </div>
+  <div style="font-size:9px;color:var(--t3);margin-bottom:10px;line-height:1.5">
+    Modifie les règles et win-rates utilisés par Claude pour générer les briefs — sans toucher au code.
+    Format JSON. Sauvegardé dans <code>sop.json</code> sur ton disque (versionné dans Git).
+  </div>
+  <textarea id="sop-textarea" style="width:100%;min-height:260px;background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;color:var(--t1);font-family:'SF Mono',Consolas,monospace;font-size:11px;line-height:1.6;padding:12px;box-sizing:border-box;resize:vertical"></textarea>
+  <div id="sop-error" style="display:none;margin-top:8px;font-size:11px;color:var(--red)"></div>
+  <button class="metric-submit" onclick="saveSOP()" style="margin-top:12px">Sauvegarder le SOP</button>
 </div>
 
 </div>
@@ -1579,6 +1615,9 @@ function saveProduct(){
   var roas_target=roas_be*1.20
   var angSat=document.getElementById('pf-sat').value.split(',').map(function(s){return s.trim()}).filter(Boolean)
   var angOpp=document.getElementById('pf-opp').value.split(',').map(function(s){return s.trim()}).filter(Boolean)
+  /* BLOC 3 / Modification 3.1 : objections — le champ existait dans le schéma mémoire depuis le début
+     mais n'avait jamais d'input UI pour le remplir. Resté vide à vie jusqu'ici. */
+  var objections=document.getElementById('pf-objections').value.split(',').map(function(s){return s.trim()}).filter(Boolean)
   var editId=document.getElementById('pf-id').value
 
   var prodData={
@@ -1586,7 +1625,14 @@ function saveProduct(){
     name:name,price:price,cogs:cogs,aov:aov,
     roas_be:roas_be,roas_target:roas_target,atc_threshold:aov*0.20,
     market:memGet().account?memGet().account.market||'FR':'FR',
-    avatar:{pain:document.getElementById('pf-pain').value.trim(),objections:[],awareness_level:parseInt(document.getElementById('pf-awareness').value)||2},
+    avatar:{
+      pain:document.getElementById('pf-pain').value.trim(),
+      desire:document.getElementById('pf-desire').value.trim(),
+      objections:objections,
+      awareness_level:parseInt(document.getElementById('pf-awareness').value)||2
+    },
+    usp:document.getElementById('pf-usp').value.trim(),
+    guarantee:document.getElementById('pf-guarantee').value.trim(),
     angles_saturated:angSat,angles_opportunities:angOpp,
     headline:document.getElementById('pf-headline').value.trim(),
     images:pfImages.slice(),
@@ -1610,16 +1656,17 @@ function saveProduct(){
     mem.products.push(prodData)
   }
 
-  /* Initialiser les angle scores si c'est le produit actif */
+  /* Initialiser les angle scores si c'est le produit actif.
+     BLOC 1 / BLOC 3.2 : creative_bank n'est plus jamais vidé ici — il est scopé par product_id,
+     pas remplacé. angle_scores est désormais un bucket par produit (ensureAngleScoresBucket). */
   if(mem.active_product_id===prodData.id||!mem.active_product_id){
     if(!mem.active_product_id){
       mem.active_product_id=prodData.id
       prodData.status='ACTIVE'
       mem.products[mem.products.findIndex(function(p){return p.id===prodData.id})].status='ACTIVE'
-      mem.creative_bank=[]
-      mem.angle_scores={}
     }
-    angOpp.forEach(function(a){if(!mem.angle_scores[a])mem.angle_scores[a]={tests:0,winners:0,confidence:0,status:'ACTIVE',spend:0,impressions:0}})
+    var bucket=ensureAngleScoresBucket(mem,prodData.id)
+    angOpp.forEach(function(a){if(!bucket[a])bucket[a]={tests:0,winners:0,confidence:0,status:'ACTIVE',spend:0,impressions:0}})
   }
 
   memSet(mem)
@@ -1649,19 +1696,22 @@ function setActiveProduct(prodId){
   /* Mettre l'ancien en STANDBY */
   mem.products.forEach(function(p){p.status=p.id===prodId?'ACTIVE':'STANDBY'})
   mem.active_product_id=prodId
-  /* Reset cycle pour le nouveau produit actif */
-  mem.creative_bank=[]
-  mem.angle_scores={}
+  /* BLOC 3 / Modification 3.2 — CORRECTIF CRITIQUE :
+     avant, changer de produit actif effaçait TOUT le creative_bank et TOUS les angle_scores,
+     y compris ceux des autres produits. C'était une perte de données pure à chaque switch.
+     Maintenant : creative_bank n'est jamais vidé (il est scopé par product_id), et chaque
+     produit a son propre bucket d'angle_scores, préservé d'un switch à l'autre. */
   resetCycle(mem)
   var prod=mem.products.find(function(p){return p.id===prodId})
   if(prod){
+    var bucket=ensureAngleScoresBucket(mem,prodId)
     var angOpp=prod.angles_opportunities||[]
-    angOpp.forEach(function(a){mem.angle_scores[a]={tests:0,winners:0,confidence:0,status:'ACTIVE',spend:0,impressions:0}})
+    angOpp.forEach(function(a){if(!bucket[a])bucket[a]={tests:0,winners:0,confidence:0,status:'ACTIVE',spend:0,impressions:0}})
   }
   memSet(mem)
   refreshParamView()
   refreshMemView()
-  pushToMiniChat('Produit actif changé : "'+(prod?prod.name:'')+'". Cycle réinitialisé. Le cerveau va lancer son analyse.')
+  pushToMiniChat('Produit actif changé : "'+(prod?prod.name:'')+'". Cycle réinitialisé — historique créatif et scores d\'angle de ce produit conservés. Le cerveau va lancer son analyse.')
   setTimeout(function(){runBrain(false)},400)
 }
 
@@ -1676,6 +1726,10 @@ function editProduct(prodId){
   setValue('pf-cogs',prod.cogs)
   setValue('pf-aov',prod.aov)
   setValue('pf-pain',prod.avatar?prod.avatar.pain:'')
+  setValue('pf-desire',prod.avatar?prod.avatar.desire:'')
+  setValue('pf-objections',(prod.avatar&&prod.avatar.objections||[]).join(', '))
+  setValue('pf-usp',prod.usp||'')
+  setValue('pf-guarantee',prod.guarantee||'')
   setValue('pf-headline',prod.headline)
   setValue('pf-sat',(prod.angles_saturated||[]).join(', '))
   setValue('pf-opp',(prod.angles_opportunities||[]).join(', '))
@@ -1698,7 +1752,7 @@ function editProduct(prodId){
 
 function clearProductForm(){
   pfImages=[]
-  ;['pf-id','pf-name','pf-price','pf-cogs','pf-aov','pf-pain','pf-headline','pf-sat','pf-opp','pf-awareness','pf-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})
+  ;['pf-id','pf-name','pf-price','pf-cogs','pf-aov','pf-pain','pf-desire','pf-objections','pf-usp','pf-guarantee','pf-headline','pf-sat','pf-opp','pf-awareness','pf-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})
   var preview=document.getElementById('pf-images-preview')
   if(preview) preview.innerHTML=''
   var bar=document.getElementById('pf-roas-bar')
@@ -1710,7 +1764,7 @@ function clearProductForm(){
 function refreshMemView(){
   var mem=memGet()
   var m=mem.last_metrics
-  var bank=mem.creative_bank||[]
+  var bank=getProductBank(mem) /* BLOC 3.2 : scopé au produit actif, jamais mélangé */
   var camp=mem.campaign
   var prod=getActiveProduct()
   var roas_be=prod?prod.roas_be||2.3:2.3
@@ -1776,7 +1830,7 @@ function refreshMemView(){
 
   var aList=document.getElementById('angle-scores-list')
   if(aList){
-    var scores=mem.angle_scores||{}
+    var scores=mem.active_product_id?(mem.angle_scores&&mem.angle_scores[mem.active_product_id]||{}):{}
     var keys=Object.keys(scores)
     if(!keys.length){aList.innerHTML='<div style="font-size:11px;color:var(--t3);padding:8px 0">Aucun angle — ajoute un produit avec des angles pour commencer.</div>'}
     else{aList.innerHTML=keys.map(function(a){
@@ -1933,6 +1987,56 @@ function exportMemoryJSON(){
   pushToMiniChat('Mémoire exportée — fichier téléchargé.')
 }
 
+/* BLOC 3 / Modification 3.3 : édition du SOP créatif depuis l'UI, sans toucher au code. */
+async function openSOPSheet(){
+  document.getElementById('sop-sheet').classList.add('open')
+  document.getElementById('sop-error').style.display='none'
+  var ta=document.getElementById('sop-textarea')
+  ta.value='Chargement…'
+  try{
+    var resp=await fetchWithTimeout(SERVER+'/api/sop',{},10000)
+    var data=await resp.json()
+    ta.value=JSON.stringify(data,null,2)
+  }catch(e){
+    ta.value=JSON.stringify(SOP_FALLBACK,null,2)
+    document.getElementById('sop-error').style.display='block'
+    document.getElementById('sop-error').textContent='⚠️ Impossible de charger sop.json depuis le serveur — fallback par défaut affiché ('+e.message+').'
+  }
+}
+function closeSOPSheet(){document.getElementById('sop-sheet').classList.remove('open')}
+
+async function saveSOP(){
+  var ta=document.getElementById('sop-textarea')
+  var errEl=document.getElementById('sop-error')
+  errEl.style.display='none'
+  var parsed
+  try{
+    parsed=JSON.parse(ta.value)
+  }catch(e){
+    errEl.style.display='block'
+    errEl.textContent='⚠️ JSON invalide : '+e.message+' — rien n\'a été sauvegardé.'
+    return
+  }
+  if(!parsed.win_rates||!parsed.rules_p4){
+    errEl.style.display='block'
+    errEl.textContent='⚠️ Le SOP doit contenir au minimum "win_rates" et "rules_p4".'
+    return
+  }
+  try{
+    var resp=await fetchWithTimeout(SERVER+'/api/sop',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(parsed)
+    },10000)
+    var data=await resp.json()
+    if(data.error) throw new Error(data.error)
+    ta.value=JSON.stringify(data,null,2)
+    pushToMiniChat('SOP créatif sauvegardé — les prochains batchs l\'utiliseront.')
+    closeSOPSheet()
+  }catch(e){
+    errEl.style.display='block'
+    errEl.textContent='⚠️ Sauvegarde échouée : '+e.message
+  }
+}
+
 function downloadCreative(creativeId,type){
   var mem=memGet()
   var c=mem.creative_bank.find(function(x){return x.id===creativeId})
@@ -2009,7 +2113,7 @@ async function sendMiniChat(){
       ctx.push('Metriques : Spend '+m.spend+'EUR | CA Shopify '+m.ca_shopify+'EUR | ROAS reel '+(m.roas_real?m.roas_real.toFixed(2):'?')+'x | CTR '+m.ctr+'% | Freq '+m.freq)
     }
     if(mission&&mission.text) ctx.push('Mission en cours : '+mission.text)
-    var winners=(mem.creative_bank||[]).filter(function(c){return c.status==='WINNER'})
+    var winners=getProductBank(mem).filter(function(c){return c.status==='WINNER'})
     if(winners.length) ctx.push('Winners actifs : '+winners.map(function(c){return c.name}).join(', '))
     var systemPrompt='Tu es Promethee, cerveau e-commerce ASL v9. Reponds uniquement depuis les donnees reelles du compte. Court, chiffre, actionnable. Si donnee manquante, dis-le.'
     var resp=await fetchWithTimeout(SERVER+'/api/claude',{
@@ -2126,6 +2230,42 @@ function migrateMemoryIfNeeded(){
     /* Assurer que angle_scores existe */
     if(!mem.angle_scores) { mem.angle_scores={}; dirty=true }
 
+    /* BLOC 3 / Modification 3.2 : migrer angle_scores de l'ancien format global plat
+       {angleName:{tests,winners,confidence,...}} vers le nouveau format scopé par produit
+       {productId:{angleName:{...}}}. Détection : une valeur du premier niveau qui a un
+       champ "confidence" numérique = ancien format (le nouveau format a des productId
+       en clés, dont les valeurs sont des objets de buckets, jamais directement un score). */
+    var ascKeys=Object.keys(mem.angle_scores)
+    var looksLegacyFlat=ascKeys.length>0&&ascKeys.some(function(k){
+      var v=mem.angle_scores[k]
+      return v&&typeof v==='object'&&typeof v.confidence==='number'
+    })
+    if(looksLegacyFlat){
+      var legacy=mem.angle_scores
+      if(mem.products&&mem.products.length===1){
+        var onlyId=mem.products[0].id
+        mem.angle_scores={}
+        mem.angle_scores[onlyId]=legacy
+        console.log('[Prométhée] angle_scores migré vers le format scopé par produit ('+onlyId+').')
+      }else{
+        console.warn('[Prométhée] angle_scores en ancien format global avec '+(mem.products?mem.products.length:0)+' produit(s) — migration automatique impossible sans ambiguïté, remis à zéro pour éviter une contamination entre produits.')
+        mem.angle_scores={}
+      }
+      dirty=true
+    }
+
+    /* Tagger les creative_bank orphelines (sans product_id, créées avant le Bloc 1/3) */
+    var orphans=(mem.creative_bank||[]).filter(function(c){return !c.product_id})
+    if(orphans.length){
+      if(mem.products&&mem.products.length===1){
+        orphans.forEach(function(c){c.product_id=mem.products[0].id})
+        console.log('[Prométhée] '+orphans.length+' créative(s) sans product_id assignée(s) au produit unique existant.')
+        dirty=true
+      }else if(mem.products&&mem.products.length>1){
+        console.warn('[Prométhée] '+orphans.length+' créative(s) sans product_id avec plusieurs produits — impossible de deviner leur origine. Elles n\'apparaîtront dans aucune vue scopée par produit jusqu\'à correction manuelle.')
+      }
+    }
+
     if(dirty){
       localStorage.setItem(MEM_KEY,JSON.stringify(mem))
       console.log('[Prométhée] Mémoire migrée vers le format actuel.')
@@ -2218,6 +2358,25 @@ function getActiveProduct(){
 function buildProductId(){return 'prod_'+Date.now()+'_'+Math.random().toString(36).slice(2,6)}
 
 /* ── CALCULS ASL PURS ─────────────────────────────────────── */
+/* BLOC 3 / Modification 3.2 : creative_bank et angle_scores scopés par produit.
+   Avant : structures globales au compte. setActiveProduct() effaçait creative_bank ET
+   angle_scores en entier à chaque changement de produit actif — switcher de produit détruisait
+   l'historique créatif de l'ancien. confirmExecuted() appliquait aussi les décisions J4 à TOUTES
+   les créatives TESTING/DRAFT du compte, pas seulement celles du produit concerné.
+   Maintenant : mem.angle_scores devient {productId:{angleName:{...}}}, et toute lecture du
+   creative_bank pour une vue/décision passe par getProductBank() pour ne jamais mélanger deux
+   produits. Rien n'est jamais effacé en changeant de produit actif. */
+function getProductBank(mem,productId){
+  productId=productId||mem.active_product_id
+  return (mem.creative_bank||[]).filter(function(c){return c.product_id===productId})
+}
+function ensureAngleScoresBucket(mem,productId){
+  productId=productId||mem.active_product_id
+  mem.angle_scores=mem.angle_scores||{}
+  if(!mem.angle_scores[productId]) mem.angle_scores[productId]={}
+  return mem.angle_scores[productId]
+}
+
 var ASL={
   computeRoasBe:function(price,cogs){return price/(price-cogs)},
   computeRoasTarget:function(roas_be){return roas_be*1.20},
@@ -2277,7 +2436,7 @@ var ASL={
 
   computeBatchSize:function(mem){
     var camp=mem.campaign
-    var winners=mem.creative_bank.filter(function(c){return c.status==='WINNER'})
+    var winners=getProductBank(mem).filter(function(c){return c.status==='WINNER'})
     /* Règle P5 Testing : 3-6 créas max au départ */
     if(camp.asl_phase==='TESTING'){
       if(camp.cycle_number===1) return 3
@@ -2290,15 +2449,17 @@ var ASL={
     return 6
   },
 
-  getAvailableAngles:function(mem){
-    return Object.keys(mem.angle_scores).filter(function(angle){
-      return mem.angle_scores[angle].status==='ACTIVE'
+  getAvailableAngles:function(mem,productId){
+    var scores=ensureAngleScoresBucket(mem,productId)
+    return Object.keys(scores).filter(function(angle){
+      return scores[angle].status==='ACTIVE'
     })
   },
 
-  updateAngleScore:function(mem,angle,won){
-    if(!mem.angle_scores[angle]) return
-    var s=mem.angle_scores[angle]
+  updateAngleScore:function(mem,angle,won,productId){
+    var scores=ensureAngleScoresBucket(mem,productId)
+    if(!scores[angle]) return
+    var s=scores[angle]
     s.tests++;if(won)s.winners++
     s.confidence=s.winners/s.tests
     if(ASL.shouldGrisAngle(s)){
@@ -2569,13 +2730,52 @@ async function scrapeSite(url){
   }
 }
 
+/* ── SOP CRÉATIF (BLOC 3 / Modification 3.3) ──
+   Avant : règles ASL P4 et win-rates hardcodés dans ce fichier. Maintenant : chargés depuis
+   sop.json via server.js, modifiables depuis Réglages sans toucher au code. Le fallback
+   ci-dessous garantit que la génération ne casse jamais si sop.json est temporairement
+   inaccessible (même philosophie de résilience que le Bloc 2). */
+var SOP_FALLBACK={
+  win_rates:{'Unboxing':0.10,'Offer First':0.09,'UGC Testimonial':0.076,'Text-based':0.05,'Creator Partnership':0.04},
+  rules_p4:[
+    '1 seule variable changée par créa vs la précédente (angle OU format OU hook OU awareness)',
+    'Jamais répéter un hook déjà testé',
+    'Pour les vidéos UGC : fournir un SCRIPT COMPLET mot à mot (pas juste le hook), avec instructions de mise en scène précises',
+    'Pour les statiques : décrire précisément la composition visuelle, le texte overlay, les couleurs',
+    'Le message de la créa DOIT matcher le langage exact de la page produit (message match)'
+  ],
+  batch_mix_instruction:'Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible.'
+}
+async function loadSOP(){
+  try{
+    var resp=await fetchWithTimeout(SERVER+'/api/sop',{},10000)
+    var data=await resp.json()
+    if(!data||!data.win_rates||!data.rules_p4) throw new Error('SOP reçu invalide')
+    return data
+  }catch(e){
+    console.error('[SOP] chargement échoué, fallback par défaut utilisé :',e)
+    return SOP_FALLBACK
+  }
+}
+function formatSOPForPrompt(sop){
+  var winRatesTxt=Object.keys(sop.win_rates).map(function(k){
+    var pct=(sop.win_rates[k]*100).toFixed(1).replace(/\.0$/,'')
+    return k+' '+pct+'%'
+  }).join(' | ')
+  var rulesTxt=sop.rules_p4.map(function(r){return '\n- '+r}).join('')
+  return {winRatesTxt:winRatesTxt,rulesTxt:rulesTxt,batchMix:sop.batch_mix_instruction||''}
+}
+
 /* ── CREATIVE ENGINE COMPLET ─────────────────────────────── */
 async function callClaudeForBriefs(mem,batchSize){
   var prod=getActiveProduct()
   if(!prod){throw new Error("Aucun produit actif")}
+  var sop=await loadSOP()
+  var sopTxt=formatSOPForPrompt(sop)
 
-  var winners=mem.creative_bank.filter(function(c){return c.status==='WINNER'})
-  var usedHooks=mem.creative_bank.map(function(c){return c.hook}).filter(Boolean)
+  var productBank=getProductBank(mem) /* BLOC 3.2 : ne jamais mélanger les hooks/winners d'un autre produit */
+  var winners=productBank.filter(function(c){return c.status==='WINNER'})
+  var usedHooks=productBank.map(function(c){return c.hook}).filter(Boolean)
   var availAngles=ASL.getAvailableAngles(mem)
   var weeklyPatterns=mem.weekly_patterns&&mem.weekly_patterns.length?mem.weekly_patterns[mem.weekly_patterns.length-1]:null
   var produitsVeille=(mem.products||[]).filter(function(p){return p.status==='STANDBY'})
@@ -2624,6 +2824,10 @@ async function callClaudeForBriefs(mem,batchSize){
     +'\nPrix : '+prod.price+'EUR | COGS : '+prod.cogs+'EUR'
     +'\nROAS BE : '+(prod.roas_be||'?')+'x | ROAS Target : '+(prod.roas_target||'?')+'x'
     +'\nDouleur avatar : '+(prod.avatar&&prod.avatar.pain?prod.avatar.pain:'Non renseigné')
+    +'\nDésir / transformation recherchée : '+(prod.avatar&&prod.avatar.desire?prod.avatar.desire:'Non renseigné')
+    +'\nObjections à lever (utilise-les explicitement dans l\'ad_copy) : '+((prod.avatar&&prod.avatar.objections||[]).join(' | ')||'Non renseignées')
+    +'\nUSP / différenciation vs concurrents : '+(prod.usp||'Non renseignée')
+    +'\nGarantie / bonus : '+(prod.guarantee||'Non renseignée')
     +'\nNiveau conscience : '+(prod.avatar&&prod.avatar.awareness_level?prod.avatar.awareness_level:2)+'/5'
     +'\nHeadline boutique : '+(prod.headline||'Non renseigné')
     +'\nAngles saturés (INTERDITS) : '+((prod.angles_saturated||[]).join(', ')||'aucun')
@@ -2635,14 +2839,10 @@ async function callClaudeForBriefs(mem,batchSize){
     +'\nWinners actifs : '+(winners.map(function(c){return c.name+' (ROAS '+c.roas+'x)'}).join(', ')||'aucun encore')
     +ctxPatterns
     +ctxBundles
-    +'\n\nREGLES ASL P4 :'
-    +'\n- 1 seule variable changée par créa vs la précédente (angle OU format OU hook OU awareness)'
-    +'\n- Jamais répéter un hook déjà testé'
-    +'\n- Win rates ASL : Unboxing 10% | Offer First 9% | UGC Testimonial 7.6% | Text-based 5% | Creator Partnership 4%'
-    +'\n- Pour les vidéos UGC : fournir un SCRIPT COMPLET mot à mot (pas juste le hook), avec instructions de mise en scène précises'
-    +'\n- Pour les statiques : décrire précisément la composition visuelle, le texte overlay, les couleurs'
-    +'\n- Le message de la créa DOIT matcher le langage exact de la page produit (message match)'
-    +'\n\nGénère exactement '+batchSize+' briefs. Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible.'
+    +'\n\nREGLES ASL P4 (SOP éditable depuis Réglages) :'
+    +sopTxt.rulesTxt
+    +'\n- Win rates ASL : '+sopTxt.winRatesTxt
+    +'\n\nGénère exactement '+batchSize+' briefs. '+sopTxt.batchMix
     +'\nRéponds UNIQUEMENT en JSON valide :'
     +'\n{"briefs":[{'
     +'\n  "id":1,'
@@ -3141,7 +3341,9 @@ function confirmExecuted(){
      Appelé sur J4 car c'est la décision finale du cycle — on sait si l'angle a gagné ou perdu.
      ASL : angle grisé si confidence < 20% après 3 tests + 150€ spend + 3000 impressions. */
   if(key.startsWith('J4')){
-    var bank=mem.creative_bank||[]
+    /* BLOC 3.2 : scopé au produit actif — avant, une décision J4 sur le produit A
+       pouvait faire passer WINNER/LOSER/MID des créatives TESTING/DRAFT du produit B. */
+    var bank=getProductBank(mem)
     /* Trouver les créatives du cycle en cours (statut TESTING ou DRAFT) */
     var cycleCreatives=bank.filter(function(c){
       return c.status==='TESTING'||c.status==='DRAFT'
@@ -3149,11 +3351,12 @@ function confirmExecuted(){
     var won=key.startsWith('J4_GO') /* GO = angle performant, CUT/OPTI = pas gagné */
     /* Mettre à jour chaque angle unique impliqué */
     var anglesVus={}
+    var angleBucket=ensureAngleScoresBucket(mem)
     cycleCreatives.forEach(function(c){
       if(c.angle&&!anglesVus[c.angle]){
         anglesVus[c.angle]=true
         /* Incrémenter spend et impressions estimés */
-        var s=mem.angle_scores[c.angle]
+        var s=angleBucket[c.angle]
         if(s){
           s.spend=(s.spend||0)+(mem.last_metrics&&mem.last_metrics.spend?mem.last_metrics.spend/Math.max(1,cycleCreatives.length):0)
           s.impressions=(s.impressions||0)+(mem.last_metrics&&mem.last_metrics.spend&&mem.last_metrics.cpm?Math.round(mem.last_metrics.spend/mem.last_metrics.cpm*1000/Math.max(1,cycleCreatives.length)):0)
@@ -3161,7 +3364,9 @@ function confirmExecuted(){
         ASL.updateAngleScore(mem,c.angle,won)
       }
     })
-    /* Mettre à jour le statut des créatives selon la décision */
+    /* Mettre à jour le statut des créatives selon la décision.
+       bank est un sous-ensemble filtré mais contient les mêmes références d'objet que
+       mem.creative_bank — muter c.status ici modifie bien l'entrée réelle, pas une copie. */
     bank.forEach(function(c){
       if(c.status==='TESTING'||c.status==='DRAFT'){
         if(key.startsWith('J4_GO')){
@@ -3182,13 +3387,15 @@ function confirmExecuted(){
         c.spend=(c.spend||0)+(mem.last_metrics&&mem.last_metrics.spend?mem.last_metrics.spend:0)
       }
     })
-    mem.creative_bank=bank
+    /* Pas de mem.creative_bank=bank ici : bank n'est qu'un sous-ensemble filtré du produit
+       actif — le réassigner détruirait les créatives des autres produits. Les mutations
+       ci-dessus s'appliquent déjà aux objets réels via la référence partagée. */
   }
 
   /* ÉTAPE 11B — writeWeeklyPattern : enregistrer le pattern de la semaine chaque lundi.
      Utilisé pour calibrer les prochains batchs (format dominant, angle dominant, wins/cuts). */
   if(key==='AUDIT_WEEKLY'){
-    var bank2=mem.creative_bank||[]
+    var bank2=getProductBank(mem) /* BLOC 3.2 : le pattern hebdo ne doit refléter qu'un produit */
     var winners2=bank2.filter(function(c){return c.status==='WINNER'})
     var cuts2=bank2.filter(function(c){return c.status==='LOSER'})
     /* Format dominant : le format qui revient le plus dans les winners */
@@ -3275,7 +3482,7 @@ function spawnDecisionBubbles(decision){
   var m=mem.last_metrics
   var prod=getActiveProduct()
   var roas_be=prod?prod.roas_be||2.3:2.3
-  var bank=mem.creative_bank||[]
+  var bank=getProductBank(mem) /* BLOC 3.2 */
 
   /* ── ÉTAT NEUTRE — aucun produit ── */
   if(!prod||!mem.products||!mem.products.length){

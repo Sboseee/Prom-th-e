@@ -109,6 +109,52 @@ app.post('/api/claude', async (req, res) => {
   }
 })
 
+/* ── SOP CRÉATIF (BLOC 3 / Modification 3.3) ──
+   Avant : règles ASL P4 et win-rates par format codés en dur dans index.html.
+   Maintenant : fichier sop.json sur disque, modifiable depuis l'UI Réglages (POST) sans
+   jamais toucher au JavaScript, et versionné dans Git (contrairement à localStorage). */
+const SOP_PATH = path.join(__dirname, 'sop.json')
+const SOP_DEFAULT = {
+  version: 1,
+  updated_at: null,
+  win_rates: { 'Unboxing': 0.10, 'Offer First': 0.09, 'UGC Testimonial': 0.076, 'Text-based': 0.05, 'Creator Partnership': 0.04 },
+  rules_p4: [
+    '1 seule variable changée par créa vs la précédente (angle OU format OU hook OU awareness)',
+    'Jamais répéter un hook déjà testé',
+    'Pour les vidéos UGC : fournir un SCRIPT COMPLET mot à mot (pas juste le hook), avec instructions de mise en scène précises',
+    'Pour les statiques : décrire précisément la composition visuelle, le texte overlay, les couleurs',
+    'Le message de la créa DOIT matcher le langage exact de la page produit (message match)'
+  ],
+  batch_mix_instruction: 'Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible.'
+}
+
+app.get('/api/sop', (req, res) => {
+  try {
+    if (!fs.existsSync(SOP_PATH)) {
+      fs.writeFileSync(SOP_PATH, JSON.stringify(SOP_DEFAULT, null, 2))
+      return res.json(SOP_DEFAULT)
+    }
+    const raw = fs.readFileSync(SOP_PATH, 'utf8')
+    res.json(JSON.parse(raw))
+  } catch (e) {
+    res.status(500).json({ error: 'lecture sop.json échouée : ' + e.message })
+  }
+})
+
+app.post('/api/sop', (req, res) => {
+  try {
+    const body = req.body
+    if (!body || typeof body !== 'object' || !body.win_rates || !body.rules_p4) {
+      return res.status(400).json({ error: 'SOP invalide : win_rates et rules_p4 sont requis' })
+    }
+    body.updated_at = new Date().toISOString()
+    fs.writeFileSync(SOP_PATH, JSON.stringify(body, null, 2))
+    res.json(body)
+  } catch (e) {
+    res.status(500).json({ error: 'écriture sop.json échouée : ' + e.message })
+  }
+})
+
 /* ── SAUVEGARDE DES CRÉATIVES GÉNÉRÉES (fichiers locaux, pas de base64 en localStorage) ──
    Le serveur télécharge lui-même l'asset distant (fal.ai/Higgsfield) et l'écrit dans ./creatives/.
    Nommage : <product_id>__<creative_id>.<ext> → traçabilité directe par le nom de fichier.

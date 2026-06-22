@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "updated_at": null,
+  "win_rates": {
+    "Unboxing": 0.10,
+    "Offer First": 0.09,
+    "UGC Testimonial": 0.076,
+    "Text-based": 0.05,
+    "Creator Partnership": 0.04
+  },
+  "rules_p4": [
+    "1 seule variable changée par créa vs la précédente (angle OU format OU hook OU awareness)",
+    "Jamais répéter un hook déjà testé",
+    "Pour les vidéos UGC : fournir un SCRIPT COMPLET mot à mot (pas juste le hook), avec instructions de mise en scène précises",
+    "Pour les statiques : décrire précisément la composition visuelle, le texte overlay, les couleurs",
+    "Le message de la créa DOIT matcher le langage exact de la page produit (message match)"
+  ],
+  "batch_mix_instruction": "Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible."
+}
