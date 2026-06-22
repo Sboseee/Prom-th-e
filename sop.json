@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "updated_at": null,
   "win_rates": {
     "Unboxing": 0.10,
@@ -15,5 +15,100 @@
     "Pour les statiques : décrire précisément la composition visuelle, le texte overlay, les couleurs",
     "Le message de la créa DOIT matcher le langage exact de la page produit (message match)"
   ],
-  "batch_mix_instruction": "Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible."
+  "batch_mix_instruction": "Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible.",
+
+  "diversity_rules": {
+    "min_angles_per_batch": 3,
+    "min_types_annonces_per_batch": 2,
+    "min_awareness_levels_per_batch": 2,
+    "priority": "fond_avant_forme",
+    "priority_note": "Diversifier les angles/messages a plus d'impact que diversifier les formats. 5 angles x 3 messages = 15 combinaisons de fond AVANT de toucher au format."
+  },
+
+  "andromeda_fingerprint": {
+    "elements": ["hook_visuel", "texte_headline", "audio_musique", "format", "angle_central"],
+    "min_elements_changed": 3,
+    "most_impactful": "angle_central",
+    "rule": "Si une nouvelle créative change moins de 3 des 5 éléments vs la précédente sur le même angle, elle est vue comme quasi-doublon par Andromeda — cannibalisation au lieu de nouvelle poche d'audience."
+  },
+
+  "awareness_levels": [
+    {"level": 1, "name": "Unaware", "approche": "Accroche choc / storytelling / hook curiosité → faire réaliser le problème"},
+    {"level": 2, "name": "Problem Aware", "approche": "Faire découvrir qu'une solution existe — éducation, pain points"},
+    {"level": 3, "name": "Solution Aware", "approche": "Montrer le produit comme LA solution — expliquer pourquoi ça marche"},
+    {"level": 4, "name": "Product Aware", "approche": "Différenciation vs concurrents — USP, avis, comparatif"},
+    {"level": 5, "name": "Most Aware", "approche": "Urgence, promo, nouveauté — juste une raison d'acheter maintenant"}
+  ],
+
+  "angle_categories": ["Douleur", "Curiosité", "Transformation", "Peur de rater", "Bénéfice immédiat", "Comparaison concurrents"],
+  "hook_styles": ["Question choc", "Stat surprenante", "Déclaration contre-intuitive", "Pattern interrupt visuel"],
+
+  "power_words": {
+    "douleur": ["No more", "Never again", "Fed up with", "Struggling with", "Say goodbye", "Stop"],
+    "urgence": ["Today only", "Last chance", "Limited", "Until midnight", "Final sale", "Now"],
+    "confiance": ["Recommended by", "Trusted by", "#1", "Certified", "Award-winning", "Proven"],
+    "transformation": ["Boost", "Reduce", "Improve", "Fast", "Instant", "Get", "Up to", "Revolutionary"],
+    "facilite": ["Effortless", "Risk-free", "Hassle-free", "Instant", "No learning curve"]
+  },
+  "headline_formula": "[Power Word] + [Pain Point] + [Contexte]",
+
+  "copywriting_structures": [
+    {"name": "AIDA", "usage": "Tout format vidéo ou statique", "logique": "Attention → Intérêt → Désir → Action", "awareness": [1,2,3,4,5]},
+    {"name": "PAS", "usage": "Niveau conscience 2-3 (problem aware)", "logique": "Problem → Agitate (enfoncer l'aiguille) → Solution", "awareness": [2,3]},
+    {"name": "BAB", "usage": "Before/After", "logique": "Before (pain) → After (dream outcome) → Bridge (le produit fait le lien)", "awareness": [2,3,4]},
+    {"name": "Rock Bottom", "usage": "UGC testimonial, Founder Story", "logique": "Pire moment → découverte du produit → résultat. Structure narrative la plus émotionnelle.", "awareness": [1,2,3]},
+    {"name": "Objection First", "usage": "Niveau de conscience 4 (product aware)", "logique": "Commencer par une objection → montrer comment la gérer → résoudre. Casse les freins à l'achat.", "awareness": [4]},
+    {"name": "Yes Ladder", "usage": "Audiences froides, niveau 1-2", "logique": "Enchaîner 3-5 questions auxquelles l'audience répond oui → introduire le produit logiquement", "awareness": [1,2]},
+    {"name": "Offre Irrésistible", "usage": "Tous niveaux — structure complète hook → CTA", "logique": "1. Dream Outcome (call out avatar + résultat rêvé) → 2. UMS + Time Delay (mécanisme + 'tu le sens dès le premier pas') → 3. Probabilité de réussite (preuve sociale chiffrée / autorité) → 4. Zéro effort + Risk Reversal + Urgence", "awareness": [1,2,3,4,5]}
+  ],
+
+  "benefice_vs_feature": {
+    "formule": "[Bénéfice] grâce à [Feature]",
+    "regle": "La feature justifie le bénéfice mais ne le remplace pas. Les gens achètent le résultat, pas la caractéristique. Exception : marché ultra-aware où la feature EST le bénéfice connu."
+  },
+
+  "ump_ums": {
+    "ump_def": "Unique Mechanism Problem — expliquer précisément d'où vient le problème pour que la personne comprenne la cause réelle et soit prête à entendre la solution.",
+    "ums_def": "Unique Mechanism Solution — pourquoi CE produit fonctionne, le mécanisme qui le différencie d'une solution parmi d'autres."
+  },
+
+  "ad_copy_skeleton": [
+    "Hook — les 2 premières lignes décident tout (témoignage entre guillemets / pain point direct / transformation chiffrée)",
+    "Bénéfices en 3-5 check marks maximum, courts, en bénéfice pas en feature",
+    "Preuve sociale ou autorité avec un chiffre",
+    "Offre + urgence — en fin, jamais en début, une fois la valeur perçue construite"
+  ],
+  "ad_copy_max_words": 150,
+
+  "titre_types": [
+    {"type": "Promesse directe + délai", "exemple": "Dites adieu à la perte de cheveux en 3 semaines", "usage": "Toujours — le type le plus polyvalent"},
+    {"type": "Offre chiffrée", "exemple": "Jusqu'à -35% sur nos packs — ce soir seulement", "usage": "French Days, BF, Q4, promos"},
+    {"type": "Bénéfice fonctionnel simple (USP)", "exemple": "Soutient et stabilise vos genoux", "usage": "Créa minimaliste / peu de texte"},
+    {"type": "Preuve sociale + chiffre", "exemple": "50 000 clients satisfaits — produit #1 en France", "usage": "Marché aware, Product Aware"},
+    {"type": "Autorité", "exemple": "Recommandé par les podologues", "usage": "Niche santé, objection confiance"},
+    {"type": "Question intrigante", "exemple": "Et si votre douleur n'était pas juste de la fatigue ?", "usage": "Unaware, audience froide"}
+  ],
+  "titre_complementarity_rule": "Créa chargée (vidéo explicative, statique avec texte) → titre simple (promo ou bénéfice direct). Créa minimaliste (image produit, peu de texte) → titre USP ou question qui complète. Jamais répéter dans le titre ce qui est déjà dans la créa.",
+
+  "types_annonces": [
+    {"type": "UGC Testimonial authentique", "awareness": [3,4], "win_rate": 0.076, "spend_ratio": "Élevé", "cle": "Pas de production parfaite — lumière naturelle imparfaite, structure avant/après, manque de perfection = confiance."},
+    {"type": "Founder Story", "awareness": [1,2], "win_rate": null, "spend_ratio": "Élevé quand scale", "cle": "Format dominant 2026. Connexion humaine, vulnérabilité, le pourquoi avant le quoi. Ne vend pas — crée la connexion. 60-120s, facecam simple."},
+    {"type": "Ugly Ads", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Moyen", "cle": "Délibérément low-fi, ressemble à de l'organique. Script doit être excellent car rien ne masque les faiblesses."},
+    {"type": "US vs DM (comparaison)", "awareness": [3], "win_rate": null, "spend_ratio": "Moyen", "cle": "Comparaison directe sans nommer le concurrent. Différenciateurs réels et tangibles."},
+    {"type": "Before/After + Social Proof", "awareness": [3,4], "win_rate": null, "spend_ratio": "Moyen", "cle": "Spécificité des résultats (chiffres précis), représentativité du profil, honnêteté sur le doute initial."},
+    {"type": "Offer First (BOFU)", "awareness": [5], "win_rate": 0.09, "spend_ratio": "30% du spend total", "cle": "Urgence/rareté/nouveauté dès les 3 premières secondes. Clarté absolue en <2s. Non optionnel dans le mix."},
+    {"type": "Unboxing", "awareness": [3,4], "win_rate": 0.10, "spend_ratio": "Moyen-élevé", "cle": "Sous-exploité — peu de concurrents le font malgré la performance. Ouverture du colis, première impression."},
+    {"type": "Réponses aux Objections", "awareness": [4], "win_rate": null, "spend_ratio": "Moyen", "cle": "Facecam simple. Identifier les vraies objections (avis, SAV, Q&A). Reconnaître quand l'objection est légitime."},
+    {"type": "Text-based Lettre", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Très élevé quand ça marche", "cle": "Ultra sous-utilisé — aucune image/vidéo, juste du texte. Format le moins saturé."},
+    {"type": "Creator Partnership", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Élevé quand scale", "cle": "Diffusé depuis le compte créateur, pas la marque — favorisé algorithmiquement par Meta."}
+  ],
+  "types_annonces_priorite": "Chercher les créas avec BON win rate ET gros spend ratio quand elles gagnent — les vraies anomalies. Un bon win rate qui ne spend pas beaucoup est moins intéressant qu'un win rate correct qui explose en spend.",
+
+  "scaling_personas_prompt": "Mon produit est [X]. Ma cible large validée est [démographie + comportement]. Mes winners actuels parlent à [avatar actuel]. Génère 5 nouveaux personas ultra-précis issus de cette cible large. Pour chaque persona : (1) description précise, (2) ce qu'elles ont déjà essayé sans succès, (3) le sentiment profond que leur procure le problème, (4) le résultat concret et spécifique recherché, (5) le hook exact à tester, (6) le niveau de conscience visé. Priorise les personas les plus distincts de ceux déjà testés.",
+
+  "diagnostic_formula": {
+    "name": "Volume x Diversité x Qualité x Analyse x Double Down",
+    "note": "Multiplicateur — si une variable est à 0, le résultat est 0. La question hebdo qui compte : combien de winners sortis cette semaine — pas le win rate.",
+    "loi_8_pourcent": "8% des créatives sont winners (60% du spend), 40% midrange (26% du spend), 52% perdantes (14% du spend, données d'apprentissage). Pour 8 winners il faut ~100 créas testées. Mesurer le NOMBRE de winners, pas le pourcentage."
+  }
 }

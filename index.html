@@ -742,6 +742,7 @@
     <div id="sys-state-rows"></div>
     <button onclick="exportMemoryJSON()" style="width:100%;background:var(--bdim);border:0.5px solid var(--bborder);border-radius:10px;padding:11px;color:var(--blue);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">⬇ Exporter ma mémoire (sauvegarde JSON)</button>
     <button onclick="openSOPSheet()" style="width:100%;background:var(--pdim);border:0.5px solid var(--pborder);border-radius:10px;padding:11px;color:var(--purple);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">⚙ Modifier le SOP créatif</button>
+    <button onclick="testStrategyEngineSimulation()" style="width:100%;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:10px;padding:11px;color:var(--green);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">🧪 Tester le moteur stratégique (simulation, 0€)</button>
     <button onclick="resetCurrentCycle()" style="width:100%;background:transparent;border:0.5px solid var(--rborder);border-radius:10px;padding:11px;color:var(--red);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">Réinitialiser le cycle actuel</button>
 
   </div>
@@ -943,6 +944,18 @@
   <textarea id="sop-textarea" style="width:100%;min-height:260px;background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;color:var(--t1);font-family:'SF Mono',Consolas,monospace;font-size:11px;line-height:1.6;padding:12px;box-sizing:border-box;resize:vertical"></textarea>
   <div id="sop-error" style="display:none;margin-top:8px;font-size:11px;color:var(--red)"></div>
   <button class="metric-submit" onclick="saveSOP()" style="margin-top:12px">Sauvegarder le SOP</button>
+</div>
+
+<!-- STRATEGY TEST SHEET (BLOC 5) -->
+<div class="metric-sheet" id="strategy-test-sheet">
+  <div class="metric-sheet-title">
+    <div>
+      <div style="font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">Bloc 5 · zéro coût</div>
+      <div style="font-size:13px;font-weight:600">Test du moteur stratégique (simulation)</div>
+    </div>
+    <span class="metric-close" onclick="closeStrategyTestSheet()">×</span>
+  </div>
+  <div id="strategy-test-results" style="font-size:11px;color:var(--t2);line-height:1.6;max-height:60vh;overflow-y:auto"></div>
 </div>
 
 </div>
@@ -2118,6 +2131,54 @@ async function saveSOP(){
   }
 }
 
+/* BLOC 5 : test du moteur stratégique en mode simulation — zéro appel API réel, zéro coût.
+   Vérifie uniquement la plomberie (Angles→Hooks→Concept, diversité, empreinte Andromeda
+   partielle) — pas la qualité du contenu, qui ne peut être jugée qu'avec de vrais appels. */
+async function testStrategyEngineSimulation(){
+  var mem=memGet()
+  if(!mem.active_product_id){pushToMiniChat('⚠️ Configure et active un produit avant de tester le moteur stratégique.');return}
+  pushToMiniChat('🧪 Test du moteur stratégique en simulation (zéro coût, zéro appel réel)...')
+  try{
+    var batchSize=ASL.computeBatchSize(mem)
+    var result=await runCreativeStrategyChain(mem.active_product_id,batchSize,{simulate:true})
+    renderStrategyTestResults(result)
+    openStrategyTestSheet()
+    pushToMiniChat('🧪 Simulation terminée — '+result.concepts.length+' concept(s) généré(s). Détail dans le panneau.')
+  }catch(e){
+    console.error('[testStrategyEngineSimulation]',e)
+    pushToMiniChat('⚠️ Test simulation échoué : '+e.message)
+  }
+}
+function openStrategyTestSheet(){document.getElementById('strategy-test-sheet').classList.add('open')}
+function closeStrategyTestSheet(){document.getElementById('strategy-test-sheet').classList.remove('open')}
+function renderStrategyTestResults(result){
+  var el=document.getElementById('strategy-test-results')
+  if(!el) return
+  var d=result.diagnostics
+  var html='<div style="background:'+(d.batch_diversity.pass?'var(--gdim)':'var(--rdim)')+';border:0.5px solid '+(d.batch_diversity.pass?'var(--gborder)':'var(--rborder)')+';border-radius:8px;padding:10px 12px;margin-bottom:10px">'
+    +'<b>Diversité du batch :</b> '+(d.batch_diversity.pass?'✅ conforme':'⚠️ insuffisante')
+    +'<br>'+d.batch_diversity.counts.angles+' angles · '+d.batch_diversity.counts.types+' types d\'annonces · '+d.batch_diversity.counts.levels+' niveaux de conscience'
+    +(d.batch_diversity.missing.length?'<br>Manque : '+d.batch_diversity.missing.join(', '):'')
+    +'</div>'
+  if(d.errors.length){
+    html+='<div style="background:var(--rdim);border:0.5px solid var(--rborder);border-radius:8px;padding:10px 12px;margin-bottom:10px"><b>Erreurs :</b><br>'+d.errors.join('<br>')+'</div>'
+  }
+  html+=result.concepts.map(function(c,i){
+    var fp=c._fingerprint_check||{}
+    return '<div style="background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:8px">'
+      +'<div style="font-weight:600;color:var(--t1);margin-bottom:4px">'+(i+1)+'. '+c.angle+' · niveau '+c.awareness_level+'/5</div>'
+      +'<div style="color:var(--amber);margin-bottom:4px">Hook : "'+c.hook+'"</div>'
+      +'<div>Structure : '+c.copywriting_structure+' · Type recommandé : '+c.type_annonce_recommande+'</div>'
+      +'<div>UMP : '+c.ump+'</div>'
+      +'<div>UMS : '+c.ums+'</div>'
+      +'<div>Objection levée : '+c.objection_handled+'</div>'
+      +'<div>Titre : '+c.titre+'</div>'
+      +'<div style="margin-top:4px;color:var(--t3);font-size:10px">Empreinte Andromeda : '+(fp.note||'non vérifiée')+'</div>'
+      +'</div>'
+  }).join('')
+  el.innerHTML=html
+}
+
 function downloadCreative(creativeId,type){
   var mem=memGet()
   var c=mem.creative_bank.find(function(x){return x.id===creativeId})
@@ -2456,6 +2517,18 @@ function ensureAngleScoresBucket(mem,productId){
   mem.angle_scores=mem.angle_scores||{}
   if(!mem.angle_scores[productId]) mem.angle_scores[productId]={}
   return mem.angle_scores[productId]
+}
+
+/* Partagé entre callClaudeForBriefs (Bloc 4) et le Creative Strategy Engine (Bloc 5) —
+   évite de dupliquer le calcul de saturation des niveaux de conscience par la concurrence. */
+function computeSaturationLevels(competitors){
+  var counts={1:0,2:0,3:0,4:0,5:0}
+  ;(competitors||[]).forEach(function(c){if(c.awareness>=1&&c.awareness<=5)counts[c.awareness]++})
+  return {
+    satLevels:Object.keys(counts).filter(function(k){return counts[k]>=2}).map(Number),
+    freeLevels:Object.keys(counts).filter(function(k){return counts[k]===0}).map(Number),
+    counts:counts
+  }
 }
 
 var ASL={
@@ -2816,6 +2889,9 @@ async function scrapeSite(url){
    sop.json via server.js, modifiables depuis Réglages sans toucher au code. Le fallback
    ci-dessous garantit que la génération ne casse jamais si sop.json est temporairement
    inaccessible (même philosophie de résilience que le Bloc 2). */
+/* BLOC 5 : enrichi avec le contenu réel du playbook ASL (diversité, empreinte Andromeda,
+   structures de copywriting, types d'annonces win-rate/spend ratio réels). Ce fallback ne sert
+   que si /api/sop est inaccessible — sop.json sur disque reste la source de vérité. */
 var SOP_FALLBACK={
   win_rates:{'Unboxing':0.10,'Offer First':0.09,'UGC Testimonial':0.076,'Text-based':0.05,'Creator Partnership':0.04},
   rules_p4:[
@@ -2825,7 +2901,67 @@ var SOP_FALLBACK={
     'Pour les statiques : décrire précisément la composition visuelle, le texte overlay, les couleurs',
     'Le message de la créa DOIT matcher le langage exact de la page produit (message match)'
   ],
-  batch_mix_instruction:'Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible.'
+  batch_mix_instruction:'Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible.',
+  diversity_rules:{min_angles_per_batch:3,min_types_annonces_per_batch:2,min_awareness_levels_per_batch:2,priority:'fond_avant_forme',priority_note:"Diversifier les angles/messages a plus d'impact que diversifier les formats."},
+  andromeda_fingerprint:{elements:['hook_visuel','texte_headline','audio_musique','format','angle_central'],min_elements_changed:3,most_impactful:'angle_central',rule:'Changer minimum 3 des 5 éléments pour ne pas être vu comme quasi-doublon par Andromeda.'},
+  awareness_levels:[
+    {level:1,name:'Unaware',approche:'Accroche choc / storytelling / hook curiosité → faire réaliser le problème'},
+    {level:2,name:'Problem Aware',approche:"Faire découvrir qu'une solution existe — éducation, pain points"},
+    {level:3,name:'Solution Aware',approche:'Montrer le produit comme LA solution — expliquer pourquoi ça marche'},
+    {level:4,name:'Product Aware',approche:'Différenciation vs concurrents — USP, avis, comparatif'},
+    {level:5,name:'Most Aware',approche:"Urgence, promo, nouveauté — juste une raison d'acheter maintenant"}
+  ],
+  angle_categories:['Douleur','Curiosité','Transformation','Peur de rater','Bénéfice immédiat','Comparaison concurrents'],
+  hook_styles:['Question choc','Stat surprenante','Déclaration contre-intuitive','Pattern interrupt visuel'],
+  power_words:{
+    douleur:['No more','Never again','Fed up with','Struggling with','Say goodbye','Stop'],
+    urgence:['Today only','Last chance','Limited','Until midnight','Final sale','Now'],
+    confiance:['Recommended by','Trusted by','#1','Certified','Award-winning','Proven'],
+    transformation:['Boost','Reduce','Improve','Fast','Instant','Get','Up to','Revolutionary'],
+    facilite:['Effortless','Risk-free','Hassle-free','Instant','No learning curve']
+  },
+  headline_formula:'[Power Word] + [Pain Point] + [Contexte]',
+  copywriting_structures:[
+    {name:'AIDA',usage:'Tout format',logique:'Attention → Intérêt → Désir → Action',awareness:[1,2,3,4,5]},
+    {name:'PAS',usage:'Niveau 2-3',logique:'Problem → Agitate → Solution',awareness:[2,3]},
+    {name:'BAB',usage:'Before/After',logique:'Before → After → Bridge',awareness:[2,3,4]},
+    {name:'Rock Bottom',usage:'UGC testimonial, Founder Story',logique:'Pire moment → découverte → résultat',awareness:[1,2,3]},
+    {name:'Objection First',usage:'Niveau 4',logique:'Objection → gestion → résolution',awareness:[4]},
+    {name:'Yes Ladder',usage:'Audiences froides 1-2',logique:'3-5 questions oui → produit',awareness:[1,2]},
+    {name:'Offre Irrésistible',usage:'Tous niveaux',logique:'Dream Outcome → UMS+Time Delay → Probabilité de réussite → Zéro effort+Urgence',awareness:[1,2,3,4,5]}
+  ],
+  benefice_vs_feature:{formule:'[Bénéfice] grâce à [Feature]',regle:'La feature justifie, le bénéfice vend.'},
+  ump_ums:{ump_def:"Unique Mechanism Problem — d'où vient le problème, la cause réelle.",ums_def:'Unique Mechanism Solution — pourquoi CE produit fonctionne, le mécanisme différenciant.'},
+  ad_copy_skeleton:['Hook (2 premières lignes)','Bénéfices en 3-5 check marks','Preuve sociale ou autorité','Offre + urgence en fin'],
+  ad_copy_max_words:150,
+  titre_types:[
+    {type:'Promesse directe + délai',exemple:'Dites adieu à la perte de cheveux en 3 semaines',usage:'Toujours'},
+    {type:'Offre chiffrée',exemple:"Jusqu'à -35% — ce soir seulement",usage:'Promos'},
+    {type:'Bénéfice fonctionnel simple (USP)',exemple:'Soutient et stabilise vos genoux',usage:'Créa minimaliste'},
+    {type:'Preuve sociale + chiffre',exemple:'50 000 clients satisfaits',usage:'Marché aware'},
+    {type:'Autorité',exemple:'Recommandé par les podologues',usage:'Niche santé'},
+    {type:'Question intrigante',exemple:"Et si votre douleur n'était pas juste de la fatigue ?",usage:'Unaware'}
+  ],
+  titre_complementarity_rule:'Créa chargée → titre simple. Créa minimaliste → titre USP ou question. Jamais répéter dans le titre ce qui est déjà dans la créa.',
+  types_annonces:[
+    {type:'UGC Testimonial authentique',awareness:[3,4],win_rate:0.076,spend_ratio:'Élevé',cle:'Imperfection = confiance, structure avant/après.'},
+    {type:'Founder Story',awareness:[1,2],win_rate:null,spend_ratio:'Élevé quand scale',cle:'Connexion humaine, vulnérabilité, le pourquoi avant le quoi.'},
+    {type:'Ugly Ads',awareness:[1,2,3],win_rate:null,spend_ratio:'Moyen',cle:'Low-fi délibéré, script doit être excellent.'},
+    {type:'US vs DM (comparaison)',awareness:[3],win_rate:null,spend_ratio:'Moyen',cle:'Comparaison directe sans nommer le concurrent.'},
+    {type:'Before/After + Social Proof',awareness:[3,4],win_rate:null,spend_ratio:'Moyen',cle:'Spécificité des résultats, honnêteté sur le doute initial.'},
+    {type:'Offer First (BOFU)',awareness:[5],win_rate:0.09,spend_ratio:'30% du spend total',cle:'Urgence dès 3s, clarté absolue en <2s.'},
+    {type:'Unboxing',awareness:[3,4],win_rate:0.10,spend_ratio:'Moyen-élevé',cle:'Sous-exploité malgré la performance.'},
+    {type:'Réponses aux Objections',awareness:[4],win_rate:null,spend_ratio:'Moyen',cle:'Facecam, vraies objections, honnêteté.'},
+    {type:'Text-based Lettre',awareness:[1,2,3],win_rate:null,spend_ratio:'Très élevé quand ça marche',cle:'Ultra sous-utilisé, format le moins saturé.'},
+    {type:'Creator Partnership',awareness:[1,2,3],win_rate:null,spend_ratio:'Élevé quand scale',cle:"Diffusé depuis le compte créateur, favorisé par l'algo."}
+  ],
+  types_annonces_priorite:'Chercher bon win rate ET gros spend ratio — les vraies anomalies.',
+  scaling_personas_prompt:"Mon produit est [X]. Ma cible large validée est [démographie + comportement]. Génère 5 personas ultra-précis : description, ce qu'ils ont déjà essayé, sentiment profond, résultat concret recherché, hook exact, niveau de conscience visé.",
+  diagnostic_formula:{
+    name:'Volume x Diversité x Qualité x Analyse x Double Down',
+    note:'Si une variable est à 0, le résultat est 0. Mesurer le NOMBRE de winners, pas le win rate.',
+    loi_8_pourcent:'8% des créatives sont winners (60% du spend). ~100 créas testées pour 8 winners.'
+  }
 }
 /* BLOC 4 / Modification 4.2 : profil de voix — Prométhée décide seul quand le régénérer.
    Déclenché après chaque sauvegarde produit et à l'activation d'un produit (jamais sur simple
@@ -2913,7 +3049,319 @@ function formatSOPForPrompt(sop){
   return {winRatesTxt:winRatesTxt,rulesTxt:rulesTxt,batchMix:sop.batch_mix_instruction||''}
 }
 
-/* ── CREATIVE ENGINE COMPLET ─────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   BLOC 5 — CREATIVE STRATEGY ENGINE
+   ═══════════════════════════════════════════════════════════════════════════
+   Construit, mais PAS ENCORE branché sur executeCreateBatch (qui utilise toujours
+   callClaudeForBriefs en un seul appel, déjà testé en réel). Tant que le Bloc 6 n'existe
+   pas pour transformer un "concept" en script/brief par format, brancher ce moteur sur le
+   chemin réel casserait le pipeline qui fonctionne. Ce moteur est 100% testable dès
+   maintenant via le mode simulation (zéro coût, zéro appel API réel).
+
+   Chaîne : Angles → Hooks → Concept, sur un socle de contexte construit une seule fois,
+   fidèle au document ASL fourni (diversité, empreinte Andromeda, structures de copy,
+   UMP/UMS, types d'annonces réels). Rien n'est inventé hors de ce document + ce qui
+   existe déjà dans Prométhée (avatar, voix, concurrence, SOP). */
+
+/* ── SOCLE DE CONTEXTE — construit une seule fois par génération ── */
+function buildStrategyBaseContext(prod,mem,sop){
+  var bank=getProductBank(mem)
+  var winners=bank.filter(function(c){return c.status==='WINNER'})
+  var usedHooks=bank.map(function(c){return c.hook}).filter(Boolean)
+  var usedAngles={}
+  bank.forEach(function(c){
+    if(!c.angle) return
+    if(!usedAngles[c.angle]) usedAngles[c.angle]=[]
+    /* Empreinte partielle — hook_visuel et audio_musique ne sont connus qu'à l'exécution (Bloc 6).
+       angle_central et texte_headline sont déjà vérifiables dès le Bloc 5. */
+    usedAngles[c.angle].push({
+      angle_central:c.angle,texte_headline:c.hook,format:c.format||null,
+      audio_musique:null,hook_visuel:null,created_at:c.created_at
+    })
+  })
+  var competitors=(prod.market_intel&&prod.market_intel.competitors||[]).filter(function(c){return c.name})
+  var saturation=computeSaturationLevels(competitors)
+  return {
+    product:{
+      name:prod.name,price:prod.price,cogs:prod.cogs,roas_be:prod.roas_be,roas_target:prod.roas_target,
+      headline:prod.headline,usp:prod.usp,guarantee:prod.guarantee,angles_saturated:prod.angles_saturated||[]
+    },
+    avatar:{
+      pain:prod.avatar&&prod.avatar.pain||'',
+      desire:prod.avatar&&prod.avatar.desire||'',
+      objections:prod.avatar&&prod.avatar.objections||[],
+      awareness_level:prod.avatar&&prod.avatar.awareness_level||2,
+      voice_profile:prod.avatar&&prod.avatar.voice_profile||null
+    },
+    market:{competitors:competitors,satLevels:saturation.satLevels,freeLevels:saturation.freeLevels},
+    history:{usedHooks:usedHooks,usedAngles:usedAngles,winnersCount:winners.length},
+    sop:sop,
+    product_id:prod.id
+  }
+}
+
+/* ── APPEL CLAUDE GÉNÉRIQUE POUR LE MOTEUR — JSON strict, erreurs explicites (Bloc 2) ── */
+async function callClaudeJSON(prompt,maxTokens){
+  var resp=await fetchWithTimeout(SERVER+'/api/claude',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens||1200,messages:[{role:'user',content:prompt}]})
+  },45000)
+  var data=await resp.json()
+  if(data.error) throw new Error('Claude a renvoyé une erreur : '+(data.error.message||data.error.type||JSON.stringify(data.error)))
+  if(!data.content) throw new Error('Réponse Claude inattendue (pas de champ content)')
+  var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
+  try{
+    return JSON.parse(text.replace(/```json|```/g,'').trim())
+  }catch(e){
+    throw new Error('Réponse Claude non parsable en JSON ('+e.message+') — début : '+text.slice(0,150))
+  }
+}
+
+/* ── OUTIL : similarité programmatique entre deux hooks (anti-saturation, pas juste demandé au LLM) ──
+   Jaccard sur les mots normalisés. >0.6 = trop proche, traité comme quasi-répétition. */
+function hookSimilarity(a,b){
+  var norm=function(s){return (s||'').toLowerCase().replace(/[^\wàâäéèêëïîôöùûüç\s]/g,'').split(/\s+/).filter(Boolean)}
+  var wa=norm(a),wb=norm(b)
+  if(!wa.length||!wb.length) return 0
+  var setA={};wa.forEach(function(w){setA[w]=true})
+  var setB={};wb.forEach(function(w){setB[w]=true})
+  var inter=0;Object.keys(setA).forEach(function(w){if(setB[w])inter++})
+  var union=Object.keys(Object.assign({},setA,setB)).length
+  return union?inter/union:0
+}
+function isHookTooSimilar(hook,usedHooks){
+  return usedHooks.some(function(h){return hookSimilarity(hook,h)>0.6})
+}
+
+/* ── ÉTAPE 1 — ANGLES ──────────────────────────────────────────────────── */
+async function generateAngles(ctx,opts){
+  opts=opts||{}
+  var n=opts.count||5
+  if(opts.simulate) return simulateAngles(ctx,n)
+
+  var sop=ctx.sop
+  var awarenessTable=(sop.awareness_levels||[]).map(function(a){return '\nNiveau '+a.level+' ('+a.name+') : '+a.approche}).join('')
+  var prompt='Tu es le stratège créatif de Prométhée. Tu génères des ANGLES marketing — pas encore de hooks, pas de scripts.'
+    +'\n\nPRODUIT : '+ctx.product.name+' · Prix '+ctx.product.price+'EUR'
+    +'\nDouleur avatar : '+(ctx.avatar.pain||'non renseignée')
+    +'\nDésir/transformation : '+(ctx.avatar.desire||'non renseigné')
+    +'\nObjections : '+(ctx.avatar.objections.join(' | ')||'aucune renseignée')
+    +'\nNiveau de conscience actuel du produit : '+ctx.avatar.awareness_level+'/5'
+    +(ctx.avatar.voice_profile?'\nTon de voix de l\'avatar : '+ctx.avatar.voice_profile.tone:'')
+    +'\n\nNIVEAUX DE CONSCIENCE (Schwartz) — approche par niveau :'+awarenessTable
+    +'\n\nCatégories d\'angles disponibles : '+(sop.angle_categories||[]).join(', ')
+    +'\nAngles déjà saturés chez toi (INTERDITS) : '+(ctx.product.angles_saturated.join(', ')||'aucun')
+    +(ctx.market.satLevels.length?'\nNiveaux de conscience SATURÉS par la concurrence (à éviter si possible) : '+ctx.market.satLevels.join(', '):'')
+    +(ctx.market.freeLevels.length?'\nNiveaux de conscience LIBRES chez la concurrence (opportunité prioritaire) : '+ctx.market.freeLevels.join(', '):'')
+    +'\n\nRÈGLE "FOND AVANT FORME" : '+(sop.diversity_rules&&sop.diversity_rules.priority_note||'diversifier les messages avant le format.')
+    +'\nRègle de diversité du batch : minimum '+(sop.diversity_rules&&sop.diversity_rules.min_angles_per_batch||3)+' angles différents, '+(sop.diversity_rules&&sop.diversity_rules.min_awareness_levels_per_batch||2)+' niveaux de conscience différents.'
+    +'\n\nGénère '+n+' angles candidats, en couvrant des niveaux de conscience différents et en priorisant les niveaux libres identifiés ci-dessus. Réponds UNIQUEMENT en JSON :'
+    +'\n{"angles":[{"angle":"nom court de l\'angle","category":"une catégorie de la liste","awareness_level":1-5,"why":"pourquoi cet angle maintenant, en lien avec l\'avatar et la concurrence"}]}'
+
+  var result=await callClaudeJSON(prompt,1200)
+  if(!result.angles||!result.angles.length) throw new Error('Aucun angle retourné par Claude')
+  return result.angles
+}
+function simulateAngles(ctx,n){
+  var cats=(ctx.sop.angle_categories||['Douleur','Transformation'])
+  var free=ctx.market.freeLevels.length?ctx.market.freeLevels:[1,2,3,4,5]
+  var out=[]
+  for(var i=0;i<n;i++){
+    out.push({
+      angle:'[SIMULATION] '+cats[i%cats.length]+' #'+(i+1),
+      category:cats[i%cats.length],
+      awareness_level:free[i%free.length],
+      why:'(simulation) niveau '+free[i%free.length]+' choisi car libre chez la concurrence — aucune donnée réelle, pour tester la chaîne.'
+    })
+  }
+  return out
+}
+
+/* ── ÉTAPE 2 — HOOKS ───────────────────────────────────────────────────── */
+async function generateHooksForAngle(ctx,angleObj,opts){
+  opts=opts||{}
+  var n=opts.count||3
+  if(opts.simulate) return simulateHooks(ctx,angleObj,n)
+
+  var sop=ctx.sop
+  var voice=ctx.avatar.voice_profile
+  var prompt='Tu écris des HOOKS (accroche des 2-3 premières secondes/lignes) pour Prométhée — pas encore le script complet.'
+    +'\n\nAngle retenu : '+angleObj.angle+' ('+angleObj.category+') — niveau de conscience '+angleObj.awareness_level+'/5'
+    +'\nPourquoi cet angle : '+angleObj.why
+    +(voice?'\n\nVOIX DE L\'AVATAR — utilise ce vocabulaire, pas un ton corporate :\nTon : '+voice.tone+'\nExpressions typiques : '+(voice.phrases||[]).join(' | ')+(voice.avoid?'\nÀ éviter : '+voice.avoid:''):'')
+    +'\n\nStyles de hook disponibles : '+(sop.hook_styles||[]).join(', ')
+    +'\nFormule de headline : '+(sop.headline_formula||'[Power Word] + [Pain Point] + [Contexte]')
+    +'\nPower words par catégorie : '+JSON.stringify(sop.power_words||{})
+    +'\nHooks déjà testés (NE JAMAIS reformuler, même légèrement) : '+(ctx.history.usedHooks.join(' | ')||'aucun')
+    +'\n\nGénère '+n+' hooks différents pour cet angle. Réponds UNIQUEMENT en JSON :'
+    +'\n{"hooks":[{"hook":"le hook exact","hook_style":"un style de la liste","power_words_used":["mots utilisés"]}]}'
+
+  var result=await callClaudeJSON(prompt,600)
+  if(!result.hooks||!result.hooks.length) throw new Error('Aucun hook retourné par Claude pour l\'angle "'+angleObj.angle+'"')
+  /* Garde-fou programmatique — pas seulement une instruction au LLM (Modification 5.4) */
+  var filtered=result.hooks.filter(function(h){return !isHookTooSimilar(h.hook,ctx.history.usedHooks)})
+  if(!filtered.length) throw new Error('Tous les hooks générés pour "'+angleObj.angle+'" sont trop proches de hooks déjà testés (similarité >60%)')
+  return filtered
+}
+function simulateHooks(ctx,angleObj,n){
+  var styles=ctx.sop.hook_styles||['Question choc']
+  var out=[]
+  for(var i=0;i<n;i++){
+    out.push({
+      hook:'[SIMULATION] Hook '+(i+1)+' pour '+angleObj.angle,
+      hook_style:styles[i%styles.length],
+      power_words_used:['(simulation)']
+    })
+  }
+  return out
+}
+
+/* ── EMPREINTE ANDROMEDA — vérification de diversité (Modification 5.4) ──
+   Partielle au stade Bloc 5 : angle_central et texte_headline sont connus ici. format,
+   audio_musique et hook_visuel ne seront tranchés qu'à l'exécution (Bloc 6) — le Bloc 6
+   devra refaire cette vérification une fois ces 3 éléments choisis. */
+function checkFingerprintDiversity(angleObj,hookObj,ctx){
+  var history=ctx.history.usedAngles[angleObj.angle]||[]
+  if(!history.length) return {checked:false,sufficient:true,note:'Premier passage sur cet angle — rien à comparer.'}
+  var last=history[history.length-1]
+  var elements=(ctx.sop.andromeda_fingerprint&&ctx.sop.andromeda_fingerprint.elements)||['hook_visuel','texte_headline','audio_musique','format','angle_central']
+  var changed=[]
+  if(last.angle_central!==angleObj.angle) changed.push('angle_central')
+  if(hookSimilarity(last.texte_headline,hookObj.hook)<0.6) changed.push('texte_headline')
+  /* format/audio/hook_visuel : pas encore connus à ce stade — non comptés ni contre ni pour */
+  var minRequired=(ctx.sop.andromeda_fingerprint&&ctx.sop.andromeda_fingerprint.min_elements_changed)||3
+  return {
+    checked:true,
+    changed_so_far:changed,
+    elements_pending_bloc6:['hook_visuel','audio_musique','format'],
+    sufficient:null, /* ne peut être tranché définitivement qu'après le Bloc 6 */
+    min_required:minRequired,
+    note:changed.length+'/2 éléments vérifiables changés à ce stade ('+changed.join(', ')+') — le Bloc 6 doit vérifier les 3 restants avant validation finale.'
+  }
+}
+
+/* ── ÉTAPE 3 — CONCEPT ─────────────────────────────────────────────────── */
+async function generateConcept(ctx,angleObj,hookObj,opts){
+  opts=opts||{}
+  if(opts.simulate) return simulateConcept(ctx,angleObj,hookObj)
+
+  var sop=ctx.sop
+  var applicableStructures=(sop.copywriting_structures||[]).filter(function(s){return (s.awareness||[]).indexOf(angleObj.awareness_level)>=0})
+  if(!applicableStructures.length) applicableStructures=sop.copywriting_structures||[]
+  var applicableTypes=(sop.types_annonces||[]).filter(function(t){return (t.awareness||[]).indexOf(angleObj.awareness_level)>=0})
+  if(!applicableTypes.length) applicableTypes=sop.types_annonces||[]
+
+  var prompt='Tu construis un CONCEPT créatif complet pour Prométhée — la stratégie, pas encore le script ou le visuel final (ça, c\'est une autre étape).'
+    +'\n\nAngle : '+angleObj.angle+' · Hook retenu : "'+hookObj.hook+'" · Niveau de conscience : '+angleObj.awareness_level+'/5'
+    +'\nProduit : '+ctx.product.name+' · USP : '+(ctx.product.usp||'non renseignée')+' · Garantie : '+(ctx.product.guarantee||'non renseignée')
+    +'\nObjections à lever explicitement : '+(ctx.avatar.objections.join(' | ')||'aucune renseignée')
+    +'\n\nUMP (Unique Mechanism Problem) : '+(sop.ump_ums&&sop.ump_ums.ump_def||'')
+    +'\nUMS (Unique Mechanism Solution) : '+(sop.ump_ums&&sop.ump_ums.ums_def||'')
+    +'\nRègle bénéfice vs feature : '+(sop.benefice_vs_feature&&sop.benefice_vs_feature.regle||'')+' Formule : '+(sop.benefice_vs_feature&&sop.benefice_vs_feature.formule||'')
+    +'\n\nStructures de copywriting applicables à ce niveau de conscience : '+applicableStructures.map(function(s){return s.name+' ('+s.logique+')'}).join(' | ')
+    +'\nSquelette d\'ad copy à respecter : '+(sop.ad_copy_skeleton||[]).join(' → ')+'. Max '+(sop.ad_copy_max_words||150)+' mots.'
+    +'\nTypes d\'annonces pertinents à ce niveau : '+applicableTypes.map(function(t){return t.type+' (win rate '+(t.win_rate?Math.round(t.win_rate*100)+'%':'variable')+', '+t.cle+')'}).join(' | ')
+    +'\nTypes de titre disponibles : '+(sop.titre_types||[]).map(function(t){return t.type}).join(', ')+'. Règle : '+(sop.titre_complementarity_rule||'')
+    +'\n\nProduis le concept complet. Réponds UNIQUEMENT en JSON :'
+    +'\n{"ump":"d\'où vient le problème pour cet avatar","ums":"pourquoi ce produit fonctionne, le mécanisme différenciant",'
+    +'"copywriting_structure":"une structure de la liste","type_annonce_recommande":"un type de la liste",'
+    +'"objection_handled":"l\'objection précise levée","proof":"la preuve/preuve sociale utilisée",'
+    +'"benefice_principal":"le bénéfice, pas la feature","titre":"le titre selon les règles","ad_copy":"l\'ad copy complet selon le squelette","cta":"l\'appel à l\'action final"}'
+
+  var concept=await callClaudeJSON(prompt,1000)
+  concept.angle=angleObj.angle
+  concept.hook=hookObj.hook
+  concept.awareness_level=angleObj.awareness_level
+  concept.hook_style=hookObj.hook_style
+  return concept
+}
+function simulateConcept(ctx,angleObj,hookObj){
+  var structures=ctx.sop.copywriting_structures||[]
+  /* Choisir parmi les types applicables à CE niveau de conscience, pas toujours le même —
+     sinon la simulation fausse artificiellement le contrôle de diversité du batch
+     (détecté en testant ce code : les 4 concepts simulés prenaient tous le même type). */
+  var applicableTypes=(ctx.sop.types_annonces||[]).filter(function(t){return (t.awareness||[]).indexOf(angleObj.awareness_level)>=0})
+  if(!applicableTypes.length) applicableTypes=ctx.sop.types_annonces||[{type:'UGC Testimonial authentique'}]
+  var typeChoice=applicableTypes[angleObj.awareness_level%applicableTypes.length]
+  var structChoice=structures[angleObj.awareness_level%Math.max(1,structures.length)]
+  return {
+    angle:angleObj.angle,hook:hookObj.hook,awareness_level:angleObj.awareness_level,hook_style:hookObj.hook_style,
+    ump:'(simulation) douleur fictive liée à '+angleObj.angle,
+    ums:'(simulation) mécanisme fictif différenciant',
+    copywriting_structure:(structChoice&&structChoice.name)||'AIDA',
+    type_annonce_recommande:(typeChoice&&typeChoice.type)||'UGC Testimonial authentique',
+    objection_handled:(ctx.avatar.objections[0])||'(simulation) aucune objection renseignée',
+    proof:'(simulation) preuve fictive',
+    benefice_principal:'(simulation) bénéfice fictif',
+    titre:'[SIMULATION] Titre pour '+angleObj.angle,
+    ad_copy:'[SIMULATION] Ad copy fictif pour tester la structure — '+hookObj.hook,
+    cta:'(simulation) CTA fictif'
+  }
+}
+
+/* ── VALIDATION DIVERSITÉ DU BATCH COMPLET ─────────────────────────────── */
+function validateBatchDiversity(concepts,sop){
+  var rules=sop.diversity_rules||{min_angles_per_batch:3,min_types_annonces_per_batch:2,min_awareness_levels_per_batch:2}
+  var angles={},types={},levels={}
+  concepts.forEach(function(c){
+    if(c.angle) angles[c.angle]=true
+    if(c.type_annonce_recommande) types[c.type_annonce_recommande]=true
+    if(c.awareness_level) levels[c.awareness_level]=true
+  })
+  var nAngles=Object.keys(angles).length,nTypes=Object.keys(types).length,nLevels=Object.keys(levels).length
+  var missing=[]
+  if(nAngles<rules.min_angles_per_batch) missing.push(nAngles+'/'+rules.min_angles_per_batch+' angles différents')
+  if(nTypes<rules.min_types_annonces_per_batch) missing.push(nTypes+'/'+rules.min_types_annonces_per_batch+' types d\'annonces différents')
+  if(nLevels<rules.min_awareness_levels_per_batch) missing.push(nLevels+'/'+rules.min_awareness_levels_per_batch+' niveaux de conscience différents')
+  return {
+    pass:missing.length===0,
+    counts:{angles:nAngles,types:nTypes,levels:nLevels},
+    missing:missing,
+    note:missing.length?'Batch insuffisamment diversifié : '+missing.join(', ')+'. Risque de tester 1 hypothèse N fois, pas N hypothèses (Loi des 8%).':'Diversité du batch conforme au SOP.'
+  }
+}
+
+/* ── ORCHESTRATEUR — chaîne complète Angles → Hooks → Concept ──────────── */
+async function runCreativeStrategyChain(productId,batchSize,opts){
+  opts=opts||{}
+  var mem=memGet()
+  var prod=mem.products&&mem.products.find(function(p){return p.id===productId})
+  if(!prod) throw new Error('Produit introuvable : '+productId)
+  var sop=opts.simulate?(await loadSOP().catch(function(){return SOP_FALLBACK})):await loadSOP()
+  var ctx=buildStrategyBaseContext(prod,mem,sop)
+
+  var diagnostics={steps:[],errors:[]}
+  var angles=await generateAngles(ctx,{count:batchSize+2,simulate:opts.simulate})
+  diagnostics.steps.push('Angles générés : '+angles.length)
+
+  var concepts=[]
+  for(var i=0;i<angles.length&&concepts.length<batchSize;i++){
+    var angleObj=angles[i]
+    try{
+      var hooks=await generateHooksForAngle(ctx,angleObj,{count:3,simulate:opts.simulate})
+      var hookObj=hooks[0]
+      var fingerprint=checkFingerprintDiversity(angleObj,hookObj,ctx)
+      var concept=await generateConcept(ctx,angleObj,hookObj,{simulate:opts.simulate})
+      concept._fingerprint_check=fingerprint
+      concepts.push(concept)
+      /* Mettre à jour l'historique local pour que les angles suivants du même batch
+         se comparent aussi entre eux, pas seulement à l'historique déjà persisté. */
+      if(!ctx.history.usedAngles[angleObj.angle]) ctx.history.usedAngles[angleObj.angle]=[]
+      ctx.history.usedAngles[angleObj.angle].push({angle_central:angleObj.angle,texte_headline:hookObj.hook,format:null,audio_musique:null,hook_visuel:null})
+      ctx.history.usedHooks.push(hookObj.hook)
+    }catch(e){
+      diagnostics.errors.push('Angle "'+angleObj.angle+'" : '+e.message)
+    }
+  }
+
+  var batchDiag=validateBatchDiversity(concepts,sop)
+  diagnostics.batch_diversity=batchDiag
+  diagnostics.steps.push('Concepts produits : '+concepts.length+'/'+batchSize)
+
+  return {concepts:concepts,diagnostics:diagnostics,context_used:ctx}
+}
+
+/* ── CREATIVE ENGINE COMPLET (Bloc 1-4, chemin réel actuel) ─────────────── */
 async function callClaudeForBriefs(mem,batchSize){
   var prod=getActiveProduct()
   if(!prod){throw new Error("Aucun produit actif")}
@@ -2967,10 +3415,8 @@ async function callClaudeForBriefs(mem,batchSize){
   var ctxMarket=''
   var competitors=(prod.market_intel&&prod.market_intel.competitors||[]).filter(function(c){return c.name})
   if(competitors.length){
-    var awCounts={1:0,2:0,3:0,4:0,5:0}
-    competitors.forEach(function(c){if(c.awareness>=1&&c.awareness<=5)awCounts[c.awareness]++})
-    var satLevels=Object.keys(awCounts).filter(function(k){return awCounts[k]>=2})
-    var freeLevels=Object.keys(awCounts).filter(function(k){return awCounts[k]===0})
+    var sat=computeSaturationLevels(competitors)
+    var satLevels=sat.satLevels,freeLevels=sat.freeLevels
     ctxMarket='\n\nCONCURRENCE OBSERVÉE :'
     ctxMarket+=competitors.map(function(c){return '\n- '+c.name+' : angle "'+(c.angle||'?')+'" · format '+(c.format||'?')+' · niveau conscience '+(c.awareness||'?')+'/5'+(c.note?' · '+c.note:'')}).join('')
     if(satLevels.length) ctxMarket+='\nNiveaux de conscience SATURÉS par la concurrence (à éviter si possible) : '+satLevels.join(', ')
