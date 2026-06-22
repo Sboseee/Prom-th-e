@@ -2503,12 +2503,25 @@ function aggregateCreativePerformance(mem,attribute,days){
    (Bloc 8 complet). Pas encore branché sur une mission/UI — c'est volontaire : l'engine doit
    être validé sur de vraies données saisies plusieurs jours de suite avant de produire un
    diagnostic présenté comme fiable. */
+/* Seuil de fiabilité (tranché ici, jamais défini avant) : sous ce seuil, un "signal" calculé
+   serait du bruit présenté comme une vérité — exactement le risque identifié à la construction
+   de ce moteur. Pas de magie dans ces chiffres : 3 jours mini car en-dessous un seul jour
+   atypique fausse tout ; 15€ de spend mini car en-dessous le ROAS varie de façon erratique sur
+   un seul achat. Ajustable plus tard avec de vraies données, mais il fallait un seuil explicite
+   plutôt qu'aucun. */
+var SIGNAL_MIN_DAYS=3
+var SIGNAL_MIN_SPEND=15
+var SIGNAL_MIN_ECART_ROAS=1.3 /* le meilleur doit faire au moins 30% de mieux que le pire pour être signalé — sinon bruit de mesure */
+
 function buildCreativeSignalReport(mem,days){
   var attrs=['angle','format','mood','intensite','levier_psychologique_principal','awareness']
   var signals=attrs.map(function(a){
     var agg=aggregateCreativePerformance(mem,a,days)
-    if(agg.rows.length<2) return null /* besoin d'au moins 2 valeurs distinctes pour comparer */
-    return {attribute:a,window_days:days,best:agg.rows[0],worst:agg.rows[agg.rows.length-1],all:agg.rows}
+    var fiables=agg.rows.filter(function(r){return r.nb_jours_data>=SIGNAL_MIN_DAYS&&r.spend>=SIGNAL_MIN_SPEND})
+    if(fiables.length<2) return null /* besoin d'au moins 2 valeurs distinctes ET fiables pour comparer */
+    var best=fiables[0],worst=fiables[fiables.length-1]
+    if(!best.roas||!worst.roas||best.roas<worst.roas*SIGNAL_MIN_ECART_ROAS) return null /* écart pas assez net */
+    return {attribute:a,window_days:days,best:best,worst:worst,all:fiables}
   }).filter(Boolean)
   return {window_days:days||7,signals:signals,has_enough_data:signals.length>0}
 }
@@ -6004,6 +6017,10 @@ async function runBrain(manual){
     var decision=runDecisionEngine()
     currentMission=decision.missionKey||'wait'
     instrStates[currentMission]=decision
+    /* Continuité jour après jour — "hier je te disais X" — alimente une bulle dans
+       spawnDecisionBubbles. Journalisé une seule fois par jour (pas à chaque run horaire),
+       sinon "hier" changerait toutes les heures et perdrait tout son sens. */
+    decision._yesterday=updateDailyJournal(memGet(),decision)
 
     /* Si CREATE → chemin unique partagé avec le clic manuel "Go — Générer" (Bloc 1 / Modification 1.1).
        executeCreateBatch gère elle-même toute sa mise en scène (orb, bulle, succès/erreur) —
@@ -6055,6 +6072,24 @@ function logDecision(decision){
   /* ÉTAPE 5 FIX : stocker l'ID du log dans instrStates pour que confirmExecuted
      retrouve exactement cette entrée, même si runBrain() a tourné entre-temps. */
   if(instrStates[decision.missionKey]) instrStates[decision.missionKey]._logId=logId
+}
+
+/* ── JOURNAL QUOTIDIEN — continuité "hier je te disais X" ──────────────────
+   Sans ça, chaque jour Prométhée parle comme s'il n'avait aucune mémoire de la veille — alors
+   que c'est exactement le ton "ligne directrice" demandé. Journalise UNE fois par jour (au
+   premier run du jour, pas à chaque exécution horaire) pour que "hier" reste stable toute la
+   journée. Retourne l'entrée d'hier (ou null si déjà journalisé aujourd'hui ou premier jour). */
+function updateDailyJournal(mem,decision){
+  var today=new Date().toISOString().slice(0,10)
+  var journal=mem.daily_journal||[]
+  var lastEntry=journal.length?journal[journal.length-1]:null
+  if(lastEntry&&lastEntry.date===today) return null /* déjà journalisé aujourd'hui */
+  var yesterdayEntry=lastEntry||null
+  journal.push({date:today,missionKey:decision.missionKey,headline:decision.text})
+  if(journal.length>30) journal=journal.slice(-30)
+  mem.daily_journal=journal
+  memSet(mem)
+  return yesterdayEntry
 }
 
 /* ── PALIERS ZEZINHO ASL P7 ──────────────────────────────────── */
@@ -6302,6 +6337,18 @@ function spawnDecisionBubbles(decision){
 
   var queue=[]
 
+  /* Continuité avec hier — la "ligne directrice" jour après jour. Affiché une fois par jour
+     seulement (updateDailyJournal ne renvoie une entrée que le premier run du jour). */
+  if(decision._yesterday&&decision._yesterday.headline){
+    queue.push({
+      type:'sb-info',label:'Hier',
+      text:decision._yesterday.headline,
+      sub:'Aujourd\'hui : '+(decision.text||''),
+      why:'Prométhée journalise une décision par jour pour garder le fil — pas pour répéter la même chose, pour que tu voies si la situation a changé ou si elle se confirme.',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]
+    })
+  }
+
   /* ROAS du jour */
   if(m.roas_real){
     var isGood=m.roas_real>=roas_be
@@ -6315,6 +6362,25 @@ function spawnDecisionBubbles(decision){
     })
   }
 
+  /* Signaux par attribut créatif (angle/format/mood/intensité/levier) — alimentés par la
+     répartition par créative saisie chaque jour, zéro API. Gardé volontairement silencieux
+     tant que le seuil de fiabilité (SIGNAL_MIN_DAYS/SIGNAL_MIN_SPEND/SIGNAL_MIN_ECART_ROAS)
+     n'est pas atteint : pas de fausse certitude sur 1-2 jours de data. */
+  var ATTR_LABELS={angle:'Angle',format:'Format',mood:'Mood',intensite:'Intensité',levier_psychologique_principal:'Levier psychologique',awareness:'Niveau de conscience'}
+  var signalReport=buildCreativeSignalReport(mem,7)
+  if(signalReport.has_enough_data){
+    signalReport.signals.forEach(function(s){
+      queue.push({
+        type:'sb-insight',
+        label:(ATTR_LABELS[s.attribute]||s.attribute)+' — écart',
+        text:'"'+s.best.value+'" performe mieux que "'+s.worst.value+'" depuis '+s.window_days+' jours',
+        sub:'ROAS '+s.best.roas+'x ('+s.best.nb_creatives+' créa·s) vs '+s.worst.roas+'x ('+s.worst.nb_creatives+' créa·s)',
+        why:'Calculé depuis la répartition par créative que tu saisis chaque jour — '+s.best.nb_jours_data+' jours de data sur "'+s.best.value+'", '+s.worst.nb_jours_data+' sur "'+s.worst.value+'", '+s.best.spend+'EUR et '+s.worst.spend+'EUR de spend respectivement (seuil mini '+SIGNAL_MIN_DAYS+'j/'+SIGNAL_MIN_SPEND+'EUR avant affichage). Encore tôt pour être définitif, mais l\'écart dépasse '+Math.round((SIGNAL_MIN_ECART_ROAS-1)*100)+'%.',
+        buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]
+      })
+    })
+  }
+
   /* Winners actifs */
   var winners=bank.filter(function(c){return c.status==='WINNER'})
   if(winners.length){
@@ -6322,7 +6388,7 @@ function spawnDecisionBubbles(decision){
       type:'sb-success',
       label:winners.length+'W · Winner Lock',
       text:winners.length+' creative(s) protegee(s)',
-      sub:winners.slice(0,2).map(function(c){return c.name.split(' ·')[0]}).join(' / '),
+      sub:winners.slice(0,2).map(function(c){return (c.name||c.angle||'?').split(' ·')[0]}).join(' / '),
       why:'LOI 5 WINNER LOCK : ces créatives ne peuvent jamais être coupées par un signal court terme. Elles passent en Master CBO au scaling.',
       buttons:[
         {label:'Voir',fn:"goView('memoire')",primary:true},
