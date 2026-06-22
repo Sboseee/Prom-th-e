@@ -404,6 +404,21 @@
 /* SECTION TITLE */
 .sec-title{font-size:10px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
 
+/* PRODUCT OVERLAY — plein écran pour créer/éditer un produit */
+.prod-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:40;background:var(--bg);transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.prod-overlay.open{transform:translateY(0)}
+.prod-ov-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:0.5px solid var(--b1);flex-shrink:0;gap:8px}
+.prod-ov-back{background:transparent;border:none;color:var(--t2);font-size:13px;font-family:'Poppins',sans-serif;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:4px}
+.prod-ov-title{font-size:13px;font-weight:600;color:var(--t1);flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prod-ov-save{background:var(--red);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;padding:7px 14px;white-space:nowrap}
+.prod-ov-body{flex:1;overflow-y:auto;padding:0 18px 100px}
+.prod-ov-section{margin-top:20px}
+.prod-ov-section-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:10px;padding-bottom:7px;border-bottom:0.5px solid var(--b1)}
+.pf-roas-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0 6px}
+.pf-roas-cell{background:var(--s2);border-radius:8px;padding:10px 12px}
+.pf-roas-cell-lbl{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.pf-roas-cell-val{font-size:16px;font-weight:700}
+
 /* MÉMOIRE CRÉATIVE */
 .mem-card{background:var(--s1);border:0.5px solid var(--b1);border-radius:12px;overflow:hidden}
 .mem-header{padding:12px 16px;border-bottom:0.5px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
@@ -634,111 +649,7 @@
     </div>
     <div id="products-list" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
 
-    <!-- Formulaire produit (caché par défaut — ouvert via le + ou Éditer) -->
-    <div id="product-form" style="display:none;background:var(--s1);border:0.5px solid var(--b2);border-radius:12px;padding:14px">
-      <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px" id="product-form-title">Nouveau produit</div>
-      <input type="hidden" id="pf-id">
-      <div class="ind-field-grid">
-        <div class="ind-field">
-          <div class="ind-field-lbl">Nom du produit *</div>
-          <input class="ind-field-inp" type="text" placeholder="Ex: Ceinture lombaire" id="pf-name">
-        </div>
-        <div class="ind-field">
-          <div class="ind-field-lbl">Prix de vente (€) *</div>
-          <input class="ind-field-inp" type="number" placeholder="60" id="pf-price" oninput="calcPfRoas()">
-        </div>
-        <div class="ind-field">
-          <div class="ind-field-lbl">COGS (€) *</div>
-          <input class="ind-field-inp" type="number" placeholder="20" id="pf-cogs" oninput="calcPfRoas()">
-        </div>
-        <div class="ind-field">
-          <div class="ind-field-lbl">AOV moyen (€)</div>
-          <input class="ind-field-inp" type="number" placeholder="60" id="pf-aov">
-        </div>
-      </div>
-      <div id="pf-roas-bar" style="display:none;background:var(--s2);border-radius:8px;padding:10px 14px;flex-wrap:wrap;margin:8px 0;gap:14px">
-        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">ROAS BE</div><div id="pf-be" style="font-size:17px;font-weight:700;color:var(--red)">—</div></div>
-        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">Target</div><div id="pf-target" style="font-size:17px;font-weight:700;color:var(--amber)">—</div></div>
-        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">Seuil ATC</div><div id="pf-atc" style="font-size:17px;font-weight:700;color:var(--t2)">—€</div></div>
-        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em">Marge brute</div><div id="pf-marge" style="font-size:17px;font-weight:700;color:var(--green)">—%</div></div>
-      </div>
-      <div class="ind-field" style="margin-top:4px">
-        <div class="ind-field-lbl">Douleur principale de l'avatar</div>
-        <input class="ind-field-inp" type="text" placeholder="Ex: Douleurs lombaires chroniques" id="pf-pain">
-      </div>
-      <!-- BLOC 3 / Modification 3.1 : champs stratégiques manquants (objections/désir/USP/garantie) -->
-      <div class="ind-field" style="margin-top:6px">
-        <div class="ind-field-lbl">Désir / transformation recherchée</div>
-        <input class="ind-field-inp" type="text" placeholder="Ex: Reprendre le sport sans douleur" id="pf-desire">
-      </div>
-      <div class="ind-field" style="margin-top:6px">
-        <div class="ind-field-lbl">Objections principales (séparées par ,)</div>
-        <input class="ind-field-inp" type="text" placeholder="Trop cher, Ça marche vraiment ?, Déjà essayé sans succès" id="pf-objections">
-      </div>
-      <div class="ind-field" style="margin-top:6px">
-        <div class="ind-field-lbl">USP — différenciation vs concurrents</div>
-        <input class="ind-field-inp" type="text" placeholder="Ex: Seul produit certifié X, livré en 24h" id="pf-usp">
-      </div>
-      <div class="ind-field" style="margin-top:6px">
-        <div class="ind-field-lbl">Garantie / bonus (structure d'offre)</div>
-        <input class="ind-field-inp" type="text" placeholder="Ex: Garantie 30 jours satisfait ou remboursé" id="pf-guarantee">
-      </div>
-      <div class="ind-field" style="margin-top:6px">
-        <div class="ind-field-lbl">Headline above the fold (message match)</div>
-        <input class="ind-field-inp" type="text" placeholder="Ex: Soulagez vos douleurs dos en 10 minutes" id="pf-headline">
-      </div>
-      <div class="ind-field-grid" style="margin-top:6px">
-        <div class="ind-field">
-          <div class="ind-field-lbl">Angles saturés (séparés par ,)</div>
-          <input class="ind-field-inp" type="text" placeholder="Urgence, Discount" id="pf-sat">
-        </div>
-        <div class="ind-field">
-          <div class="ind-field-lbl">Angles opportunités *</div>
-          <input class="ind-field-inp" type="text" placeholder="Transformation, Preuve sociale" id="pf-opp">
-        </div>
-      </div>
-      <div class="ind-field" style="margin-top:6px">
-        <div class="ind-field-lbl">Niveau conscience (1=Unaware → 5=Most Aware)</div>
-        <input class="ind-field-inp" type="number" min="1" max="5" placeholder="2" id="pf-awareness">
-      </div>
-
-      <!-- BLOC 4 / Modification 4.2 : profil de voix — généré seul par Prométhée, jamais édité à la main -->
-      <div style="margin-top:14px">
-        <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Profil de voix (généré automatiquement)</div>
-        <div id="pf-voice-profile" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6">
-          Pas encore généré — Prométhée le génère seul dès que la douleur/désir/objections sont assez renseignés et changent.
-        </div>
-      </div>
-
-      <!-- BLOC 4 / Modification 4.1 + 4.3 : research marché/concurrence structuré -->
-      <div style="margin-top:14px">
-        <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Concurrence observée</div>
-        <div style="font-size:9px;color:var(--t3);line-height:1.5;margin-bottom:8px">Ce que tu as vu tourner chez tes concurrents — angle, format, niveau de conscience ciblé. Sert à éviter de générer un angle déjà saturé par le marché.</div>
-        <div id="pf-competitors-list"></div>
-        <button type="button" onclick="addCompetitorRow()" style="margin-top:6px;background:var(--bdim);border:0.5px solid var(--bborder);border-radius:8px;padding:8px 12px;color:var(--blue);font-size:10px;font-family:'Poppins',sans-serif;cursor:pointer">+ Ajouter un concurrent</button>
-        <div id="pf-awareness-saturation" style="margin-top:8px;font-size:10px;color:var(--t3)"></div>
-      </div>
-
-      <!-- IMAGES -->
-      <div style="margin-top:12px">
-        <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Visuels de référence (Bloc 6)</div>
-        <div style="font-size:10px;color:var(--t3);line-height:1.6;margin-bottom:8px">Tout ce que tu as visuellement pour ce produit : photos produit (fond blanc, lifestyle, unboxing), captures de créas concurrentes, visuels déjà générés avec l'IA pour ton site. Prométhée s'en sert comme référence pour générer les statiques/vidéos — pas besoin de trier, ajoute tout ce qui peut aider.</div>
-        <label style="display:flex;align-items:center;gap:8px;background:var(--s2);border:0.5px dashed var(--b2);border-radius:10px;padding:12px 14px;cursor:pointer;font-size:11px;color:var(--t2)">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 13l4-4 3 3 3-3 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor"/></svg>
-          Ajouter des images (JPG, PNG, WEBP)
-          <input type="file" id="pf-images" multiple accept="image/*" style="display:none" onchange="handleImageUpload(event)">
-        </label>
-        <div id="pf-images-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
-      </div>
-      <div class="ind-field" style="margin-top:8px">
-        <div class="ind-field-lbl">Notes (mécanisme unique, différenciateur)</div>
-        <input class="ind-field-inp" type="text" placeholder="Ex: Seul produit avec technologie X brevetée" id="pf-notes">
-      </div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="ind-submit" onclick="saveProduct()" style="flex:1">Enregistrer ce produit</button>
-        <button onclick="clearProductForm()" style="padding:12px 16px;background:transparent;border:0.5px solid var(--b2);border-radius:10px;color:var(--t3);font-size:12px;font-family:'Poppins',sans-serif;cursor:pointer">Annuler</button>
-      </div>
-    </div>
+    <!-- Le formulaire produit est dans l'overlay plein-écran #prod-overlay -->
 
     <!-- CONNEXIONS -->
     <div class="sec-title" style="margin-top:16px">Connexions</div>
@@ -767,6 +678,168 @@
   </div>
 
 </div>
+<!-- PRODUCT OVERLAY — Interface plein-écran création/édition produit -->
+<div id="prod-overlay" class="prod-overlay">
+  <!-- Barre du haut -->
+  <div class="prod-ov-bar">
+    <button class="prod-ov-back" onclick="closeProdOverlay()">← Retour</button>
+    <div class="prod-ov-title" id="prod-ov-title">Nouveau produit</div>
+    <button class="prod-ov-save" onclick="saveProduct()">Enregistrer →</button>
+  </div>
+  <!-- Corps scrollable -->
+  <div class="prod-ov-body">
+    <input type="hidden" id="pf-id">
+
+    <!-- ── 1. ÉCONOMIE ── -->
+    <div class="prod-ov-section">
+      <div class="prod-ov-section-lbl">Économie · Prix & coûts</div>
+      <div class="ind-field-grid">
+        <div class="ind-field">
+          <div class="ind-field-lbl">Nom du produit *</div>
+          <input class="ind-field-inp" type="text" placeholder="Ex: Ceinture lombaire" id="pf-name">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">Prix de vente (€) *</div>
+          <input class="ind-field-inp" type="number" placeholder="60" id="pf-price" oninput="calcPfRoas()">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">COGS — coût produit (€) *</div>
+          <input class="ind-field-inp" type="number" placeholder="20" id="pf-cogs" oninput="calcPfRoas()">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">AOV moyen (€)</div>
+          <input class="ind-field-inp" type="number" placeholder="60" id="pf-aov" oninput="calcPfRoas()">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">Livraison offerte (€ absorbé)</div>
+          <input class="ind-field-inp" type="number" placeholder="0" id="pf-livraison" oninput="calcPfRoas()">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">Frais paiement (%)</div>
+          <input class="ind-field-inp" type="number" step="0.1" placeholder="2.5" id="pf-frais-paiement" oninput="calcPfRoas()">
+        </div>
+        <div class="ind-field" style="grid-column:1/-1">
+          <div class="ind-field-lbl">Taux de retour estimé (%)</div>
+          <input class="ind-field-inp" type="number" step="0.5" placeholder="5" id="pf-taux-retour" oninput="calcPfRoas()">
+        </div>
+      </div>
+      <!-- Bloc 4 seuils ROAS — affiché dès que prix + COGS sont remplis -->
+      <div id="pf-roas-bar" style="display:none;margin-top:10px">
+        <div style="font-size:9px;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Seuils de décision ASL calculés</div>
+        <div class="pf-roas-grid">
+          <div class="pf-roas-cell">
+            <div class="pf-roas-cell-lbl">Perte −20%</div>
+            <div class="pf-roas-cell-val" id="pf-minus20" style="color:var(--red)">—</div>
+          </div>
+          <div class="pf-roas-cell">
+            <div class="pf-roas-cell-lbl">BE · 0% marge</div>
+            <div class="pf-roas-cell-val" id="pf-be" style="color:var(--amber)">—</div>
+          </div>
+          <div class="pf-roas-cell">
+            <div class="pf-roas-cell-lbl">Target low · 15%</div>
+            <div class="pf-roas-cell-val" id="pf-target-low" style="color:var(--t1)">—</div>
+          </div>
+          <div class="pf-roas-cell">
+            <div class="pf-roas-cell-lbl">Target · 20% ✦</div>
+            <div class="pf-roas-cell-val" id="pf-target" style="color:var(--green)">—</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;padding:10px 12px;background:var(--s2);border-radius:8px;margin-top:4px">
+          <div><div style="font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em">Seuil ATC</div><div id="pf-atc" style="font-size:13px;font-weight:600;color:var(--t2)">—€</div></div>
+          <div><div style="font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em">Marge nette</div><div id="pf-marge" style="font-size:13px;font-weight:600;color:var(--green)">—%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. AVATAR ── -->
+    <div class="prod-ov-section">
+      <div class="prod-ov-section-lbl">Avatar client · Psychologie</div>
+      <div class="ind-field" style="margin-bottom:8px">
+        <div class="ind-field-lbl">Douleur principale</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Douleurs lombaires chroniques" id="pf-pain">
+      </div>
+      <div class="ind-field" style="margin-bottom:8px">
+        <div class="ind-field-lbl">Désir / transformation recherchée</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Reprendre le sport sans douleur" id="pf-desire">
+      </div>
+      <div class="ind-field" style="margin-bottom:8px">
+        <div class="ind-field-lbl">Objections principales (séparées par ,)</div>
+        <input class="ind-field-inp" type="text" placeholder="Trop cher, Ça marche vraiment ?" id="pf-objections">
+      </div>
+      <div class="ind-field">
+        <div class="ind-field-lbl">Niveau de conscience (1=Unaware → 5=Most Aware)</div>
+        <input class="ind-field-inp" type="number" min="1" max="5" placeholder="2" id="pf-awareness">
+      </div>
+    </div>
+
+    <!-- ── 3. OFFRE ── -->
+    <div class="prod-ov-section">
+      <div class="prod-ov-section-lbl">Offre · Message & différenciation</div>
+      <div class="ind-field" style="margin-bottom:8px">
+        <div class="ind-field-lbl">USP — différenciation vs concurrents</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Seul produit certifié X, livré en 24h" id="pf-usp">
+      </div>
+      <div class="ind-field" style="margin-bottom:8px">
+        <div class="ind-field-lbl">Garantie / structure d'offre</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Garantie 30 jours satisfait ou remboursé" id="pf-guarantee">
+      </div>
+      <div class="ind-field">
+        <div class="ind-field-lbl">Headline above the fold (message match)</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Soulagez vos douleurs dos en 10 minutes" id="pf-headline">
+      </div>
+    </div>
+
+    <!-- ── 4. ANGLES ── -->
+    <div class="prod-ov-section">
+      <div class="prod-ov-section-lbl">Angles créatifs</div>
+      <div class="ind-field-grid" style="margin-bottom:8px">
+        <div class="ind-field">
+          <div class="ind-field-lbl">Angles saturés (séparés par ,)</div>
+          <input class="ind-field-inp" type="text" placeholder="Urgence, Discount" id="pf-sat">
+        </div>
+        <div class="ind-field">
+          <div class="ind-field-lbl">Angles opportunités</div>
+          <input class="ind-field-inp" type="text" placeholder="Transformation, Preuve sociale" id="pf-opp">
+        </div>
+      </div>
+      <!-- Concurrence -->
+      <div style="font-size:9px;color:var(--t3);line-height:1.5;margin-bottom:8px">Ads concurrentes observées — angle, format, niveau de conscience ciblé.</div>
+      <div id="pf-competitors-list"></div>
+      <button type="button" onclick="addCompetitorRow()" style="margin-top:6px;background:var(--bdim);border:0.5px solid var(--bborder);border-radius:8px;padding:8px 12px;color:var(--blue);font-size:10px;font-family:'Poppins',sans-serif;cursor:pointer">+ Ajouter un concurrent</button>
+      <div id="pf-awareness-saturation" style="margin-top:8px;font-size:10px;color:var(--t3)"></div>
+    </div>
+
+    <!-- ── 5. VISUELS ── -->
+    <div class="prod-ov-section">
+      <div class="prod-ov-section-lbl">Visuels · Creative Bank</div>
+      <div style="font-size:10px;color:var(--t3);line-height:1.6;margin-bottom:10px">Photos produit, lifestyle, unboxing, captures de créas concurrentes. Prométhée s'en sert comme référence pour générer les statiques et vidéos.</div>
+      <label style="display:flex;align-items:center;gap:8px;background:var(--s2);border:0.5px dashed var(--b2);border-radius:10px;padding:12px 14px;cursor:pointer;font-size:11px;color:var(--t2)">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 13l4-4 3 3 3-3 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor"/></svg>
+        Ajouter des images (JPG, PNG, WEBP)
+        <input type="file" id="pf-images" multiple accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+      </label>
+      <div id="pf-images-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      <!-- Profil de voix généré auto -->
+      <div style="margin-top:14px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:6px">Profil de voix (généré par Prométhée)</div>
+        <div id="pf-voice-profile" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6">
+          Pas encore généré — Prométhée le crée dès que la douleur/désir/objections sont renseignés.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 6. NOTES ── -->
+    <div class="prod-ov-section">
+      <div class="prod-ov-section-lbl">Notes · Mécanisme unique</div>
+      <div class="ind-field">
+        <div class="ind-field-lbl">Notes libres (mécanisme, différenciateur, sourcing...)</div>
+        <input class="ind-field-inp" type="text" placeholder="Ex: Seul produit avec technologie X brevetée" id="pf-notes">
+      </div>
+    </div>
+
+  </div><!-- /prod-ov-body -->
+</div><!-- /prod-overlay -->
+
 <!-- DOCK NAVIGATION -->
 <div class="dock">
   <button class="dock-btn on" id="dock-mission" onclick="goView('mission')">
@@ -1730,18 +1803,30 @@ function calcPfRoas(){
   var price=parseFloat(document.getElementById('pf-price').value)
   var cogs=parseFloat(document.getElementById('pf-cogs').value)
   var bar=document.getElementById('pf-roas-bar')
-  if(price&&cogs&&price>cogs){
-    var be=price/(price-cogs)
-    var target=be*1.20
-    var aov=parseFloat(document.getElementById('pf-aov').value)||price
-    var atcT=aov*0.20
-    var marge=Math.round((price-cogs)/price*100)
-    document.getElementById('pf-be').textContent=be.toFixed(2)+'x'
-    document.getElementById('pf-target').textContent=target.toFixed(2)+'x'
-    document.getElementById('pf-atc').textContent=atcT.toFixed(0)+'€'
-    document.getElementById('pf-marge').textContent=marge+'%'
-    if(bar) bar.style.display='flex'
-  }
+  if(!bar) return
+  if(!price||!cogs||price<=cogs){bar.style.display='none';return}
+  var livraison=parseFloat(document.getElementById('pf-livraison').value)||0
+  var fraisPaiement=parseFloat(document.getElementById('pf-frais-paiement').value)||2.5
+  var tauxRetour=parseFloat(document.getElementById('pf-taux-retour').value)||0
+  /* POINT 1 — Marge nette réelle (intègre livraison, frais paiement, retours) */
+  var effectiveCogs=cogs+livraison+price*(fraisPaiement/100)+cogs*(tauxRetour/100)
+  var margeNette=(price-effectiveCogs)/price
+  if(margeNette<=0){bar.style.display='none';return}
+  var aov=parseFloat(document.getElementById('pf-aov').value)||price
+  /* 4 seuils ROAS */
+  var roas_be=parseFloat((1/margeNette).toFixed(2))
+  var roas_target_low=margeNette>0.15?parseFloat((1/(margeNette-0.15)).toFixed(2)):null
+  var roas_target=margeNette>0.20?parseFloat((1/(margeNette-0.20)).toFixed(2)):null
+  var roas_minus20=parseFloat((1/(margeNette+0.20)).toFixed(2))
+  var marge=Math.round(margeNette*100)
+  var atcT=aov*0.20
+  document.getElementById('pf-minus20').textContent=roas_minus20+'x'
+  document.getElementById('pf-be').textContent=roas_be+'x'
+  document.getElementById('pf-target-low').textContent=roas_target_low?roas_target_low+'x':'—'
+  document.getElementById('pf-target').textContent=roas_target?roas_target+'x':'—'
+  document.getElementById('pf-atc').textContent=atcT.toFixed(0)+'€'
+  document.getElementById('pf-marge').textContent=marge+'%'
+  bar.style.display='block'
 }
 
 function handleImageUpload(event){
@@ -1775,8 +1860,16 @@ function saveProduct(){
   if(price<=cogs){pushToMiniChat('Le prix doit être supérieur au COGS.');return}
 
   var aov=parseFloat(document.getElementById('pf-aov').value)||price
-  var roas_be=price/(price-cogs)
-  var roas_target=roas_be*1.20
+  var livraison=parseFloat(document.getElementById('pf-livraison').value)||0
+  var fraisPaiement=parseFloat(document.getElementById('pf-frais-paiement').value)||2.5
+  var tauxRetour=parseFloat(document.getElementById('pf-taux-retour').value)||0
+  /* POINT 1 — 4 seuils ROAS depuis marge nette réelle */
+  var effectiveCogs=cogs+livraison+price*(fraisPaiement/100)+cogs*(tauxRetour/100)
+  var margeNette=Math.max(0.01,(price-effectiveCogs)/price)
+  var roas_be=parseFloat((1/margeNette).toFixed(2))
+  var roas_target_low=margeNette>0.15?parseFloat((1/(margeNette-0.15)).toFixed(2)):roas_be*1.25
+  var roas_target=margeNette>0.20?parseFloat((1/(margeNette-0.20)).toFixed(2)):roas_be*1.40
+  var roas_minus20=parseFloat((1/(margeNette+0.20)).toFixed(2))
   var angSat=document.getElementById('pf-sat').value.split(',').map(function(s){return s.trim()}).filter(Boolean)
   var angOpp=document.getElementById('pf-opp').value.split(',').map(function(s){return s.trim()}).filter(Boolean)
   /* BLOC 3 / Modification 3.1 : objections — le champ existait dans le schéma mémoire depuis le début
@@ -1787,7 +1880,10 @@ function saveProduct(){
   var prodData={
     id:editId||buildProductId(),
     name:name,price:price,cogs:cogs,aov:aov,
-    roas_be:roas_be,roas_target:roas_target,atc_threshold:aov*0.20,
+    livraison:livraison,frais_paiement:fraisPaiement,taux_retour:tauxRetour,
+    marge_nette:Math.round(margeNette*100),
+    roas_minus20:roas_minus20,roas_be:roas_be,roas_target_low:roas_target_low,roas_target:roas_target,
+    atc_threshold:aov*0.20,
     market:memGet().account?memGet().account.market||'FR':'FR',
     avatar:{
       pain:document.getElementById('pf-pain').value.trim(),
@@ -1843,10 +1939,11 @@ function saveProduct(){
   }
 
   memSet(mem)
+  closeProdOverlay()
   clearProductForm()
   refreshParamView()
   var isNew=!editId
-  pushToMiniChat((isNew?'Produit "':'Produit "'+name+'" mis à jour. ')+name+'" ajouté au catalogue. ROAS BE '+roas_be.toFixed(2)+'x · Target '+roas_target.toFixed(2)+'x.'+(mem.active_product_id===prodData.id?' Il est maintenant le produit actif en campagne.':' Il est en veille — Prométhée peut le croiser pour des offres et bundles.'))
+  pushToMiniChat((isNew?'Produit "'+name+'" ajouté.':'Produit "'+name+'" mis à jour.')+' BE '+roas_be+'x · Target '+roas_target+'x · Marge nette '+Math.round(margeNette*100)+'%')
   if(isNew&&mem.active_product_id===prodData.id){goView('mission');setTimeout(function(){runBrain(false)},400)}
   /* BLOC 4 / Modification 4.2 : Prométhée décide seul s'il doit régénérer le profil de voix —
      fire-and-forget, ne bloque jamais la sauvegarde. Ne se déclenche que si l'avatar a
@@ -1897,65 +1994,83 @@ function setActiveProduct(prodId){
   if(prod) maybeRefreshVoiceProfile(prodId).catch(function(e){console.error('[voice profile]',e)})
 }
 
-function editProduct(prodId){
-  var mem=memGet()
-  var prod=mem.products.find(function(p){return p.id===prodId})
-  if(!prod) return
-  pfImages=prod.images?prod.images.slice():[]
-  setValue('pf-id',prod.id)
-  setValue('pf-name',prod.name)
-  setValue('pf-price',prod.price)
-  setValue('pf-cogs',prod.cogs)
-  setValue('pf-aov',prod.aov)
-  setValue('pf-pain',prod.avatar?prod.avatar.pain:'')
-  setValue('pf-desire',prod.avatar?prod.avatar.desire:'')
-  setValue('pf-objections',(prod.avatar&&prod.avatar.objections||[]).join(', '))
-  setValue('pf-usp',prod.usp||'')
-  setValue('pf-guarantee',prod.guarantee||'')
-  setValue('pf-headline',prod.headline)
-  setValue('pf-sat',(prod.angles_saturated||[]).join(', '))
-  setValue('pf-opp',(prod.angles_opportunities||[]).join(', '))
-  setValue('pf-awareness',prod.avatar?prod.avatar.awareness_level:2)
-  setValue('pf-notes',prod.notes||'')
-  /* BLOC 4 : research concurrence + profil de voix (lecture seule, jamais dans un input) */
-  pfCompetitors=(prod.market_intel&&prod.market_intel.competitors||[]).slice()
-  renderCompetitorRows()
-  renderVoiceProfileDisplay(prod.avatar?prod.avatar.voice_profile:null)
-  document.getElementById('product-form-title').textContent='Modifier : '+prod.name
-  var _ef=document.getElementById('product-form');if(_ef)_ef.style.display='block'
-  /* Preview images existantes */
-  var preview=document.getElementById('pf-images-preview')
-  if(preview){
-    preview.innerHTML=pfImages.map(function(img,i){
+/* ── PRODUCT OVERLAY — ouvre/ferme l'interface plein-écran produit ── */
+function openProdOverlay(mode, prodId){
+  clearProductForm()
+  var ov=document.getElementById('prod-overlay')
+  var title=document.getElementById('prod-ov-title')
+  if(mode==='edit'&&prodId){
+    var mem=memGet()
+    var prod=mem.products.find(function(p){return p.id===prodId})
+    if(!prod) return
+    pfImages=prod.images?prod.images.slice():[]
+    setValue('pf-id',prod.id)
+    setValue('pf-name',prod.name)
+    setValue('pf-price',prod.price)
+    setValue('pf-cogs',prod.cogs)
+    setValue('pf-aov',prod.aov||prod.price)
+    setValue('pf-livraison',prod.livraison||0)
+    setValue('pf-frais-paiement',prod.frais_paiement||2.5)
+    setValue('pf-taux-retour',prod.taux_retour||5)
+    setValue('pf-pain',prod.avatar?prod.avatar.pain:'')
+    setValue('pf-desire',prod.avatar?prod.avatar.desire:'')
+    setValue('pf-objections',(prod.avatar&&prod.avatar.objections||[]).join(', '))
+    setValue('pf-usp',prod.usp||'')
+    setValue('pf-guarantee',prod.guarantee||'')
+    setValue('pf-headline',prod.headline||'')
+    setValue('pf-sat',(prod.angles_saturated||[]).join(', '))
+    setValue('pf-opp',(prod.angles_opportunities||[]).join(', '))
+    setValue('pf-awareness',prod.avatar?prod.avatar.awareness_level:2)
+    setValue('pf-notes',prod.notes||'')
+    pfCompetitors=(prod.market_intel&&prod.market_intel.competitors||[]).slice()
+    renderCompetitorRows()
+    renderVoiceProfileDisplay(prod.avatar?prod.avatar.voice_profile:null)
+    /* Images existantes */
+    var preview=document.getElementById('pf-images-preview')
+    if(preview) preview.innerHTML=pfImages.map(function(img){
       return '<div style="position:relative;width:56px;height:56px;border-radius:8px;overflow:hidden;border:0.5px solid var(--b2)">'
         +'<img src="'+img.base64+'" style="width:100%;height:100%;object-fit:cover">'
         +(function(id){var b=document.createElement('button');b.textContent='×';b.dataset.imgid=id;b.style.cssText='position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);border:none;border-radius:50%;width:16px;height:16px;color:#fff;font-size:10px;cursor:pointer;line-height:1';b.onclick=function(){removeImage(this,this.dataset.imgid)};return b.outerHTML})(img.id)
         +'</div>'
     }).join('')
+    if(title) title.textContent=prod.name
+    calcPfRoas()
+  }else{
+    /* Valeurs par défaut pour nouveau produit */
+    setValue('pf-frais-paiement',2.5)
+    setValue('pf-taux-retour',5)
+    if(title) title.textContent='Nouveau produit'
   }
-  calcPfRoas()
-  document.getElementById('product-form').scrollIntoView({behavior:'smooth'})
+  if(ov){
+    ov.classList.add('open')
+    ov.scrollTop=0
+  }
 }
 
-function openProductForm(){
-  clearProductForm()
-  var form=document.getElementById('product-form')
-  if(form){form.style.display='block';form.scrollIntoView({behavior:'smooth',block:'start'})}
+function closeProdOverlay(){
+  var ov=document.getElementById('prod-overlay')
+  if(ov) ov.classList.remove('open')
 }
+
+/* Alias pour compatibilité avec les appels existants */
+function openProductForm(){ openProdOverlay('new') }
+
+function editProduct(prodId){ openProdOverlay('edit', prodId) }
 
 function clearProductForm(){
   pfImages=[]
   pfCompetitors=[]
-  ;['pf-id','pf-name','pf-price','pf-cogs','pf-aov','pf-pain','pf-desire','pf-objections','pf-usp','pf-guarantee','pf-headline','pf-sat','pf-opp','pf-awareness','pf-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})
+  ;['pf-id','pf-name','pf-price','pf-cogs','pf-aov','pf-livraison','pf-frais-paiement','pf-taux-retour',
+    'pf-pain','pf-desire','pf-objections','pf-usp','pf-guarantee','pf-headline',
+    'pf-sat','pf-opp','pf-awareness','pf-notes'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value=''
+  })
   var preview=document.getElementById('pf-images-preview')
   if(preview) preview.innerHTML=''
   renderCompetitorRows()
   renderVoiceProfileDisplay(null)
   var bar=document.getElementById('pf-roas-bar')
   if(bar) bar.style.display='none'
-  document.getElementById('product-form-title').textContent='Nouveau produit'
-  var form=document.getElementById('product-form')
-  if(form) form.style.display='none'
 }
 
 /* ── RENDU DYNAMIQUE — VUE MÉMOIRE ───────────────────────── */
@@ -2118,37 +2233,36 @@ function refreshParamView(){
   var products=mem.products||[]
   if(count) count.textContent=products.length+' produit(s)'
   if(list){
-    var cardStyle='width:calc(50% - 5px);min-height:200px;border-radius:16px;padding:18px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center;flex-shrink:0;box-sizing:border-box;'
+    var cardStyle='width:calc(50% - 5px);min-height:180px;border-radius:16px;padding:16px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;text-align:center;flex-shrink:0;box-sizing:border-box;'
     var productCards=products.map(function(p){
       var isActive=p.id===mem.active_product_id
       var statusCol=isActive?'var(--green)':p.status==='CUT'?'var(--red)':'var(--t2)'
       var border=isActive?'1.5px solid var(--gborder)':'0.5px solid var(--b2)'
       var thumb=p.images&&p.images.length
-        ?'<img src="'+p.images[0].base64+'" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0">'
-        :'<div style="width:72px;height:72px;background:var(--s3);border-radius:10px;border:0.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:28px">📦</div>'
-      return '<div style="'+cardStyle+'background:var(--s2);border:'+border+'" data-pid="'+p.id+'" onclick="editProdBtn(this)">'
+        ?'<img src="'+p.images[0].base64+'" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex-shrink:0">'
+        :'<div style="width:64px;height:64px;background:var(--s3);border-radius:10px;border:0.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:26px">📦</div>'
+      return '<div style="'+cardStyle+'background:var(--s2);border:'+border+'" data-pid="'+p.id+'" onclick="openProdOverlay(\'edit\',\''+p.id+'\')">'
         +thumb
-        +'<div style="font-size:11px;font-weight:700;color:var(--t1);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4">'+(p.name||'—')+'</div>'
-        +'<div style="font-size:10px;font-weight:700;color:'+statusCol+';letter-spacing:.05em">'+(isActive?'ACTIF':p.status||'—')+'</div>'
-        +(p.roas_be?'<div style="font-size:10px;color:var(--t2)">BE '+p.roas_be.toFixed(2)+'x</div>':'')
-        +'<div style="font-size:9px;color:var(--t3);margin-top:2px">Appuyer pour éditer</div>'
+        +'<div style="font-size:11px;font-weight:700;color:var(--t1);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(p.name||'—')+'</div>'
+        +'<div style="font-size:9px;font-weight:700;color:'+statusCol+';letter-spacing:.06em">'+(isActive?'ACTIF':p.status||'—')+'</div>'
+        +(p.roas_be?'<div style="font-size:9px;color:var(--t3)">BE '+p.roas_be+'x · Target '+p.roas_target+'x</div>':'')
+        +(p.marge_nette?'<div style="font-size:9px;color:var(--green)">'+p.marge_nette+'% marge nette</div>':'')
         +'</div>'
     }).join('')
-    /* Carte + : rectangle vertical distinct, plus haut que large */
-    var plusCard='<div onclick="openProductForm()" style="'
-      +'width:160px;height:280px;border-radius:20px;'
-      +'background:var(--bg);border:1.5px dashed var(--b3);'
-      +'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;'
-      +'cursor:pointer;text-align:center;box-sizing:border-box;'
-      +'transition:border-color .2s,background .2s;"'
-      +' onmouseover="this.style.borderColor=\'var(--b3)\';this.style.background=\'var(--s1)\'"'
-      +' onmouseout="this.style.borderColor=\'\';this.style.background=\'var(--bg)\'">'
-      +'<div style="width:64px;height:64px;border-radius:50%;border:1.5px dashed var(--b3);display:flex;align-items:center;justify-content:center;">'
-        +'<span style="font-size:34px;font-weight:200;color:var(--t2);line-height:1">+</span>'
-      +'</div>'
-      +'<div style="font-size:13px;font-weight:600;color:var(--t2)">Nouveau produit</div>'
-      +'<div style="font-size:10px;color:var(--t3);line-height:1.5;padding:0 8px">Configurer ton offre,<br>tes angles et ton avatar</div>'
-      +'</div>'
+    /* Carte + : grande si 0 produit, petite à droite si produits existent */
+    var plusCard
+    if(products.length===0){
+      plusCard='<div onclick="openProdOverlay(\'new\')" style="width:100%;min-height:220px;border-radius:20px;background:var(--bg);border:1.5px dashed var(--b2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;text-align:center;box-sizing:border-box;transition:background .2s">'
+        +'<div style="width:64px;height:64px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center"><span style="font-size:36px;font-weight:200;color:var(--t2)">+</span></div>'
+        +'<div style="font-size:14px;font-weight:600;color:var(--t1)">Nouveau produit</div>'
+        +'<div style="font-size:10px;color:var(--t3);line-height:1.6;padding:0 24px">Configure ton offre, tes angles et ton avatar pour que Prométhée prenne des décisions précises.</div>'
+        +'</div>'
+    }else{
+      plusCard='<div onclick="openProdOverlay(\'new\')" style="'+cardStyle+'background:var(--bg);border:1px dashed var(--b2)">'
+        +'<div style="font-size:28px;color:var(--t3)">+</div>'
+        +'<div style="font-size:10px;color:var(--t3)">Ajouter</div>'
+        +'</div>'
+    }
     list.innerHTML=productCards+plusCard
   }
 
@@ -6055,6 +6169,12 @@ function submitMetrics(){
   }
 
   memSet(mem)
+  /* POINT 2 — Historique ROAS 3 derniers jours pour décisions scaling */
+  if(!mem.campaign.roas_history) mem.campaign.roas_history=[]
+  if(roas_real){
+    mem.campaign.roas_history.push({roas:roas_real,date:new Date().toISOString().slice(0,10)})
+    if(mem.campaign.roas_history.length>3) mem.campaign.roas_history.shift()
+  }
   /* Vérifier si le niveau a progressé automatiquement */
   checkAndUpdateLevel(mem)
   closeMetrics()
