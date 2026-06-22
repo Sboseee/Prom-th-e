@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "updated_at": "2026-06-22",
   "win_rates": {
     "Unboxing": 0.1,
@@ -126,7 +126,13 @@
     "min_elements_changed": 3,
     "most_impactful": "hook (60-70% de la perf), puis angle_marketing",
     "rule": "Si une nouvelle créative change moins de 3 éléments vs la précédente sur le même angle, elle est vue comme quasi-doublon par Andromeda — cannibalisation au lieu de nouvelle poche d'audience.",
-    "tolerance": "Même une itération trop proche d'une autre n'est PAS grave si on hésite — au pire elle ne dépense pas, ça ne tue pas les stats globales de la CBO. Mieux vaut envoyer et laisser le marché trancher que de se bloquer par sur-analyse."
+    "tolerance": "Même une itération trop proche d'une autre n'est PAS grave si on hésite — au pire elle ne dépense pas, ça ne tue pas les stats globales de la CBO. Mieux vaut envoyer et laisser le marché trancher que de se bloquer par sur-analyse.",
+    "iteration_priority_order": [
+      "1. Hook (~80% du focus — le plus gros levier de perf)",
+      "2. Body + CTA ensemble (jamais le CTA seul, en gardant le hook winner)",
+      "3. Content creator (si une créatrice convertit, lui donner plusieurs scripts/angles)",
+      "4. Format (un angle winner en statique doit être testé en mashup/UGC/shortform et vice-versa — ouvre une nouvelle audience)"
+    ]
   },
   "awareness_levels": [
     {
@@ -1254,5 +1260,205 @@
         "Ne pas changer le Self-Concept tous les mois — sinon on n'en construit aucun"
       ]
     }
+  },
+  "scaling_revenue_stages": {
+    "source": "Matteo — 'Transformer un produit banal en machine à cash'.",
+    "note": "Complète business_stage_rules (qui couvre 0 à ~1KD cumulé, early testing). Ici on parle de paliers de RUN RATE journalier (0-10K/day, 10-50K/day, 50-100K/day+), donc une échelle largement supérieure — la suite logique une fois 'scaling_1kd_stable' atteint et dépassé.",
+    "principe_general": "Chaque palier demande une obsession différente, pas les mêmes KPIs, pas les mêmes réflexes. Erreur de débutant : jouer les 3 paliers avec la même tête → gagner un peu, paniquer, casser, puis chercher un nouveau 'produit winner' alors que le problème n'est jamais le produit.",
+    "paliers": [
+      {
+        "nom": "0 à 10K/day — l'instinct marché",
+        "obsession": "Prouver le désir. Trouver une douleur exploitable et prouver qu'un marché réagit — pas besoin de marque/packaging/site parfaits à ce stade.",
+        "recherche_produit": "Ne pas chercher un 'winner' déjà visible sur les spytools (= déjà rincé par 300 personnes, CPM cher, supply saturée). Chercher une douleur avec assez de tension émotionnelle : Amazon reviews, Reddit, TikTok Shop, forums de niche, marketplaces asiatiques, produits Amazon mal marketés, marques DTC étrangères sous-exploitées, catégories evergreen (beauté, sommeil, posture, cuisine, animaux, organisation, fitness, parents, confort maison). On n'invente pas le besoin, on intercepte une frustration déjà là.",
+        "niche": "Poncer UNE niche jusqu'à connaître le persona mieux qu'il ne se connaît lui-même — c'est ce qui fait repérer les patterns invisibles (mêmes frustrations, mêmes objections, mêmes mots dans les reviews). Chaque nouveau produit dans la niche devient ensuite plus facile à lancer (intelligence marché accumulée).",
+        "usage_spytools": "Servent à lire les formats gagnants (structures d'angles, hooks, transitions, types d'UGC, LP, offres, bundles, advertorials, VSL, native ads) — jamais à copier le produit déjà vu partout.",
+        "rythme_creas": "20 à 40 créas/semaine. Pas des chefs-d'œuvre — des angles. Une créa = un angle (pain, shame, status, comparison, myth busting, founder, demonstration, reaction, problem-solution, enemy angle). L'IA (Higgsfield/CapCut/Runway/ElevenLabs/Canva/Descript) sert à produire plus vite, jamais à remplacer le brief.",
+        "kpi": "Pas le ROAS parfait — la PREUVE DE TRACTION : CTR (l'angle attire), Hook rate (les 3 premières secondes stoppent le scroll), ATC (l'offre intrigue), CPA qui peut devenir rentable avec une meilleure page/bundle/email/créa. On cherche un signal, pas une machine parfaite. Couper trop vite à 1.4 ROAS au lieu de 2.5 peut tuer un bon produit ; continuer sans lire les métriques brûle juste du cash.",
+        "conseil_carriere": "Le meilleur entraînement avant de lancer son propre produit : faire des créatives pour d'autres marques (même gratuit/perf au début). La créa est le vrai levier de 2026 — media buying = cliquer sur publish, n'importe qui peut le faire ; comprendre un avatar/écrire un hook/casser une objection, c'est une compétence qui rend indépendant des monteurs/créateurs/agences."
+      },
+      {
+        "nom": "10 à 50K/day — la répétition système",
+        "obsession": "Comprendre POURQUOI le produit vend, à QUI, avec QUEL angle/promesse/objection, et jusqu'où pousser sans dégrader la marge. Erreur fatale à ce palier : scaler le budget plus vite que sa compréhension (voir 8K/day, doubler le budget, CPA explose, stock part, support sature, RF montent, shipping détruit la confiance).",
+        "creative_pipeline": "Ne plus dépendre d'une seule créa (une créa qui porte 70% du spend = bombe à retardement). Construire une matrice créative : 5 avatars × 5 douleurs × 5 niveaux de conscience × 5 mécanismes × 5 formats (UGC face cam, démo produit, founder story, street interview, green screen, native ad, fake podcast, problem montage, review compilation, objection handling, comparison ad).",
+        "page_produit": "Devient une vraie machine de conversion : above the fold + promesse immédiate + bénéfice principal + social proof visible + mécanisme unique expliqué simplement + comparaison vs ancienne solution + FAQ orientée objections + garanties + bundles + urgency propre + reviews avec les mots du client. Multiplier les pages par angle (douleur / mécanisme / advertorial trafic froid / direct retargeting / quiz si personnalisation / presell si marché sceptique).",
+        "finance_et_supply": "Cash conversion cycle devient critique : encaisser aujourd'hui mais payer stock/ads/3PL/refunds/taxes/chargebacks/prestataires/samples/créateurs/outils avant d'avoir récupéré sa marge. Vérifier : fournisseur (upfront % vs avant expédition), lead time, temps transport, jours de couverture stock — possible d'être rentable en théorie et mort en pratique. Anticiper avant de scaler, pas après : 2 fournisseurs capables de produire, contrôle qualité, samples validés, 3PL qui tient les pics, seuils de réappro basés sur run rate (pas intuition), plan air freight (sauver le momentum) vs sea freight (protéger la marge)."
+      },
+      {
+        "nom": "50 à 100K/day et plus — l'exécution organisationnelle",
+        "obsession": "On ne scale plus un produit, on scale une organisation. Le produit/l'offre/la demande sont validés — l'ennemi devient la COMPLEXITÉ : fatigue créa, attribution floue, CPM qui montent, RF, qualité support, retards logistiques, baisse de contribution margin, dépendance Meta, manque de cash, problèmes fournisseurs, copies concurrentes, saturation d'angle, baisse de confiance marché.",
+        "pilotage": "Chaque décision passe par la marge nette, le LTV, le payback period, le MER, le CAC new customer, le repeat rate, le RF rate, le blended CPA, la contribution profit PAR COHORTE — plus de pilotage au ROAS plateforme seul.",
+        "funnel_segmente": "TOF (angles larges, ouvrir le marché) → MOF (éduquer, comparer, rassurer, casser les objections) → BOF (convertir les hésitants : preuve, offre, urgence, garantie). Profondeur des angles : bénéfice évident → mécanisme → identité (le client ne veut plus acheter un produit, il veut rejoindre une nouvelle croyance).",
+        "marche_plus_froid": "Les premiers acheteurs étaient chauds, les suivants sont plus sceptiques/moins conscients/plus lents à convaincre → il faut redescendre les niveaux de conscience : advertorials, quiz, VSL, pages longues, séquences email profondes, retargeting par objection, angles culturels/experts/preuve/transformation. Sophistication du marché centrale : si le marché a entendu 50x la même promesse, changer le mécanisme/la preuve/le véhicule, pas juste reformuler le bénéfice (ex: 'perdre du poids' n'est pas un angle, 'réactiver un signal métabolique ignoré' peut le devenir, à condition de rester crédible et conforme).",
+        "multi_canal": "Meta reste souvent le moteur. TikTok = trouver angles/volume créatif. Google = capter l'intention. YouTube = pédagogie. Native ads = advertorials + marchés plus âgés. Email/SMS = LTV. Affiliés/influenceurs = contenu + confiance. Amazon = capture si demande brandée. Attention : plus de canaux = attribution qui ment davantage → piloter au MER/cash/contribution profit/cohortes, pas au ROAS par plateforme.",
+        "danger_central": "Tout ce qui était tolérable à 10K/day devient dangereux à 100K/day (un RF un peu élevé = fuite massive, un délai shipping un peu long = centaines de tickets support, un fournisseur un peu instable = risque existentiel). Nécessite des dashboards, des rituels, des owners dédiés (créa / media buying / CRO / supply / finance / support) — le fondateur ne peut plus tout porter seul."
+      }
+    ],
+    "synthese": "0-10K/day = voir une douleur que les autres ignorent. 10-50K/day = produire plus d'angles que les autres. 50-100K/day+ = tenir marge + stock + cash + créa + confiance + vitesse simultanément."
+  },
+  "creative_flywheel": {
+    "source": "Méthode 'Creative Flywheel' — cycle infini pour scaler une marque ecom (utilisé sur des comptes qui produisent 100+ créas/weekend).",
+    "principe": "Un cycle qui se répète à l'infini, le plus vite et avec le plus de vélocité possible sans perdre en qualité : Research → Idéation & Inspiration → Production → Test → Analyse & Learning → Itération → retour à Research. Certains font un tour complet en 1 mois, d'autres en 4-5 jours avec la même qualité voire mieux — la vélocité du flywheel détermine le succès.",
+    "etapes": [
+      {
+        "nom": "1. Research",
+        "veille_best_in_class": "Pas forcément ta niche — les MEILLEURS acteurs du marché ecom en général (ex: Obvi). Observer leurs créas, hooks, média mix, formats via des outils de spy comme Trendtrack (Meta) et Calodata (TikTok Shop).",
+        "veille_externe": [
+          "Créatifs concurrents (s'en inspirer pour ses propres créas)",
+          "Trustpilot concurrent (vérifier que ce sont de vrais avis, comprendre les objections et satisfactions)",
+          "Deep search (ChatGPT/Claude/Perplexity) pour mieux cerner la marque/le marché",
+          "TikTok / TikTok Shop organique",
+          "Amazon (mine d'or d'avis)",
+          "Reddit",
+          "SparkToro (creuser l'audience)",
+          "X/Twitter — sous-coté : trouver le bon thread anglophone sur un painpoint = centaines de réponses/interactions exploitables, et du verbatim client réutilisable en continu",
+          "Quora / Pinterest (moins pertinents mais sources d'appoint)",
+          "Adspy — récupérer les vrais avis Facebook sous les pubs concurrentes (mine d'or, lent à remonter mais précieux)",
+          "YouTube — commentaires sous une vidéo qui parle du painpoint/de la solution/du dream outcome"
+        ],
+        "extraits_de_la_recherche": [
+          "Dream outcome",
+          "Pain point",
+          "UMS (unique mechanism solution) / UMP (unique mechanism problem)",
+          "Deep desires / avatar(s)",
+          "Market timing / saisonnalité (~90% des produits en ont une)",
+          "Awareness",
+          "Sophistication du marché",
+          "Angles marketing"
+        ]
+      },
+      {
+        "nom": "2. Idéation & Inspiration",
+        "principe": "Condenser la recherche + s'inspirer des meilleures créas vues (concurrents/best in class) → idéation BASÉE SUR LA DATA, jamais random."
+      },
+      {
+        "nom": "3. Production",
+        "formule_magique": "Volume × Diversité × Qualité × Analyse — confirme diagnostic_formula. Les ad libraries des meilleurs shops montrent 5000-7000 ads lancées depuis le début de la marque pour seulement 200-300 actives en même temps = le win rate reste faible même chez les meilleurs avec les meilleures agences. Le volume n'est pas optionnel.",
+        "diversite": "Formats (statique/VSL/mashup/shortform/UGC), angles, concepts (en statique : collage, negative marketing, headline, benefits avec flèches/bullet points).",
+        "copywriting": "Leviers psychologiques (social proof, autorité, rareté), power words, verbatim client, structures éprouvées (PAS/BAB/AIDA) — ne jamais rédiger au hasard."
+      },
+      {
+        "nom": "4. Test",
+        "principe": "Lancer avec un budget minimum suffisant pour générer de la data utile."
+      },
+      {
+        "nom": "5. Analyse & Learning",
+        "principe": "La phase la plus souvent skippée ('ça marche pas, je repasse en production' SANS analyser d'abord) — pourtant la plus importante.",
+        "sources": [
+          "Meta breakdown : démographie de qui a vu / qui a acheté",
+          "Verbatim client via commentaires Facebook",
+          "Média mix à affiner en continu (% statique vs UGC vs shortform vs VSL vs mashup) selon ce qui performe réellement pour CETTE marque",
+          "Questionnaire post-achat — QUESTIONS OUVERTES obligatoires, but = découvrir, pas confirmer ce qu'on pense déjà (on est souvent surpris : le client achète pour une raison jugée insignifiante dans le script)",
+          "Trustpilot — traité comme un commentaire de plus",
+          "SAV — demander un rapport MARKETING bimensuel (pas que logistique) : painpoint récurrent, objections fréquentes, avis ultra-positifs post-achat"
+        ]
+      },
+      {
+        "nom": "6. Itération",
+        "principe": "Itérer sur ce qui fonctionne (hook/body/angles) — clé du succès même post-Andromeda. Tout en netflix (jamais itérer) = win rate mauvais + comptes qui explosent."
+      }
+    ],
+    "principes_complementaires": [
+      "Ne pas réinventer la roue — tout se base sur la data (interne + externe + best in class), jamais sur une intuition de marque.",
+      "Data versus ego — on ne 'connaît' pas son audience par supposition ('mon audience aime bien ça' ne veut rien dire), c'est la data qui parle (winners, hook rate, hold rate, ROAS).",
+      "Feedback loop opérationnelle — le créatif stratégiste doit être 'dans les tranchées' avec la production, pas en tour d'ivoire : sinon la data/le learning ne redescend pas à 100% vers le vidéo éditeur/static maker, et il y a perte d'information malgré une bonne analyse en amont.",
+      "Pattern spotter — analyser ce qui se répète à travers les winners (même footage, même hook, même angle, même avatar) et DOUBLE DOWN dessus. Ex: 11 vidéos winners sur 15 partagent le même style de hook = pattern à exploiter."
+    ]
+  },
+  "content_sourcing_and_backend": {
+    "source": "K — 'Comment scaler n'importe quel shop ecom de 10 à 50K/day'.",
+    "footage_fatigue": "Utiliser tout le temps les mêmes b-rolls → les gens finissent par scroller en mode auto-pilote (le cerveau a appris à ignorer ces visuels). Le contenu scrappé peut monter à 10-40K/day pour les plus chanceux mais s'essouffle toujours — il faut à terme son propre contenu pour tester le fruit de sa recherche.",
+    "3_sources_de_contenu": [
+      {
+        "nom": "UGC acheté",
+        "principe": "Pas de débat, ça fonctionne. Acheter des b-rolls à mettre dans un drive pour faire du mashup, avec un script testable à l'unité — la SOMME des b-rolls accumulés constitue le vrai contenu vital pour les ads."
+      },
+      {
+        "nom": "Gifting",
+        "principe": "Offrir le produit pour récupérer du contenu, sans paiement au-delà du produit. Nécessite un très bon produit pour que les créateurs aient envie de le faire."
+      },
+      {
+        "nom": "Product seeding",
+        "principe": "Envoyer le produit à de nombreuses créatrices via un programme d'affiliation (pas juste un cadeau) — l'idée n'est PAS de faire de la marge sur le seeding mais d'inciter au volume de contenu.",
+        "commission": "Minimum 30%, jusqu'au break-even (50-60%) si besoin pour maximiser le volume de contenu généré.",
+        "clause_obligatoire": "Prévoir une clause de réutilisation du contenu sur Meta — les créatrices vendent en organique/TikTok Shop/leur communauté ET la marque récupère tout le contenu pour ses propres ads.",
+        "objectif_final": "Accumuler un drive de 2000-4000 b-rolls pour scaler sans footage fatigue, en touchant tous les avatars/angles/désirs."
+      },
+      {
+        "nom": "Micro-influence",
+        "principe": "Peut être rentable seul (codes promo + stories). Bonus si la créatrice accepte de céder le contenu pour le paid."
+      }
+    ],
+    "iteration_priorite": {
+      "note": "Complète andromeda_fingerprint avec un ordre de priorité opérationnel pour itérer une winneuse.",
+      "ordre": [
+        "1. Hook — ~80% du focus d'itération, c'est le Pareto de la perf créative.",
+        "2. Body + CTA ensemble — ne JAMAIS itérer le CTA de manière isolée. En gardant le hook winner, un meilleur CTA peut faire scaler une créa de 2000-3000€ à beaucoup plus.",
+        "3. Content creator — si une créatrice convertit bien pour la marque, lui envoyer plusieurs scripts/concepts/angles différents (exploiter le creator winner, pas juste la créa winner).",
+        "4. Format — un angle/statique winner doit être testé en mashup/UGC/shortform et vice-versa. Changer le format seul peut ouvrir une toute nouvelle audience (lecteurs vs amateurs de vidéo dynamique vs gens qui ont besoin de temps pour comprendre le produit)."
+      ]
+    },
+    "reinvestissement_contenu": "Minimum 2-3% du CA réinvesti en production de contenu, en continu — sinon impossible de stabiliser un palier élevé dans la durée. Si la marge ne permet pas ce réinvestissement (rentable seulement à moins de 10-15% de marge sans investir), c'est un problème de fond (offre/CRO/COGS/backend à revoir), pas un problème de créa.",
+    "fondations_au_dela_de_l_acquisition": {
+      "market_timing": "Accepter la saisonnalité (~tous les produits en ont une) plutôt que de forcer un trimestre creux. Deux options : avoir plusieurs marques sur des saisonnalités complémentaires, OU préparer son momentum en amont et être prêt dès que ça remonte (pas 'arriver comme une fleur').",
+      "offre_et_breakeven_mindset": "Ne pas raisonner en ROAS breakeven limitant. Une offre avec breakeven ROAS à 1.3 c'est bien, mais si une offre 1+1 fait monter le breakeven à 1.5 tout en doublant le volume vendu et en faisant doubler/tripler le ROAS réel, la rentabilité totale explose malgré un breakeven affiché plus haut.",
+      "backend_spof": {
+        "definition": "PSP (Payment Service Provider) = Single Point of Failure : si le PSP est bloqué, il n'y a plus de shop, point final.",
+        "mitigations": [
+          "SAV solide dès le scaling — un SAV qui tenait à petite échelle craque souvent en scaling, ce qui génère des chargebacks qui dégradent la réputation auprès du PSP/des banques.",
+          "Logistique fiable — une mauvaise logistique met aussi le PSP à risque (retards = plaintes = chargebacks).",
+          "Diversifier le banking — ne pas dépendre d'une seule banque (ex: Mercury) : ouvrir plusieurs comptes (Wise/Relay/banque physique), les 'chauffer' progressivement pour pouvoir basculer un volume important sans déclencher un blocage automatique en cas de problème sur l'un d'eux.",
+          "Bon produit — base non négociable, scaler un mauvais produit est rarement une bonne idée.",
+          "Email marketing — flows + campagnes essentiels pour la marge backend une fois à 30-50K/day+."
+        ]
+      }
+    }
+  },
+  "competitive_intelligence_automation": {
+    "source": "'31k/day grâce aux automatisations Claude x Trendtrack x Higgsfield' — décrit une architecture DIFFÉRENTE de celle de Prométhée (workflows Cowork + MCP officiels Trendtrack/Higgsfield connectés à Claude, vs le proxy server.js local de Prométhée qui appelle les API REST directement). À garder comme référence méthodologique / piste d'évolution future, pas comme implémentation à copier telle quelle dans index.html/server.js.",
+    "outils": {
+      "trendtrack": "Spy tool Meta — veille concurrentielle, MCP officiel disponible (docs.trendtrack.io/connect/claude).",
+      "higgsfield": "Génération vidéo IA — MCP officiel disponible (higgsfield.ai/mcp). Déjà utilisé par Prométhée via /api/higgsfield (server.js) en appel REST direct, approche différente mais objectif similaire."
+    },
+    "cas_usage": [
+      {
+        "nom": "Recherche produit automatisée",
+        "filtres_types": [
+          "Shop lancé il y a moins de 6 mois",
+          "Croissance de visites sur les 3 derniers mois",
+          "Croissance de publicités sur les 3 derniers mois",
+          "Minimum 30 publicités actives",
+          "Entre 10 000 et 100 000 visites (assez de traction, pas trop saturé pour laisser une opportunité)"
+        ],
+        "principe": "Ces filtres ciblent des shops EN COURS de scaling (visites et ads en hausse) mais pas encore trop hauts — rapport automatique quotidien ou bihebdomadaire."
+      },
+      {
+        "nom": "Veille concurrentielle continue",
+        "donnees_suivies": [
+          "Angles testés par les concurrents",
+          "Nombre d'ads / concepts lancés",
+          "Emails envoyés",
+          "Arrivée de nouveaux concurrents",
+          "Changements de stratégie (adcopy / offres / prix / LP)"
+        ],
+        "alerte": "Dès qu'un concurrent scale fort ou cut ses ads, ou qu'un nouveau concurrent arrive sur la niche/le produit, rapport immédiat — permet d'être 'à la page' en continu sans veille manuelle."
+      },
+      {
+        "nom": "Détection du time to market",
+        "signal": "Surveiller reach / spend / visites / nombre d'ads sur les leaders d'une niche. Quand ces indicateurs EXPLOSENT (pas une estimation Google Trends, de la vraie data de spend/reach), c'est le feu vert pour lancer ou pousser fort sur cette niche.",
+        "exemple_chiffre": "Un shop tournait à ~1K/day. Time to market détecté et anticipé → ajustement de stratégie → 20K/day une semaine plus tard. Le time to market peut changer la rentabilité aussi radicalement en testing qu'en scaling sur une marque déjà active.",
+        "regle": "Toujours croiser avec Google Trends et son propre jugement — l'automatisation multiplie les indices, elle ne remplace pas la décision finale."
+      },
+      {
+        "nom": "Création publicitaire automatisée (pipeline complet)",
+        "etapes": [
+          "Créer un brandtracker regroupant tous les concurrents dans l'outil de spy",
+          "Analyser les concepts/angles de créas qui performent le mieux dans la niche",
+          "Générer les prompts de création à partir de ces concepts",
+          "Génération automatique des créas par l'outil IA vidéo",
+          "Réveil avec un batch de créas prêtes à lancer, adaptées au produit"
+        ],
+        "note": "Variante plus agressive évoquée par la source : reprendre directement les créas d'un concurrent qui a le même produit et les refaire quotidiennement adaptées à sa propre marque — mentionné à titre informatif, pas une pratique que Prométhée recommande sans nuance (zone grise compliance/originalité)."
+      }
+    ]
   }
 }
