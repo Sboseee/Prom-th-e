@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "updated_at": "2026-06-22",
   "win_rates": {
     "Unboxing": 0.1,
@@ -132,7 +132,26 @@
       "2. Body + CTA ensemble (jamais le CTA seul, en gardant le hook winner)",
       "3. Content creator (si une créatrice convertit, lui donner plusieurs scripts/angles)",
       "4. Format (un angle winner en statique doit être testé en mashup/UGC/shortform et vice-versa — ouvre une nouvelle audience)"
-    ]
+    ],
+    "methode_3i": {
+      "source": "Kahel/Luma — méthode des 3i (Inspiration, Itération, Idéation), pilier de scaling créatif.",
+      "seuil_avant_iteration": "Ne jamais itérer une créative tant qu'elle n'a pas au moins 12 'spins' (cycles de spend) avec un bon ROAS — avant ce seuil, la créative n'a pas encore fait ses preuves, ce n'est pas une vraie winner.",
+      "2_types_iteration": {
+        "isolee": "On modifie UNE seule chose (hook, avatar, angle, format ou concept). À privilégier une fois qu'une grosse winner confirmée dure dans le temps et maintient son ROAS — on isole variable par variable pour la décortiquer et la multiplier méthodiquement.",
+        "big_swing": "On change beaucoup d'éléments en gardant l'ADN de la winner (comprendre l'essence profonde de ce qui fonctionne, s'inspirer sans trop s'éloigner). Utile en early phase pour tester large façon entonnoir, avant de passer à l'isolation fine sur les vraies grosses winners."
+      },
+      "ordre_isolation_priorite": [
+        "1. Hook — impact le plus fort, n'a rien à voir avec le CTA",
+        "2. Angle marketing (ex: passer de 'fasciite plantaire' à 'hallux valgus' sur le même produit chaussure)",
+        "3. Avatar — sexe/âge/ethnie (changer d'ethnie suppose un TAM suffisant dans le pays ciblé pour que ça vaille le coup)",
+        "4. Format (statique↔mashup↔VSL↔shortform)",
+        "5. Painpoint / Dream outcome",
+        "6. CTA — itéré EN DERNIER, jamais isolé en premier"
+      ],
+      "note_cumul_leviers": "Pas obligé de changer un seul levier à la fois — dépend du bon sens e-commerçant. Changer le niveau d'awareness entraîne souvent aussi un changement de script, voire de lieu de tournage.",
+      "case_study_steppers": "2 créas, même script/audience/message/durée — SEUL changement : hook + footage (b-rolls et editing différents, même angle/structure). Résultat : quasi doublement de la perf (3M vs 2M impressions) juste en changeant le footage. Preuve que même sans changer la stratégie, le visuel seul peut faire basculer une créa.",
+      "tactique_prix_clickbait": "Sur une offre bundle (ex: 1+1 à 50€), afficher dans la créative un prix unitaire 'réel' plus bas (ex: 24,99€) même si pas 100% exact vs la page produit — assez fort pour du clickbait, convertit quand même une fois sur la PDP car c'est le produit qui intéresse. Idem pour un pack de compléments (60 gélules à 30€ → afficher '0,49€ la gélule'). Pattern interrupt par le prix qui touche une frange d'audience sensible au prix — à utiliser avec discernement, cohérence minimum requise avec l'offre réelle."
+    }
   },
   "awareness_levels": [
     {
@@ -1459,6 +1478,11 @@
         ],
         "note": "Variante plus agressive évoquée par la source : reprendre directement les créas d'un concurrent qui a le même produit et les refaire quotidiennement adaptées à sa propre marque — mentionné à titre informatif, pas une pratique que Prométhée recommande sans nuance (zone grise compliance/originalité)."
       }
-    ]
+    ],
+    "veille_directe_vs_indirecte": {
+      "directe": "Marques vendant le MÊME produit ou des produits très similaires (concurrents directs) — décortiquer hook/script/format/avatar, traduire si autre marché, reproduire l'essence de ce qui marche. Logique : les concurrents dépensent leur propre budget testing sur angles/formats/concepts/avatars — on exploite leur data et leur learning au lieu de réinventer la roue. Outil : Trendtrack (Brand Tracker — folders de concurrents, vue top créas sur 14 jours, media mix, indicateurs ABO/CBO).",
+      "indirecte_cross_niche": "Analyser les TOP PLAYERS e-commerce globaux, MÊME HORS NICHE, pour repérer des concepts/structures/façons de copywriter pas encore introduits dans sa propre niche — être le premier à les y importer = différenciation forte. Exemples de top players cross-niche à étudier : Groundlingwell, Obvi, Steppers, Comfort, The Ridge, Happy Mammoth (excellents en landing page + statiques avec dessins/headlines fortes), Crimy/Fabricinews (concepts plus organiques, formats vidéo courts — transposables même en problème-solution textile).",
+      "repartition_inspiration_iteration_ideation": "Pas de ratio fixe — dépend de la sophistication du marché et du produit. Peu de concurrents → plus d'itération et d'idéation nécessaires (moins à copier). Beaucoup de concurrents/produits de substitution → plus d'inspiration (ils financent le testing à notre place : on récupère leur learning, on itère vite et mieux pour les 'out-scale'). Règle constante : faire les 3i EN CONTINU pendant tout le scaling — l'itération/isolation reste la phase la plus négligée alors qu'elle est la plus puissante."
+    }
   }
 }
