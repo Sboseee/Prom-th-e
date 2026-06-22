@@ -753,7 +753,8 @@
     <div id="sys-state-rows"></div>
     <button onclick="exportMemoryJSON()" style="width:100%;background:var(--bdim);border:0.5px solid var(--bborder);border-radius:10px;padding:11px;color:var(--blue);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">⬇ Exporter ma mémoire (sauvegarde JSON)</button>
     <button onclick="openSOPSheet()" style="width:100%;background:var(--pdim);border:0.5px solid var(--pborder);border-radius:10px;padding:11px;color:var(--purple);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">⚙ Modifier le SOP créatif</button>
-    <button onclick="testStrategyEngineSimulation()" style="width:100%;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:10px;padding:11px;color:var(--green);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">🧪 Tester le moteur stratégique (simulation, 0€)</button>
+    <button onclick="testCreateBatchSimulation()" style="width:100%;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:10px;padding:11px;color:var(--green);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">🧪 Tester CREATE_BATCH — le vrai chemin (simulation, 0€)</button>
+    <button onclick="testStrategyEngineSimulation()" style="width:100%;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:10px;padding:11px;color:var(--green);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">🧪 Tester le moteur stratégique Bloc 5/6 (simulation, 0€)</button>
     <button onclick="resetCurrentCycle()" style="width:100%;background:transparent;border:0.5px solid var(--rborder);border-radius:10px;padding:11px;color:var(--red);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">Réinitialiser le cycle actuel</button>
 
   </div>
@@ -1206,7 +1207,8 @@ function getInstructions(k){
    n'annonce jamais "terminé" avant la vraie réponse de Claude ET la vraie génération média. */
 var _batchRunning=false
 
-async function executeCreateBatch(s){
+async function executeCreateBatch(s,opts){
+  opts=opts||{}
   if(_batchRunning){pushToMiniChat('Un batch est déjà en cours de génération — patiente.');return}
   _batchRunning=true
 
@@ -1233,7 +1235,7 @@ async function executeCreateBatch(s){
   var productId=mem.active_product_id
 
   try{
-    var result=await callClaudeForBriefs(mem,batchSize)
+    var result=await callClaudeForBriefs(mem,batchSize,{simulate:opts.simulate})
     if(!result||!result.briefs||!result.briefs.length) throw new Error('Aucun brief retourné par Claude')
 
     /* Archivage DRAFT — id stable généré ici, utilisé ensuite pour corréler la génération média
@@ -1252,6 +1254,20 @@ async function executeCreateBatch(s){
         _brief:b /* utilisé pour la génération qui suit — jamais écrit tel quel en mémoire */
       }
     })
+
+    /* MODE SIMULATION : on s'arrête ici, juste après avoir validé que le JSON de Claude (ou de
+       simulateBriefsResponse) se mappe sans erreur vers des entrées de creative bank. On ne touche
+       JAMAIS memSet/localStorage/sendToCreativeEngine en simulation — sinon des entrées
+       "[SIMULATION]" polluent pour de vrai la creative bank, l'historique de hooks/angles et les
+       futurs calculs de saturation/itération (méthode 3i) une fois le crédit API ajouté. */
+    if(opts.simulate){
+      lightAllSteps()
+      orb.classList.remove('thinking')
+      setBrainStatus('default')
+      pushToMiniChat('🧪 Simulation CREATE_BATCH terminée — '+entries.length+' brief(s) construits sans appel API réel (Claude/fal.ai/Higgsfield). Rien n\'a été écrit en mémoire.')
+      return {simulated:true,entries:entries,raw_briefs:result.briefs}
+    }
+
     var memNow=memGet()
     memNow.creative_bank=memNow.creative_bank.concat(entries.map(function(e){
       var copy=Object.assign({},e);delete copy._brief;return copy
@@ -2145,6 +2161,27 @@ async function saveSOP(){
   }
 }
 
+/* CHEMIN RÉEL (CREATE_BATCH) : test en mode simulation — zéro appel API réel (Claude/fal.ai/
+   Higgsfield), zéro coût, zéro écriture en mémoire. Exerce EXACTEMENT le code qui tournera le
+   jour où du crédit est ajouté (callClaudeForBriefs → executeCreateBatch), juste avec une
+   réponse fabriquée à la place du vrai appel Claude. Sert à valider qu'il n'y a aucun bug JS
+   (champ undefined, .map sur null, etc.) avant de dépenser le premier centime. */
+async function testCreateBatchSimulation(){
+  var mem=memGet()
+  if(!mem.active_product_id){pushToMiniChat('⚠️ Configure et active un produit avant de tester le batch.');return}
+  pushToMiniChat('🧪 Test du chemin réel CREATE_BATCH en simulation (zéro coût, zéro écriture)...')
+  try{
+    var result=await executeCreateBatch({missionKey:'CREATE_BATCH_TEST',text:'(simulation)'},{simulate:true})
+    if(!result||!result.simulated) throw new Error('La simulation n\'a pas renvoyé le résultat attendu — vérifie que executeCreateBatch a bien pris le chemin simulate.')
+    console.log('[testCreateBatchSimulation] briefs simulés :',result.raw_briefs)
+    console.log('[testCreateBatchSimulation] entries mappées :',result.entries)
+    pushToMiniChat('✅ '+result.entries.length+' brief(s) construits et mappés sans erreur. Détail dans la console (F12). Rien n\'a été écrit en mémoire — relance ce test autant que tu veux.')
+  }catch(e){
+    console.error('[testCreateBatchSimulation]',e)
+    pushToMiniChat('⚠️ Bug détecté en simulation (à corriger AVANT d\'ajouter du crédit) : '+e.message)
+  }
+}
+
 /* BLOC 5 : test du moteur stratégique en mode simulation — zéro appel API réel, zéro coût.
    Vérifie uniquement la plomberie (Angles→Hooks→Concept, diversité, empreinte Andromeda
    partielle) — pas la qualité du contenu, qui ne peut être jugée qu'avec de vrais appels. */
@@ -2732,8 +2769,14 @@ function runDecisionEngine(){
     })
   }
 
-  /* PRIORITÉ 1 — Données manquantes */
-  if(!metrics.spend&&camp.asl_phase!=='P0'){
+  /* PRIORITÉ 1 — Données manquantes (seulement si une campagne tourne déjà — sinon rien à
+     mesurer : c'est le premier batch qui manque, pas les métriques. Bug réel détecté en testant
+     en simulation la situation "boutique faite, produit configuré, 0 ads encore lancée" :
+     camp.asl_phase ('TESTING'/'OPTI'/'SCALING') ne vaut JAMAIS la chaîne 'P0' — la condition
+     ci-dessous tombait donc toujours sur DATA_NEEDED dès le premier lancement, avant même
+     d'atteindre la Priorité 5 (CREATE_BATCH) qui est la bonne réponse ici. */
+  var firstBatchNeeded=camp.cycle_number===1&&!camp.j1_decided&&!metrics.spend
+  if(!metrics.spend&&camp.asl_phase!=='P0'&&!firstBatchNeeded){
     return buildMission('DATA_NEEDED',{
       type:'t-action',tag:'Action requise',
       text:'Rentre les métriques du jour pour que je décide.',
@@ -5161,10 +5204,11 @@ async function executeFormatGeneration(concept,prod,opts){
 }
 
 /* ── CREATIVE ENGINE COMPLET (Bloc 1-4, chemin réel actuel) ─────────────── */
-async function callClaudeForBriefs(mem,batchSize){
+async function callClaudeForBriefs(mem,batchSize,opts){
+  opts=opts||{}
   var prod=getActiveProduct()
   if(!prod){throw new Error("Aucun produit actif")}
-  var sop=await loadSOP()
+  var sop=opts.simulate?(await loadSOP().catch(function(){return SOP_FALLBACK})):await loadSOP()
   var sopTxt=formatSOPForPrompt(sop)
 
   var productBank=getProductBank(mem) /* BLOC 3.2 : ne jamais mélanger les hooks/winners d'un autre produit */
@@ -5174,12 +5218,31 @@ async function callClaudeForBriefs(mem,batchSize){
   var weeklyPatterns=mem.weekly_patterns&&mem.weekly_patterns.length?mem.weekly_patterns[mem.weekly_patterns.length-1]:null
   var produitsVeille=(mem.products||[]).filter(function(p){return p.status==='STANDBY'})
 
-  /* Scraper le site pour le message match */
+  /* MÉTHODE 3I (Kahel/Luma) : par angle déjà présent dans la bank, calcule s'il est mature
+     (≥12 essais avec au moins une WINNER → itération isolée) ou jeune (→ big swing). Coût zéro,
+     pur calcul local — évite de demander à Claude de l'isolation fine sur un angle jamais testé. */
+  var angleStats={}
+  productBank.forEach(function(c){
+    if(!c.angle) return
+    if(!angleStats[c.angle]) angleStats[c.angle]={spins:0,hasWinner:false}
+    angleStats[c.angle].spins++
+    if(c.status==='WINNER') angleStats[c.angle].hasWinner=true
+  })
+  var m3i=(sop.andromeda_fingerprint&&sop.andromeda_fingerprint.methode_3i)||{}
+  var ctxIteration=Object.keys(angleStats).length?('\n\nMATURITÉ DES ANGLES (méthode 3i) :'+Object.keys(angleStats).map(function(a){
+    var s=angleStats[a]
+    var mature=s.spins>=12&&s.hasWinner
+    return '\n- "'+a+'" : '+s.spins+' essais'+(s.hasWinner?', a une WINNER':'')+' → '+(mature?'ITÉRATION ISOLÉE (change UN seul levier vs le dernier brief sur cet angle, priorité : '+(m3i.ordre_isolation_priorite||[]).slice(0,3).join(' > ')+')':'BIG SWING autorisé (garde l\'ADN de l\'angle, varie largement)')
+  }).join('')):''
+
+  /* Scraper le site pour le message match — sauté en simulation (zéro appel réseau, zéro coût) */
   var siteData=null
-  var storeUrl=mem.account&&mem.account.store_url?mem.account.store_url:prod.store_url
-  if(storeUrl){
-    pushToMiniChat('Lecture de ton site en cours...')
-    siteData=await scrapeSite(storeUrl.startsWith('http')?storeUrl:'https://'+storeUrl)
+  if(!opts.simulate){
+    var storeUrl=mem.account&&mem.account.store_url?mem.account.store_url:prod.store_url
+    if(storeUrl){
+      pushToMiniChat('Lecture de ton site en cours...')
+      siteData=await scrapeSite(storeUrl.startsWith('http')?storeUrl:'https://'+storeUrl)
+    }
   }
 
   /* Construire le contexte site */
@@ -5236,6 +5299,31 @@ async function callClaudeForBriefs(mem,batchSize){
   var hasImages=prod.images&&prod.images.length>0
   var ctxImages=hasImages?'\n\nVisuels de référence disponibles : '+prod.images.length+' image(s) uploadée(s) (produit/concurrence/déjà générées). Utilise-les comme référence visuelle dans les briefs.':''
 
+  /* CERVEAU SOP v5 condensé — câblé dans le seul appel réel (1 call, même coût qu'avant) plutôt
+     que dans la chaîne Bloc 5/6 séparée (16 calls/batch, trop cher pour l'instant). Tout ce qui
+     a été absorbé dans sop.json (hook_engineering, copywriting_leviers, lead_techniques,
+     awareness niveau 6, méthode 3i) est résumé ici pour que CE prompt unique en profite. */
+  var awarenessTable=(sop.awareness_levels||[]).map(function(a){
+    var subTxt=(a.sub_niveaux||[]).length?(' Sous-niveaux : '+a.sub_niveaux.join(' / ')):''
+    return '\nNiveau '+a.level+' ('+a.name+') : '+a.approche+subTxt
+  }).join('')
+  var maxAwareness=(sop.awareness_levels||[]).length||5
+
+  var he=sop.hook_engineering||{}
+  var ctxHook=he.fonction?('\n\nHOOK (= le targeting Meta, '+he.fonction+') :'
+    +'\n3 musts (min 2/3) : '+((he['3_musts']&&he['3_musts'].liste)||[]).join(' | ')
+    +'\n4 stratégies (surtout niveaux 1-2) : '+(he.strategies_unaware||[]).map(function(s){return s.nom}).join(', ')
+    +'\nMatrice Mood x Intensité — répartis tes hooks sur des cases différentes (sinon CPM monte via Andromeda) : Mood='+((he.mood_x_intensite&&he.mood_x_intensite.mood)||[]).join('/')+' x Intensité='+((he.mood_x_intensite&&he.mood_x_intensite.intensite)||[]).join('/')):''
+
+  var cl=sop.copywriting_leviers||{}
+  var ctxLeviers=cl.autorite?('\n\nLEVIER PSYCHOLOGIQUE PRINCIPAL — choisis-en un par brief, varie-les sur le batch : Autorité (3 niveaux + Relatability/Transparency) | Mécanisme unique (vrai nouveau / non-dit / renommé) | Self-concept (vendre qui le client veut être) | Raise the stakes (bigger/témoin/urgent/permanent/cost more)'
+    +'\nGESTION OBJECTION — une des 4 stratégies par ordre de puissance : '+((cl.objections&&cl.objections['4_strategies_par_ordre_de_puissance'])||[]).map(function(s){return s.nom}).join(' > ')
+    +'\nRÈGLE FAITS>OPINIONS : '+((cl.faits_vs_opinions&&cl.faits_vs_opinions.regle)||'')
+    +'\nSHOW DON\'T TELL : '+((cl.show_dont_tell&&cl.show_dont_tell.principe)||'')):''
+
+  var lt=sop.lead_techniques||{}
+  var ctxLead=lt.definition?('\n\nLEAD (phrase juste après le hook, dans script_complet) : '+lt.definition+' 6 façons : '+(lt['6_facons']||[]).map(function(f){return f.nom}).join(', ')):''
+
   var prompt='Tu es le cerveau créatif de Prométhée, expert Meta Ads e-commerce. Tu suis ASL v9 à la lettre.'
     +'\n\nPRODUIT ACTIF :'
     +'\nNom : '+prod.name
@@ -5246,23 +5334,27 @@ async function callClaudeForBriefs(mem,batchSize){
     +'\nObjections à lever (utilise-les explicitement dans l\'ad_copy) : '+((prod.avatar&&prod.avatar.objections||[]).join(' | ')||'Non renseignées')
     +'\nUSP / différenciation vs concurrents : '+(prod.usp||'Non renseignée')
     +'\nGarantie / bonus : '+(prod.guarantee||'Non renseignée')
-    +'\nNiveau conscience : '+(prod.avatar&&prod.avatar.awareness_level?prod.avatar.awareness_level:2)+'/5'
+    +'\nNiveau conscience actuel (baseline prospect froid) : '+(prod.avatar&&prod.avatar.awareness_level?prod.avatar.awareness_level:2)+'/5'
     +'\nHeadline boutique : '+(prod.headline||'Non renseigné')
     +'\nAngles saturés (INTERDITS) : '+((prod.angles_saturated||[]).join(', ')||'aucun')
     +ctxMarket
     +ctxVoice
     +ctxSite
     +ctxImages
+    +'\n\nNIVEAUX DE CONSCIENCE disponibles ('+maxAwareness+', Schwartz + extension 2026) :'+awarenessTable
+    +'\nLe niveau 6 (Customer-aware) cible une audience déjà acheteuse (chez toi ou un concurrent) — à proposer seulement si pertinent (retention/winback), jamais par défaut.'
+    +ctxHook+ctxLeviers+ctxLead
     +'\n\nCREATIVE BANK :'
     +'\nAngles disponibles : '+(availAngles.length?availAngles.join(', '):'Tous disponibles')
     +'\nHooks déjà testés (NE PAS répéter) : '+(usedHooks.join(' | ')||'aucun')
     +'\nWinners actifs : '+(winners.map(function(c){return c.name+' (ROAS '+c.roas+'x)'}).join(', ')||'aucun encore')
+    +ctxIteration
     +ctxPatterns
     +ctxBundles
     +'\n\nREGLES ASL P4 (SOP éditable depuis Réglages) :'
     +sopTxt.rulesTxt
     +'\n- Win rates ASL : '+sopTxt.winRatesTxt
-    +'\n\nGénère exactement '+batchSize+' briefs. '+sopTxt.batchMix
+    +'\n\nGénère exactement '+batchSize+' briefs, en variant le levier psychologique, le mood/intensité du hook et le niveau de conscience entre les briefs (pas tous identiques). '+sopTxt.batchMix
     +'\nRéponds UNIQUEMENT en JSON valide :'
     +'\n{"briefs":[{'
     +'\n  "id":1,'
@@ -5271,13 +5363,19 @@ async function callClaudeForBriefs(mem,batchSize){
     +'\n  "angle":"Transformation",'
     +'\n  "awareness_level":2,'
     +'\n  "hook":"max 8 mots accrocheurs",'
-    +'\n  "variable_changed":"ce qui change vs brief précédent",'
-    +'\n  "script_complet":"Pour vidéo : script mot à mot 15-30 secondes avec [PAUSE] [ZOOM] [CUT] etc. Pour statique : description détaillée layout + textes + couleurs",'
+    +'\n  "mood":"Positif|Négatif|Neutre",'
+    +'\n  "intensite":"Faible|Moyenne|Haute",'
+    +'\n  "levier_psychologique_principal":"autorité|mécanisme unique|self-concept|raise the stakes + comment appliqué",'
+    +'\n  "strategie_objection":"laquelle des 4 stratégies citées plus haut",'
+    +'\n  "variable_changed":"ce qui change vs brief précédent (ou vs le dernier brief sur cet angle si itération isolée)",'
+    +'\n  "script_complet":"Pour vidéo : script mot à mot 15-30 secondes avec [HOOK][LEAD][PAUSE][ZOOM][CUT] etc., lead explicite juste après le hook. Pour statique : description détaillée layout + textes + couleurs",'
     +'\n  "ad_copy":"texte publicitaire complet 100-150 mots pour le post",'
     +'\n  "higgsfield_brief":"instructions techniques précises pour Higgsfield : cadrage / mouvement caméra / ambiance / éclairage / acteur / produit visible comment / durée chaque scène",'
     +'\n  "message_match":"comment ce brief matche exactement le langage du site",'
     +'\n  "why":"pourquoi cette créa maintenant selon ASL et les données"'
     +'\n}]}'
+
+  if(opts.simulate) return simulateBriefsResponse(prompt,batchSize,prod,sop)
 
   var resp=await fetchWithTimeout(SERVER+'/api/claude',{
     method:'POST',
@@ -5296,6 +5394,43 @@ async function callClaudeForBriefs(mem,batchSize){
   }catch(e){
     throw new Error('Réponse Claude non parsable en JSON ('+e.message+') — début de la réponse : '+text.slice(0,150))
   }
+}
+
+/* ── MODE SIMULATION — zéro appel API, zéro coût ──────────────────────────
+   Exerce exactement la même construction de prompt (donc les mêmes risques de bug JS :
+   champs undefined, .map sur null, etc.) que le vrai appel, mais s'arrête juste avant le
+   fetch et renvoie une réponse fabriquée de même forme. Permet de valider toute la
+   plomberie (executeCreateBatch, archivage, génération média simulée) avant de dépenser
+   le premier centime de crédit API. */
+function simulateBriefsResponse(prompt,batchSize,prod,sop){
+  var formats=['UGC 20s','Statique','Offer First','Unboxing','Text-based']
+  var moods=['Positif','Négatif','Neutre']
+  var intensites=['Faible','Moyenne','Haute']
+  var leviers=['autorité','mécanisme unique','self-concept','raise the stakes']
+  var maxAwareness=(sop.awareness_levels||[]).length||5
+  var briefs=[]
+  for(var i=0;i<batchSize;i++){
+    var fmt=formats[i%formats.length]
+    briefs.push({
+      id:i+1,
+      format:fmt,
+      type_media:(fmt==='Statique'||fmt==='Offer First'||fmt==='Text-based')?'image':'video',
+      angle:'[SIMULATION] Angle '+(i+1),
+      awareness_level:(i%maxAwareness)+1,
+      hook:'[SIMULATION] Hook accrocheur #'+(i+1)+' pour '+prod.name,
+      mood:moods[i%moods.length],
+      intensite:intensites[i%intensites.length],
+      levier_psychologique_principal:'(simulation) '+leviers[i%leviers.length],
+      strategie_objection:'(simulation) faits vs opinions',
+      variable_changed:'(simulation) hook + angle vs brief précédent',
+      script_complet:'[SIMULATION] Script complet fictif — prompt réel de '+prompt.length+' caractères validé sans appel API.',
+      ad_copy:'[SIMULATION] Ad copy fictif pour '+prod.name,
+      higgsfield_brief:'[SIMULATION] brief Higgsfield fictif',
+      message_match:'(simulation) message match fictif',
+      why:'(simulation) test de plomberie — zéro coût, zéro appel réel'
+    })
+  }
+  return {briefs:briefs}
 }
 
 /* ═══════════════════════════════════════════════════════════
