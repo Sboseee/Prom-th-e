@@ -2161,10 +2161,20 @@ function refreshParamView(){
         +'<div style="font-size:9px;color:var(--t3);margin-top:2px">Appuyer pour éditer</div>'
         +'</div>'
     }).join('')
-    var plusCard='<div style="'+cardStyle+'background:var(--bg);border:1.5px dashed var(--b3);" onclick="openProductForm()">'
-      +'<div style="width:72px;height:72px;background:var(--s2);border-radius:10px;border:0.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:200;color:var(--t2);line-height:1">+</div>'
-      +'<div style="font-size:12px;font-weight:600;color:var(--t2);margin-top:4px">Nouveau produit</div>'
-      +'<div style="font-size:10px;color:var(--t3)">Appuyer pour configurer</div>'
+    /* Carte + : rectangle vertical distinct, plus haut que large */
+    var plusCard='<div onclick="openProductForm()" style="'
+      +'width:160px;height:280px;border-radius:20px;'
+      +'background:var(--bg);border:1.5px dashed var(--b3);'
+      +'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;'
+      +'cursor:pointer;text-align:center;box-sizing:border-box;'
+      +'transition:border-color .2s,background .2s;"'
+      +' onmouseover="this.style.borderColor=\'var(--b3)\';this.style.background=\'var(--s1)\'"'
+      +' onmouseout="this.style.borderColor=\'\';this.style.background=\'var(--bg)\'">'
+      +'<div style="width:64px;height:64px;border-radius:50%;border:1.5px dashed var(--b3);display:flex;align-items:center;justify-content:center;">'
+        +'<span style="font-size:34px;font-weight:200;color:var(--t2);line-height:1">+</span>'
+      +'</div>'
+      +'<div style="font-size:13px;font-weight:600;color:var(--t2)">Nouveau produit</div>'
+      +'<div style="font-size:10px;color:var(--t3);line-height:1.5;padding:0 8px">Configurer ton offre,<br>tes angles et ton avatar</div>'
       +'</div>'
     list.innerHTML=productCards+plusCard
   }
