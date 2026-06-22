@@ -1199,6 +1199,67 @@ function getInstructions(k){
   return "Suis les regles ASL. Fait quand c'est fait."
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   BLOC 7 — QUALITY CONTROL
+   ═══════════════════════════════════════════════════════════════════════════
+   Garde-fou programmatique entre "Claude a répondu" et "on dépense du budget média réel
+   (fal.ai/Higgsfield)". Avant ce bloc, les règles ASL P4 (jamais répéter un hook déjà testé,
+   max de mots, diversité du batch) n'étaient que des INSTRUCTIONS dans le prompt — rien ne
+   garantissait que Claude les respecte vraiment. Ici on les fait respecter en CODE, pas en
+   confiance — exactement le même principe que le garde-fou hookSimilarity déjà utilisé dans
+   le Bloc 5 (generateHooksForAngle), mais enfin appliqué au chemin réellement utilisé en
+   production (executeCreateBatch → callClaudeForBriefs). */
+function validateBriefsQuality(briefs,ctx){
+  var sop=ctx.sop||{}
+  var maxWords=sop.ad_copy_max_words||150
+  var diversityRules=sop.diversity_rules||{min_angles_per_batch:3,min_types_annonces_per_batch:2,min_awareness_levels_per_batch:2}
+  var usedHooks=(ctx.usedHooks||[]).slice()
+  var accepted=[],rejected=[],warnings=[]
+
+  briefs.forEach(function(b){
+    if(!b||!b.hook||!b.angle||!b.format){
+      rejected.push({brief:b,reason:'Brief incomplet (hook/angle/format manquant) — invalide.'})
+      return
+    }
+    /* RÈGLE DURE ASL P4 : jamais répéter un hook déjà testé — vérifié vs l'historique réel
+       ET vs ce qui vient déjà d'être accepté dans CE MÊME batch (sinon Claude peut se
+       dupliquer lui-même sur 5-6 briefs générés dans le même appel). */
+    if(isHookTooSimilar(b.hook,usedHooks)){
+      rejected.push({brief:b,reason:'Hook trop proche d\'un hook déjà testé ou déjà accepté dans ce batch (similarité >60%)'})
+      return
+    }
+    var briefWarnings=[]
+    var wc=b.ad_copy?b.ad_copy.trim().split(/\s+/).filter(Boolean).length:0
+    if(wc>maxWords*1.3) briefWarnings.push('Ad copy '+wc+' mots, largement au-dessus du max ('+maxWords+').')
+    if(!b.awareness_level||b.awareness_level<1) briefWarnings.push('Niveau de conscience manquant ou invalide.')
+    if(!b.script_complet&&!b.ad_copy) briefWarnings.push('Ni script_complet ni ad_copy — rien à envoyer en génération média.')
+    b._qc_warnings=briefWarnings
+    warnings=warnings.concat(briefWarnings.map(function(w){return '"'+b.hook+'" : '+w}))
+    usedHooks.push(b.hook)
+    accepted.push(b)
+  })
+
+  /* Diversité du batch ACCEPTÉ (pas celui demandé au départ — un batch qui a perdu des
+     doublons peut être devenu trop homogène). Purement informatif : on prévient plutôt que de
+     regénérer, pour ne pas reposer du budget Claude juste pour un avertissement de diversité. */
+  var angles={},levels={}
+  accepted.forEach(function(b){
+    if(b.angle) angles[b.angle]=true
+    if(b.awareness_level) levels[b.awareness_level]=true
+  })
+  var diversityWarnings=[]
+  if(accepted.length>=2&&Object.keys(angles).length<Math.min(diversityRules.min_angles_per_batch,accepted.length)) diversityWarnings.push(Object.keys(angles).length+' angle(s) différent(s) sur '+accepted.length+' briefs')
+  if(accepted.length>=2&&Object.keys(levels).length<Math.min(diversityRules.min_awareness_levels_per_batch,accepted.length)) diversityWarnings.push(Object.keys(levels).length+' niveau(x) de conscience différent(s) sur '+accepted.length+' briefs')
+
+  return {
+    accepted:accepted,
+    rejected:rejected,
+    warnings:warnings,
+    diversity_warnings:diversityWarnings,
+    summary:accepted.length+'/'+briefs.length+' briefs acceptés'+(rejected.length?' · '+rejected.length+' rejeté(s)':'')
+  }
+}
+
 /* ── GÉNÉRATION DE BATCH — CHEMIN UNIQUE (BLOC 1 / Modification 1.1) ──
    Avant : deux implémentations divergentes (runMissionSequence vs la branche CREATE_BATCH de runBrain).
    L'une (liée au bouton "Go — Générer") ne générait jamais de média malgré un message de succès affiché.
@@ -1237,6 +1298,18 @@ async function executeCreateBatch(s,opts){
   try{
     var result=await callClaudeForBriefs(mem,batchSize,{simulate:opts.simulate})
     if(!result||!result.briefs||!result.briefs.length) throw new Error('Aucun brief retourné par Claude')
+
+    /* BLOC 7 — QUALITY CONTROL : garde-fou programmatique entre "Claude a répondu" et "on
+       dépense du budget média réel (fal.ai/Higgsfield)". Avant ce bloc, les règles ASL P4
+       (jamais répéter un hook déjà testé, max de mots) n'étaient que des INSTRUCTIONS dans le
+       prompt — rien ne garantissait que Claude les respecte. On les fait respecter en code. */
+    var qcSop=opts.simulate?(await loadSOP().catch(function(){return SOP_FALLBACK})):await loadSOP()
+    var qcUsedHooks=getProductBank(mem).map(function(c){return c.hook}).filter(Boolean)
+    var qc=validateBriefsQuality(result.briefs,{sop:qcSop,usedHooks:qcUsedHooks})
+    if(qc.rejected.length) pushToMiniChat('🔍 QC : '+qc.rejected.length+' brief(s) rejeté(s) (hook trop proche d\'un hook déjà testé) — '+qc.rejected.map(function(r){return '"'+(r.brief&&r.brief.hook)+'"'}).join(', '))
+    if(qc.diversity_warnings.length) pushToMiniChat('🔍 QC : diversité du batch insuffisante — '+qc.diversity_warnings.join(', '))
+    if(!qc.accepted.length) throw new Error('Tous les briefs ont été rejetés par le Quality Control (hooks déjà testés). Relance la génération.')
+    result.briefs=qc.accepted
 
     /* Archivage DRAFT — id stable généré ici, utilisé ensuite pour corréler la génération média
        (corrige aussi le matching fragile angle+format+hook de l'ancien displayCreative) */
@@ -5407,6 +5480,19 @@ function simulateBriefsResponse(prompt,batchSize,prod,sop){
   var moods=['Positif','Négatif','Neutre']
   var intensites=['Faible','Moyenne','Haute']
   var leviers=['autorité','mécanisme unique','self-concept','raise the stakes']
+  /* Hooks volontairement très différents les uns des autres (mots quasi tous distincts) —
+     sinon le Quality Control (Bloc 7) les rejette comme quasi-doublons en simulation, ce qui
+     fausserait le test (un vrai Claude ne génère pas des hooks aussi proches que "Hook #1"
+     vs "Hook #2"). Le but de la simulation est de tester la plomberie, pas de déclencher
+     artificiellement les garde-fous anti-doublon. */
+  var hookTemplates=[
+    'Tu bosses debout 12h et tes pieds te le rappellent à chaque pas',
+    'Ce détail dans la semelle change tout après 3 jours',
+    'Pourquoi 9 paires sur 10 ne tiennent pas leurs promesses',
+    'Le témoignage de 200 infirmières qui ont tout essayé avant',
+    'Voilà ce qui se passe dans ton dos après 8h sans bouger',
+    'On a comparé deux semelles côte à côte, le résultat surprend'
+  ]
   var maxAwareness=(sop.awareness_levels||[]).length||5
   var briefs=[]
   for(var i=0;i<batchSize;i++){
@@ -5417,7 +5503,7 @@ function simulateBriefsResponse(prompt,batchSize,prod,sop){
       type_media:(fmt==='Statique'||fmt==='Offer First'||fmt==='Text-based')?'image':'video',
       angle:'[SIMULATION] Angle '+(i+1),
       awareness_level:(i%maxAwareness)+1,
-      hook:'[SIMULATION] Hook accrocheur #'+(i+1)+' pour '+prod.name,
+      hook:'[SIMULATION] '+hookTemplates[i%hookTemplates.length],
       mood:moods[i%moods.length],
       intensite:intensites[i%intensites.length],
       levier_psychologique_principal:'(simulation) '+leviers[i%leviers.length],
