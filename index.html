@@ -27,24 +27,27 @@
 .orb{animation:orbEntry .5s cubic-bezier(.4,0,.2,1) both}
 .brain-dot:not(.busy):not(.idle){animation:pulse 3s ease-in-out infinite}
 
-/* TOPBAR */
-.topbar{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:0.5px solid var(--b1)}
-.tb-logo{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(180deg,#fff 0%,#e03030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.tb-pills{display:flex;gap:6px;align-items:center}
-.pill{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;border:0.5px solid}
+/* TOPBAR (fusionné : logo + brain status + badge action) */
+.topbar{position:relative;z-index:2;display:flex;align-items:center;gap:8px;padding:11px 18px 10px;border-bottom:none}
+.tb-logo{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(180deg,#fff 0%,#e03030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0}
+.tb-brain{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.tb-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+/* SUBBAR : pills + timing */
+.subbar{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:0 18px 9px;border-bottom:0.5px solid var(--b1)}
+.tb-pills{display:flex;gap:5px;align-items:center}
+.pill{font-size:9px;padding:2px 8px;border-radius:20px;font-weight:500;border:0.5px solid}
 .pill-phase{background:var(--bdim);color:var(--blue);border-color:var(--bborder)}
 .pill-cycle{background:var(--s2);color:var(--t2);border-color:var(--b1)}
 .pill-budget{background:var(--adim);color:var(--amber);border-color:var(--aborder)}
-
-/* BRAIN STATUS — fusionne aussi le system state (mode/cycle/next action) */
-.brain-bar{position:relative;z-index:2;display:flex;align-items:center;gap:8px;padding:9px 18px;border-bottom:0.5px solid var(--b1)}
+/* BRAIN ELEMENTS */
 .brain-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--green)}
 .brain-dot.busy{background:var(--amber)}
 .brain-dot.idle{background:var(--gray)}
-.brain-txt{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
-.brain-status{font-size:10px;font-weight:500;color:var(--t1)}
+.brain-status{font-size:10px;font-weight:500;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brain-timing{font-size:9px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.brain-next{font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;flex-shrink:0;border:0.5px solid var(--b2);color:var(--t2)}
+/* brain-next : badge action proéminent */
+.brain-next{font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;flex-shrink:0;background:var(--rdim);border:0.5px solid var(--rborder);color:var(--red);letter-spacing:.04em}
+.brain-next.bn-wait{background:var(--s2);border-color:var(--b1);color:var(--t2)}
 .brain-btn{background:transparent;border:0.5px solid var(--b2);border-radius:6px;color:var(--t3);font-size:13px;width:22px;height:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:color .15s,border-color .15s;font-family:'Poppins',sans-serif}
 .brain-btn:hover{color:var(--t1);border-color:var(--b3)}
 
@@ -96,13 +99,29 @@
 .conf-fill{height:100%;border-radius:2px;transition:width .4s}
 .conf-lbl{font-size:9px;color:var(--t3);white-space:nowrap}
 
-/* Boutons — révélés au clic */
+/* Boutons — bouton primaire toujours visible, secondaires révélés au clic */
 .orb-actions{
-  display:flex;gap:7px;
-  max-height:0;opacity:0;overflow:hidden;margin-top:0;
-  transition:max-height .25s,opacity .2s,margin-top .2s;
+  display:flex;gap:7px;margin-top:14px;
 }
-.orb.expanded .orb-actions{max-height:80px;opacity:1;margin-top:14px}
+.orb-actions .orb-btn.secondary-btn{
+  max-width:0;opacity:0;overflow:hidden;padding-left:0;padding-right:0;flex:0;border-width:0;
+  transition:max-width .2s ease,opacity .18s,padding .2s,flex .2s;
+}
+.orb.expanded .orb-actions .orb-btn.secondary-btn{
+  max-width:160px;opacity:1;padding:10px 8px;flex:1;border-width:0.5px;
+}
+/* Jauge confiance — uniquement en état expanded */
+.orb-conf{display:none}
+.orb.expanded .orb-conf{display:flex}
+/* Hint cliquable */
+.orb:not(.expanded):not(.thinking)::after{
+  content:'▾ Options';position:absolute;bottom:14px;right:16px;
+  font-size:9px;letter-spacing:.06em;color:var(--t3);pointer-events:none;
+}
+.orb.expanded::after{
+  content:'▴';position:absolute;bottom:14px;right:18px;
+  font-size:12px;color:var(--t3);pointer-events:none;
+}
 .orb-btn{
   flex:1;padding:10px 8px;border-radius:10px;
   font-size:11px;font-weight:600;font-family:'Poppins',sans-serif;
@@ -307,9 +326,13 @@
 
 /* INDICATEURS VIEW */
 .ind-onboard-note{background:var(--s1);border:0.5px solid var(--b1);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--t2);line-height:1.6}
-.ind-level-row{display:flex;gap:6px}
-.ind-lvl{flex:1;text-align:center;padding:8px 4px;border-radius:8px;font-size:10px;font-weight:600;border:0.5px solid var(--b2);color:var(--t3);cursor:pointer;background:transparent;font-family:'Poppins',sans-serif}
+/* Niveaux — ligne horizontale avec flèches de progression */
+.ind-level-track{display:flex;align-items:center;gap:2px;width:100%}
+.ind-lvl-arrow{font-size:11px;color:var(--t3);flex-shrink:0;padding:0 1px;line-height:1}
+.ind-lvl{flex:1;text-align:center;padding:8px 3px;border-radius:8px;font-size:9px;font-weight:600;border:0.5px solid var(--b2);color:var(--t3);cursor:pointer;background:transparent;font-family:'Poppins',sans-serif;transition:background .15s,color .15s,border-color .15s}
 .ind-lvl.on{background:var(--s3);color:var(--t1);border-color:var(--b3)}
+/* Groupes de champs */
+.ind-fields-group-lbl{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin:10px 0 5px;grid-column:1/-1}
 .ind-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ind-field{background:var(--s1);border:0.5px solid var(--b1);border-radius:10px;padding:11px 13px}
 .ind-field-lbl{font-size:10px;color:var(--t3);margin-bottom:5px}
@@ -456,26 +479,27 @@
 <div class="app">
 <div class="bg-grad"></div>
 
-<!-- TOPBAR -->
+<!-- TOPBAR FUSIONNÉ : logo + statut brain + badge action -->
 <div class="topbar">
   <div class="tb-logo">Prométhée</div>
+  <div class="tb-brain">
+    <span class="brain-dot" id="brain-dot"></span>
+    <span class="brain-status" id="brain-status">Prométhée actif</span>
+  </div>
+  <div class="tb-actions">
+    <button class="brain-btn" onclick="simulateData()" title="Simuler des métriques aléatoires">⋆</button>
+    <button class="brain-btn" onclick="runBrain(true)" title="Réévaluer maintenant">↻</button>
+    <span class="brain-next" id="brain-next">—</span>
+  </div>
+</div>
+<!-- SUBBAR : pills contextuelles + timing -->
+<div class="subbar">
   <div class="tb-pills">
     <span class="pill pill-phase">Testing</span>
     <span class="pill pill-cycle">Cycle 2 · J3</span>
     <span class="pill pill-budget">680€</span>
   </div>
-</div>
-
-<!-- BRAIN STATUS (intègre le system state : mode, confiance, next action) -->
-<div class="brain-bar">
-  <span class="brain-dot" id="brain-dot"></span>
-  <div class="brain-txt">
-    <div class="brain-status" id="brain-status">Prométhée actif</div>
-    <div class="brain-timing" id="brain-timing">Dernière analyse il y a 12 min · prochaine dans 47 min</div>
-  </div>
-  <button class="brain-btn" onclick="simulateData()" title="Simuler des métriques aléatoires">⋆</button>
-  <button class="brain-btn" onclick="runBrain(true)" title="Réévaluer maintenant">↻</button>
-  <span class="brain-next" id="brain-next">CREATE</span>
+  <div class="brain-timing" id="brain-timing">prochaine analyse dans 47 min</div>
 </div>
 
 <!-- MAIN -->
@@ -511,29 +535,37 @@
       </div>
     </div>
 
-    <!-- BULLES SECONDAIRES -->
-    <div class="bubbles-zone" id="bubbles-zone"></div>
+    <!-- BULLES SECONDAIRES (séparées visuellement de l'ORB principal) -->
+    <div style="margin-top:8px">
+      <div class="sec-title" id="signals-title" style="display:none;margin-bottom:8px">Signaux actifs</div>
+      <div class="bubbles-zone" id="bubbles-zone"></div>
+    </div>
 
   </div>
 
   <!-- ===== VUE 2 : INDICATEURS ===== -->
   <div class="view" id="view-indicateurs">
+    <!-- Note d'intro avant le sélecteur (plus de coupure de flux) -->
+    <div class="ind-onboard-note" id="ind-note">Sélectionne ton niveau — les indicateurs demandés s'adaptent automatiquement. Si tu n'as encore lancé aucune pub, on ne te demande pas un ROAS qui n'existe pas.</div>
+
+    <!-- Niveaux en ligne horizontale avec progression A → D -->
     <div class="sec-title">Ton niveau actuel avec Meta Ads</div>
-    <div class="ind-level-row">
+    <div class="ind-level-track">
       <button class="ind-lvl" id="lvl-A" onclick="setLevel('A')">A · Jamais lancé</button>
+      <span class="ind-lvl-arrow">›</span>
       <button class="ind-lvl" id="lvl-B" onclick="setLevel('B')">B · Testé</button>
-    </div>
-    <div class="ind-level-row">
+      <span class="ind-lvl-arrow">›</span>
       <button class="ind-lvl" id="lvl-C" onclick="setLevel('C')">C · Rentable</button>
+      <span class="ind-lvl-arrow">›</span>
       <button class="ind-lvl" id="lvl-D" onclick="setLevel('D')">D · Scale</button>
     </div>
 
-    <div class="ind-onboard-note" id="ind-note">Sélectionne ton niveau — les indicateurs demandés s'adaptent automatiquement. Si tu n'as encore lancé aucune pub, on ne te demande pas un ROAS qui n'existe pas.</div>
-
-    <div class="sec-title" id="ind-fields-title">Indicateurs à fournir</div>
+    <!-- Titre dynamique selon le niveau -->
+    <div class="sec-title" id="ind-fields-title">Calibrage initial · Boutique sans pub</div>
     <div class="ind-field-grid" id="ind-fields"></div>
 
-    <button class="ind-submit" onclick="submitIndicators()">Enregistrer</button>
+    <!-- Libellé du bouton reflète l'action réelle (#11) -->
+    <button class="ind-submit" onclick="submitIndicators()">Calibrer le moteur →</button>
   </div>
 
   <!-- ===== VUE 3 : MÉMOIRE CRÉATIVE (dynamique) ===== -->
@@ -1138,7 +1170,8 @@ function renderOrb(){
     })
     finalBtns.forEach(function(b){
       var btn=document.createElement('button')
-      btn.className='orb-btn'+(b.cls?' '+b.cls:'')
+      var secClass=b.cls!=='primary'?' secondary-btn':''
+      btn.className='orb-btn'+(b.cls?' '+b.cls:'')+secClass
       btn.textContent=b.label
       ;(function(fn){
         btn.onclick=function(e){e.stopPropagation();eval(fn)}
@@ -1484,6 +1517,9 @@ function markRead(el){if(!el.classList.contains('read'))el.classList.add('read')
 function renderBubble(b){
   var zone=document.getElementById('bubbles-zone')
   if(!zone) return
+  /* Afficher le titre "Signaux actifs" dès qu'il y a au moins 1 bulle */
+  var sigTitle=document.getElementById('signals-title')
+  if(sigTitle) sigTitle.style.display='block'
   /* Max 6 bulles */
   var existing=zone.querySelectorAll('.bubble')
   if(existing.length>=6) existing[0].remove()
@@ -1569,15 +1605,19 @@ function setBrainStatus(mode){
     status.textContent='Réflexion en cours...'
     timing.textContent='Analyse des nouvelles données'
     next.textContent='—'
+    next.className='brain-next bn-wait'
   }else if(mode==='idle'){
     status.textContent="En attente d'une action utilisateur"
     timing.textContent='Aucune réévaluation automatique programmée'
     next.textContent='WAIT'
+    next.className='brain-next bn-wait'
   }else{
     status.textContent='Prométhée actif'
-    timing.textContent='Dernière analyse il y a 12 min · prochaine dans 47 min'
+    timing.textContent='prochaine analyse dans 47 min'
     var s=instrStates[currentMission]
-    next.textContent=s?(s.orbType||'wait').replace('bs-','').toUpperCase():'WAIT'
+    var actionText=s?(s.orbType||'wait').replace('bs-','').toUpperCase():'WAIT'
+    next.textContent=actionText
+    next.className='brain-next'+(actionText==='WAIT'?' bn-wait':'')
   }
 }
 
@@ -1637,40 +1677,58 @@ function goView(name){
 
 var indicatorSets={
   A:{note:"Tu n'as encore lancé aucune pub. On te demande seulement les indicateurs globaux de ta boutique pour calibrer le moteur — pas de ROAS, pas de CPC : ça n'existe pas encore.",fields:[
-    {lbl:'AOV global (€)',ph:'34'},
-    {lbl:'Trafic mensuel',ph:'1200'},
-    {lbl:'CVR site actuel (%)',ph:'1.1'},
-    {lbl:'Marge brute (%)',ph:'45'}
+    {lbl:'AOV global (€)',ph:'34',group:'Économie produit'},
+    {lbl:'Marge brute (%)',ph:'45',group:'Économie produit'},
+    {lbl:'Trafic mensuel',ph:'1200',group:'Performance boutique'},
+    {lbl:'CVR site actuel (%)',ph:'1.1',group:'Performance boutique'}
   ]},
   B:{note:"Tu as déjà testé des pubs sans résultats stables. On te demande tes derniers indicateurs connus, même approximatifs.",fields:[
-    {lbl:'ROAS moyen',ph:'1.4'},
-    {lbl:'CPC moyen (€)',ph:'0.9'},
-    {lbl:'CTR moyen (%)',ph:'1.1'},
-    {lbl:'Budget/jour testé (€)',ph:'30'}
+    {lbl:'ROAS moyen',ph:'1.4',group:'Résultats Meta'},
+    {lbl:'CPC moyen (€)',ph:'0.9',group:'Résultats Meta'},
+    {lbl:'CTR moyen (%)',ph:'1.1',group:'Contexte campagne'},
+    {lbl:'Budget/jour testé (€)',ph:'30',group:'Contexte campagne'}
   ]},
   C:{note:"Tu as déjà des ventes rentables. On rentre tes métriques actuelles pour que le moteur calibre la logique de duplication des winners.",fields:[
-    {lbl:'ROAS actuel',ph:'2.6'},
-    {lbl:'CPA actuel (€)',ph:'18'},
-    {lbl:'Budget/jour (€)',ph:'80'},
-    {lbl:'AOV (€)',ph:'42'}
+    {lbl:'ROAS actuel',ph:'2.6',group:'Performance Meta'},
+    {lbl:'CPA actuel (€)',ph:'18',group:'Performance Meta'},
+    {lbl:'Budget/jour (€)',ph:'80',group:'Contexte scale'},
+    {lbl:'AOV (€)',ph:'42',group:'Contexte scale'}
   ]},
   D:{note:"Tu scales déjà avec des budgets importants. On rentre tes métriques de scale pour calibrer le contrôle de fatigue créative.",fields:[
-    {lbl:'ROAS actuel',ph:'3.2'},
-    {lbl:'Budget/jour (€)',ph:'400'},
-    {lbl:'CPA actuel (€)',ph:'15'},
-    {lbl:'LTV estimée (€)',ph:'95'}
+    {lbl:'ROAS actuel',ph:'3.2',group:'Performance scale'},
+    {lbl:'CPA actuel (€)',ph:'15',group:'Performance scale'},
+    {lbl:'Budget/jour (€)',ph:'400',group:'Volume & LTV'},
+    {lbl:'LTV estimée (€)',ph:'95',group:'Volume & LTV'}
   ]}
 }
 var levelNames={A:'A · Jamais lancé',B:'B · Testé',C:'C · Rentable',D:'D · Scale'}
+var levelTitles={
+  A:'Calibrage initial · Boutique sans pub',
+  B:'Calibrage · Premières données Meta',
+  C:'Calibrage · Scale rentable',
+  D:'Calibrage · Fatigue créative'
+}
 
 function setLevel(lvl){
   document.querySelectorAll('.ind-lvl').forEach(b=>b.classList.remove('on'))
   document.getElementById('lvl-'+lvl).classList.add('on')
   var data=indicatorSets[lvl]
   document.getElementById('ind-note').textContent=data.note
+  /* Titre dynamique selon niveau (#9) */
+  var titleEl=document.getElementById('ind-fields-title')
+  if(titleEl) titleEl.textContent=levelTitles[lvl]||'Indicateurs à fournir'
   var grid=document.getElementById('ind-fields')
   grid.innerHTML=''
+  var lastGroup=null
   data.fields.forEach(function(f,i){
+    /* Groupement des champs (#10) : header de groupe si changement de groupe */
+    if(f.group&&f.group!==lastGroup){
+      var groupLbl=document.createElement('div')
+      groupLbl.className='ind-fields-group-lbl'
+      groupLbl.textContent=f.group
+      grid.appendChild(groupLbl)
+      lastGroup=f.group
+    }
     var div=document.createElement('div')
     div.className='ind-field'
     div.innerHTML='<div class="ind-field-lbl">'+f.lbl+'</div><input class="ind-field-inp" type="number" placeholder="'+f.ph+'" id="ind-f'+i+'"><div class="ind-field-hint" id="ind-h'+i+'"></div>'
