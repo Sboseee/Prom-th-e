@@ -683,6 +683,24 @@
         <div class="ind-field-lbl">Niveau conscience (1=Unaware → 5=Most Aware)</div>
         <input class="ind-field-inp" type="number" min="1" max="5" placeholder="2" id="pf-awareness">
       </div>
+
+      <!-- BLOC 4 / Modification 4.2 : profil de voix — généré seul par Prométhée, jamais édité à la main -->
+      <div style="margin-top:14px">
+        <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Profil de voix (généré automatiquement)</div>
+        <div id="pf-voice-profile" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6">
+          Pas encore généré — Prométhée le génère seul dès que la douleur/désir/objections sont assez renseignés et changent.
+        </div>
+      </div>
+
+      <!-- BLOC 4 / Modification 4.1 + 4.3 : research marché/concurrence structuré -->
+      <div style="margin-top:14px">
+        <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Concurrence observée</div>
+        <div style="font-size:9px;color:var(--t3);line-height:1.5;margin-bottom:8px">Ce que tu as vu tourner chez tes concurrents — angle, format, niveau de conscience ciblé. Sert à éviter de générer un angle déjà saturé par le marché.</div>
+        <div id="pf-competitors-list"></div>
+        <button type="button" onclick="addCompetitorRow()" style="margin-top:6px;background:var(--bdim);border:0.5px solid var(--bborder);border-radius:8px;padding:8px 12px;color:var(--blue);font-size:10px;font-family:'Poppins',sans-serif;cursor:pointer">+ Ajouter un concurrent</button>
+        <div id="pf-awareness-saturation" style="margin-top:8px;font-size:10px;color:var(--t3)"></div>
+      </div>
+
       <!-- IMAGES -->
       <div style="margin-top:12px">
         <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Images produit</div>
@@ -1562,6 +1580,46 @@ function toggleParam(id){document.getElementById(id).classList.toggle('on')}
 /* ── CATALOGUE PRODUITS ───────────────────────────────────── */
 var pfImages=[]  // images en attente pour le produit en cours d'édition
 
+/* BLOC 4 / Modification 4.1 + 4.3 : research concurrence structuré (en attente d'édition) */
+var pfCompetitors=[]
+
+function addCompetitorRow(data){
+  pfCompetitors.push(data||{name:'',angle:'',format:'',awareness:2,note:''})
+  renderCompetitorRows()
+}
+function removeCompetitorRowBtn(btn){
+  pfCompetitors.splice(parseInt(btn.dataset.idx),1)
+  renderCompetitorRows()
+}
+function updateCompetitorField(idx,field,val){
+  if(pfCompetitors[idx]) pfCompetitors[idx][field]=val
+  if(field==='awareness') renderAwarenessSaturation()
+}
+function renderCompetitorRows(){
+  var list=document.getElementById('pf-competitors-list')
+  if(!list) return
+  list.innerHTML=pfCompetitors.map(function(c,i){
+    return '<div style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start">'
+      +'<input class="ind-field-inp" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:6px;padding:6px 8px;flex:1.2" placeholder="Concurrent" value="'+(c.name||'').replace(/"/g,'&quot;')+'" oninput="updateCompetitorField('+i+',\'name\',this.value)">'
+      +'<input class="ind-field-inp" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:6px;padding:6px 8px;flex:1.4" placeholder="Angle observé" value="'+(c.angle||'').replace(/"/g,'&quot;')+'" oninput="updateCompetitorField('+i+',\'angle\',this.value)">'
+      +'<input class="ind-field-inp" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:6px;padding:6px 8px;flex:1" placeholder="Format" value="'+(c.format||'').replace(/"/g,'&quot;')+'" oninput="updateCompetitorField('+i+',\'format\',this.value)">'
+      +'<input class="ind-field-inp" type="number" min="1" max="5" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:6px;padding:6px 8px;width:42px" value="'+(c.awareness||2)+'" oninput="updateCompetitorField('+i+',\'awareness\',parseInt(this.value)||2)">'
+      +'<button type="button" data-idx="'+i+'" onclick="removeCompetitorRowBtn(this)" style="background:transparent;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:4px">×</button>'
+      +'</div>'
+  }).join('')||'<div style="font-size:10px;color:var(--t3);padding:4px 0">Aucun concurrent renseigné encore.</div>'
+  renderAwarenessSaturation()
+}
+function renderAwarenessSaturation(){
+  var el=document.getElementById('pf-awareness-saturation')
+  if(!el) return
+  if(!pfCompetitors.length){el.textContent='';return}
+  var counts={1:0,2:0,3:0,4:0,5:0}
+  pfCompetitors.forEach(function(c){if(c.awareness>=1&&c.awareness<=5)counts[c.awareness]++})
+  var saturated=Object.keys(counts).filter(function(k){return counts[k]>=2})
+  var free=Object.keys(counts).filter(function(k){return counts[k]===0})
+  el.textContent=(saturated.length?'Niveaux saturés : '+saturated.join(', ')+' · ':'')+(free.length?'Niveaux libres : '+free.join(', '):'Tous les niveaux sont déjà occupés par au moins un concurrent.')
+}
+
 function calcPfRoas(){
   var price=parseFloat(document.getElementById('pf-price').value)
   var cogs=parseFloat(document.getElementById('pf-cogs').value)
@@ -1636,6 +1694,8 @@ function saveProduct(){
     angles_saturated:angSat,angles_opportunities:angOpp,
     headline:document.getElementById('pf-headline').value.trim(),
     images:pfImages.slice(),
+    /* BLOC 4 / Modification 4.1 + 4.3 : research concurrence structuré */
+    market_intel:{competitors:pfCompetitors.slice(),updated_at:Date.now()},
     notes:document.getElementById('pf-notes').value.trim(),
     status:editId?undefined:'STANDBY',
     added_at:editId?undefined:Date.now()
@@ -1649,6 +1709,13 @@ function saveProduct(){
     if(idx>=0){
       var old=mem.products[idx]
       prodData.status=old.status;prodData.added_at=old.added_at
+      /* BLOC 4 / Modification 4.2 : le profil de voix généré par Prométhée n'a pas de champ
+         dans le formulaire (généré seul, jamais édité à la main) — il faut le préserver
+         explicitement lors d'un edit, sinon il serait écrasé à chaque sauvegarde. */
+      if(old.avatar){
+        prodData.avatar.voice_profile=old.avatar.voice_profile
+        prodData.avatar._voice_fingerprint=old.avatar._voice_fingerprint
+      }
       mem.products[idx]=prodData
     }else{prodData.status='STANDBY';prodData.added_at=Date.now();mem.products.push(prodData)}
   }else{
@@ -1675,6 +1742,10 @@ function saveProduct(){
   var isNew=!editId
   pushToMiniChat((isNew?'Produit "':'Produit "'+name+'" mis à jour. ')+name+'" ajouté au catalogue. ROAS BE '+roas_be.toFixed(2)+'x · Target '+roas_target.toFixed(2)+'x.'+(mem.active_product_id===prodData.id?' Il est maintenant le produit actif en campagne.':' Il est en veille — Prométhée peut le croiser pour des offres et bundles.'))
   if(isNew&&mem.active_product_id===prodData.id){goView('mission');setTimeout(function(){runBrain(false)},400)}
+  /* BLOC 4 / Modification 4.2 : Prométhée décide seul s'il doit régénérer le profil de voix —
+     fire-and-forget, ne bloque jamais la sauvegarde. Ne se déclenche que si l'avatar a
+     réellement changé depuis la dernière génération (pas à chaque sauvegarde). */
+  maybeRefreshVoiceProfile(prodData.id).catch(function(e){console.error('[voice profile]',e)})
 }
 
 function saveAccount(){
@@ -1713,6 +1784,9 @@ function setActiveProduct(prodId){
   refreshMemView()
   pushToMiniChat('Produit actif changé : "'+(prod?prod.name:'')+'". Cycle réinitialisé — historique créatif et scores d\'angle de ce produit conservés. Le cerveau va lancer son analyse.')
   setTimeout(function(){runBrain(false)},400)
+  /* BLOC 4 / Modification 4.2 : second point de décision autonome — activer un produit
+     qui n'a jamais eu de profil de voix généré (ou dont l'avatar a changé depuis) en déclenche un. */
+  if(prod) maybeRefreshVoiceProfile(prodId).catch(function(e){console.error('[voice profile]',e)})
 }
 
 function editProduct(prodId){
@@ -1735,6 +1809,10 @@ function editProduct(prodId){
   setValue('pf-opp',(prod.angles_opportunities||[]).join(', '))
   setValue('pf-awareness',prod.avatar?prod.avatar.awareness_level:2)
   setValue('pf-notes',prod.notes||'')
+  /* BLOC 4 : research concurrence + profil de voix (lecture seule, jamais dans un input) */
+  pfCompetitors=(prod.market_intel&&prod.market_intel.competitors||[]).slice()
+  renderCompetitorRows()
+  renderVoiceProfileDisplay(prod.avatar?prod.avatar.voice_profile:null)
   document.getElementById('product-form-title').textContent='Modifier : '+prod.name
   /* Preview images existantes */
   var preview=document.getElementById('pf-images-preview')
@@ -1752,9 +1830,12 @@ function editProduct(prodId){
 
 function clearProductForm(){
   pfImages=[]
+  pfCompetitors=[]
   ;['pf-id','pf-name','pf-price','pf-cogs','pf-aov','pf-pain','pf-desire','pf-objections','pf-usp','pf-guarantee','pf-headline','pf-sat','pf-opp','pf-awareness','pf-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value=''})
   var preview=document.getElementById('pf-images-preview')
   if(preview) preview.innerHTML=''
+  renderCompetitorRows()
+  renderVoiceProfileDisplay(null)
   var bar=document.getElementById('pf-roas-bar')
   if(bar) bar.style.display='none'
   document.getElementById('product-form-title').textContent='Nouveau produit'
@@ -2746,6 +2827,72 @@ var SOP_FALLBACK={
   ],
   batch_mix_instruction:'Mix obligatoire : au moins 1 vidéo UGC, 1 statique, 1 Offer First si possible.'
 }
+/* BLOC 4 / Modification 4.2 : profil de voix — Prométhée décide seul quand le régénérer.
+   Déclenché après chaque sauvegarde produit et à l'activation d'un produit (jamais sur simple
+   clic utilisateur). Ne fait un appel Claude QUE si la douleur/désir/objections/awareness ont
+   changé depuis la dernière génération (fingerprint comparé) — pas de coût inutile sinon.
+   Jamais d'édition manuelle : c'est généré ou régénéré, jamais corrigé à la main. */
+async function maybeRefreshVoiceProfile(productId){
+  var mem=memGet()
+  var prod=mem.products&&mem.products.find(function(p){return p.id===productId})
+  if(!prod||!prod.avatar) return
+  var pain=prod.avatar.pain||''
+  var desire=prod.avatar.desire||''
+  var objections=(prod.avatar.objections||[]).join('|')
+  var awareness=prod.avatar.awareness_level||2
+  if(!pain&&!desire) return /* pas assez de matière pour inventer une voix crédible */
+  var fingerprint=pain+'::'+desire+'::'+objections+'::'+awareness
+  if(prod.avatar._voice_fingerprint===fingerprint) return /* rien n'a changé depuis la dernière génération */
+
+  try{
+    var prompt='Tu es un expert en voix de marque et copywriting Direct Response.\n\n'
+      +'Avatar cible :\nDouleur : '+(pain||'non renseignée')
+      +'\nDésir / transformation recherchée : '+(desire||'non renseigné')
+      +'\nObjections : '+((prod.avatar.objections||[]).join(', ')||'aucune renseignée')
+      +'\nNiveau de conscience (Schwartz) : '+awareness+'/5'
+      +'\n\nInvente un profil de voix authentique pour cette personne — comment elle parle VRAIMENT '
+      +'de son problème, pas le jargon marketing. Réponds UNIQUEMENT en JSON :\n'
+      +'{"phrases":["4 à 6 expressions/tournures qu\'elle utiliserait spontanément"],'
+      +'"tone":"description du ton en quelques mots (familier/direct/anxieux/etc)",'
+      +'"avoid":"un type de vocabulaire trop corporate/marketing à éviter absolument pour cet avatar"}'
+
+    var resp=await fetchWithTimeout(SERVER+'/api/claude',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:prompt}]})
+    },20000)
+    var data=await resp.json()
+    if(data.error) throw new Error(data.error.message||data.error.type||'erreur API Claude')
+    if(!data.content) throw new Error('réponse Claude inattendue (pas de champ content)')
+    var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
+    var profile=JSON.parse(text.replace(/```json|```/g,'').trim())
+
+    var mem2=memGet()
+    var prod2=mem2.products&&mem2.products.find(function(p){return p.id===productId})
+    if(prod2){
+      prod2.avatar.voice_profile=profile
+      prod2.avatar._voice_fingerprint=fingerprint
+      memSet(mem2)
+      pushToMiniChat('🎙️ Profil de voix généré pour "'+prod2.name+'" — ton et expressions mis à jour.')
+      var idField=document.getElementById('pf-id')
+      if(idField&&idField.value===productId) renderVoiceProfileDisplay(profile)
+    }
+  }catch(e){
+    console.error('[maybeRefreshVoiceProfile] échec :',e)
+    pushToMiniChat('⚠️ Génération du profil de voix échouée : '+e.message)
+  }
+}
+function renderVoiceProfileDisplay(profile){
+  var el=document.getElementById('pf-voice-profile')
+  if(!el) return
+  if(!profile){
+    el.textContent='Pas encore généré — Prométhée le génère seul dès que la douleur/désir/objections sont assez renseignés et changent.'
+    return
+  }
+  el.innerHTML='<b>Ton :</b> '+(profile.tone||'—')
+    +'<br><b>Expressions :</b> '+((profile.phrases||[]).map(function(p){return '"'+p+'"'}).join(' · ')||'—')
+    +'<br><b>À éviter :</b> '+(profile.avoid||'—')
+}
+
 async function loadSOP(){
   try{
     var resp=await fetchWithTimeout(SERVER+'/api/sop',{},10000)
@@ -2814,6 +2961,32 @@ async function callClaudeForBriefs(mem,batchSize){
   /* Contexte bundles */
   var ctxBundles=produitsVeille.length?'\n\nProduits en veille (bundles possibles) : '+produitsVeille.map(function(p){return p.name+' ('+p.price+'EUR)'}).join(', '):''
 
+  /* BLOC 4 / Modification 4.1 + 4.3 : intelligence marché — concurrence observée + saturation
+     de niveaux de conscience (calculée, pas générée par IA — évite de proposer un angle déjà
+     occupé par 2+ concurrents identifiés). */
+  var ctxMarket=''
+  var competitors=(prod.market_intel&&prod.market_intel.competitors||[]).filter(function(c){return c.name})
+  if(competitors.length){
+    var awCounts={1:0,2:0,3:0,4:0,5:0}
+    competitors.forEach(function(c){if(c.awareness>=1&&c.awareness<=5)awCounts[c.awareness]++})
+    var satLevels=Object.keys(awCounts).filter(function(k){return awCounts[k]>=2})
+    var freeLevels=Object.keys(awCounts).filter(function(k){return awCounts[k]===0})
+    ctxMarket='\n\nCONCURRENCE OBSERVÉE :'
+    ctxMarket+=competitors.map(function(c){return '\n- '+c.name+' : angle "'+(c.angle||'?')+'" · format '+(c.format||'?')+' · niveau conscience '+(c.awareness||'?')+'/5'+(c.note?' · '+c.note:'')}).join('')
+    if(satLevels.length) ctxMarket+='\nNiveaux de conscience SATURÉS par la concurrence (à éviter si possible) : '+satLevels.join(', ')
+    if(freeLevels.length) ctxMarket+='\nNiveaux de conscience LIBRES (opportunité) : '+freeLevels.join(', ')
+  }
+
+  /* BLOC 4 / Modification 4.2 : profil de voix inventé par Prométhée à partir de l'avatar */
+  var ctxVoice=''
+  var voiceProfile=prod.avatar&&prod.avatar.voice_profile
+  if(voiceProfile){
+    ctxVoice='\n\nPROFIL DE VOIX DE L\'AVATAR (utilise ce vocabulaire, pas un ton corporate) :'
+    ctxVoice+='\nTon : '+(voiceProfile.tone||'?')
+    ctxVoice+='\nExpressions typiques à utiliser : '+((voiceProfile.phrases||[]).join(' | ')||'aucune')
+    if(voiceProfile.avoid) ctxVoice+='\nÀ éviter absolument : '+voiceProfile.avoid
+  }
+
   /* Images produit disponibles */
   var hasImages=prod.images&&prod.images.length>0
   var ctxImages=hasImages?'\n\nImages produit disponibles : '+prod.images.length+' photo(s) uploadée(s) (fond blanc + lifestyle). Utilise-les comme référence visuelle dans les briefs Higgsfield.':''
@@ -2831,6 +3004,8 @@ async function callClaudeForBriefs(mem,batchSize){
     +'\nNiveau conscience : '+(prod.avatar&&prod.avatar.awareness_level?prod.avatar.awareness_level:2)+'/5'
     +'\nHeadline boutique : '+(prod.headline||'Non renseigné')
     +'\nAngles saturés (INTERDITS) : '+((prod.angles_saturated||[]).join(', ')||'aucun')
+    +ctxMarket
+    +ctxVoice
     +ctxSite
     +ctxImages
     +'\n\nCREATIVE BANK :'
