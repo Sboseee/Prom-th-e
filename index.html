@@ -5,7 +5,7 @@
 :root{
 --bg:#060606;--s1:#0e0e0e;--s2:#141414;--s3:#1a1a1a;
 --b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.10);--b3:rgba(255,255,255,0.18);
---t1:#f2f2f2;--t2:#666;--t3:#333;
+--t1:#f2f2f2;--t2:rgba(255,255,255,0.55);--t3:rgba(255,255,255,0.35);
 --red:#e03030;--rdim:rgba(224,48,48,0.06);--rborder:rgba(224,48,48,0.18);
 --green:#22c55e;--gdim:rgba(34,197,94,0.06);--gborder:rgba(34,197,94,0.18);
 --amber:#f59e0b;--adim:rgba(245,158,11,0.06);--aborder:rgba(245,158,11,0.18);
@@ -314,7 +314,7 @@
 .ind-field{background:var(--s1);border:0.5px solid var(--b1);border-radius:10px;padding:11px 13px}
 .ind-field-lbl{font-size:10px;color:var(--t3);margin-bottom:5px}
 .ind-field-inp{width:100%;background:transparent;border:none;color:var(--t1);font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;outline:none}
-.ind-field-inp::placeholder{color:var(--t3);font-weight:400;font-size:12px}
+.ind-field-inp::placeholder{color:rgba(255,255,255,0.18);font-weight:400;font-size:12px}
 .ind-submit{width:100%;background:var(--red);border:none;border-radius:10px;padding:12px;color:#fff;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer}
 
 /* PARAMS VIEW */
@@ -418,7 +418,7 @@
 .chat-bar{padding:10px 18px 16px;border-top:0.5px solid var(--b1);display:flex;gap:8px}
 .chat-input{flex:1;background:transparent;border:0.5px solid var(--b2);border-radius:8px;padding:9px 12px;color:var(--t1);font-size:12px;font-family:'Poppins',sans-serif;outline:none}
 .chat-input:focus{border-color:var(--b3)}
-.chat-input::placeholder{color:var(--t3)}
+.chat-input::placeholder{color:rgba(255,255,255,0.18)}
 .chat-send{background:var(--red);border:none;border-radius:8px;padding:9px 14px;color:#fff;font-size:13px;cursor:pointer}
 
 /* SAISIE MÉTRIQUE SHEET */
@@ -430,22 +430,22 @@
 .metric-field{background:transparent;border:0.5px solid var(--b2);border-radius:8px;padding:9px 11px}
 .metric-lbl{font-size:9px;color:var(--t3);margin-bottom:4px;letter-spacing:.04em}
 .metric-inp{width:100%;background:transparent;border:none;color:var(--t1);font-size:15px;font-weight:600;font-family:'Poppins',sans-serif;outline:none}
-.metric-inp::placeholder{color:var(--t3);font-weight:400;font-size:13px}
+.metric-inp::placeholder{color:rgba(255,255,255,0.18);font-weight:400;font-size:13px}
 .metric-submit{width:100%;background:var(--red);border:none;border-radius:8px;padding:12px;color:#fff;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer}
 
 /* MINI CHAT BAR */
-.mini-chat-wrap{position:fixed;left:0;right:0;bottom:68px;z-index:17;display:flex;justify-content:center;padding:0 12px}
-.mini-chat{width:44px;height:44px;background:var(--red);border:none;border-radius:22px;transition:width .25s cubic-bezier(.4,0,.2,1),background .2s,border-radius .2s;overflow:hidden;display:flex;align-items:center}
-.mini-chat:hover,.mini-chat.expanded{width:100%;background:rgba(14,14,14,0.95);backdrop-filter:blur(14px);border:0.5px solid var(--b2)}
+.mini-chat-wrap{position:fixed;left:0;right:0;bottom:80px;z-index:17;display:flex;justify-content:center;padding:0 12px}
+.mini-chat{width:48px;height:40px;background:var(--red);border:none;border-radius:12px;transition:width .25s cubic-bezier(.4,0,.2,1),background .2s,border-radius .2s;overflow:hidden;display:flex;align-items:center}
+.mini-chat:hover,.mini-chat.expanded{width:100%;background:rgba(14,14,14,0.95);backdrop-filter:blur(14px);border:0.5px solid var(--b2);border-radius:16px}
 .mini-chat-reply{display:none;font-size:11px;color:var(--t2);line-height:1.6;padding:12px 16px 0;width:100%}
 .mini-chat.expanded .mini-chat-reply{display:block}
 .mini-chat-row{display:flex;align-items:center;gap:8px;padding:5px 6px 5px 16px;width:100%}
 .mini-chat-input{flex:1;background:transparent;border:none;color:var(--t1);font-size:12px;font-family:'Poppins',sans-serif;outline:none;min-width:0;width:0;opacity:0}
 .mini-chat:hover .mini-chat-input,.mini-chat.expanded .mini-chat-input{width:auto;opacity:1}
-.mini-chat-input::placeholder{color:var(--t3)}
+.mini-chat-input::placeholder{color:rgba(255,255,255,0.18)}
 .mini-chat-send{background:var(--red);border:none;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;opacity:0;width:0;transition:width .2s,opacity .2s}
 .mini-chat:hover .mini-chat-send,.mini-chat.expanded .mini-chat-send{opacity:1;width:28px}
-.mini-chat-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.mini-chat-icon{width:48px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
 .mini-chat:hover .mini-chat-icon,.mini-chat.expanded .mini-chat-icon{display:none}
 </style>
 
@@ -625,10 +625,10 @@
       Catalogue produits
       <span id="products-count" style="font-size:10px;color:var(--t3);font-weight:400;margin-left:8px"></span>
     </div>
-    <div id="products-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+    <div id="products-list" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
 
-    <!-- Formulaire produit -->
-    <div id="product-form" style="background:var(--s1);border:0.5px solid var(--b2);border-radius:12px;padding:14px">
+    <!-- Formulaire produit (caché par défaut — ouvert via le + ou Éditer) -->
+    <div id="product-form" style="display:none;background:var(--s1);border:0.5px solid var(--b2);border-radius:12px;padding:14px">
       <div style="font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px" id="product-form-title">Nouveau produit</div>
       <input type="hidden" id="pf-id">
       <div class="ind-field-grid">
@@ -1949,6 +1949,7 @@ function editProduct(prodId){
   renderCompetitorRows()
   renderVoiceProfileDisplay(prod.avatar?prod.avatar.voice_profile:null)
   document.getElementById('product-form-title').textContent='Modifier : '+prod.name
+  var _ef=document.getElementById('product-form');if(_ef)_ef.style.display='block'
   /* Preview images existantes */
   var preview=document.getElementById('pf-images-preview')
   if(preview){
@@ -1963,6 +1964,12 @@ function editProduct(prodId){
   document.getElementById('product-form').scrollIntoView({behavior:'smooth'})
 }
 
+function openProductForm(){
+  clearProductForm()
+  var form=document.getElementById('product-form')
+  if(form){form.style.display='block';form.scrollIntoView({behavior:'smooth',block:'start'})}
+}
+
 function clearProductForm(){
   pfImages=[]
   pfCompetitors=[]
@@ -1974,6 +1981,8 @@ function clearProductForm(){
   var bar=document.getElementById('pf-roas-bar')
   if(bar) bar.style.display='none'
   document.getElementById('product-form-title').textContent='Nouveau produit'
+  var form=document.getElementById('product-form')
+  if(form) form.style.display='none'
 }
 
 /* ── RENDU DYNAMIQUE — VUE MÉMOIRE ───────────────────────── */
@@ -2136,27 +2145,26 @@ function refreshParamView(){
   var products=mem.products||[]
   if(count) count.textContent=products.length+' produit(s)'
   if(list){
-    if(!products.length){
-      list.innerHTML='<div style="font-size:11px;color:var(--t3);padding:8px 0">Aucun produit encore. Remplis le formulaire ci-dessous.</div>'
-    }else{
-      list.innerHTML=products.map(function(p){
-        var isActive=p.id===mem.active_product_id
-        var statusCol=isActive?'var(--green)':p.status==='CUT'?'var(--red)':'var(--t3)'
-        var img=p.images&&p.images.length?'<img src="'+p.images[0].base64+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;flex-shrink:0">':'<div style="width:36px;height:36px;background:var(--s2);border-radius:6px;flex-shrink:0;border:0.5px solid var(--b2)"></div>'
-        return '<div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--s1);border:0.5px solid '+(isActive?'var(--gborder)':'var(--b1)')+';border-radius:10px">'
-          +img
-          +'<div style="flex:1;min-width:0">'
-            +'<div style="font-size:12px;font-weight:600;color:var(--t1)">'+(p.name||'—')+'</div>'
-            +'<div style="font-size:10px;color:var(--t3);margin-top:2px">'+(p.roas_be?'BE '+p.roas_be.toFixed(2)+'x · ':'')+(p.angles_opportunities||[]).slice(0,2).join(', ')+'</div>'
-          +'</div>'
-          +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
-            +'<div style="font-size:9px;font-weight:600;color:'+statusCol+'">'+(isActive?'ACTIF':p.status)+'</div>'
-            +'<div style="display:flex;gap:4px">'
-            +(!isActive?'<button data-pid="'+p.id+'" onclick="setActiveProdBtn(this)" style="font-size:9px;padding:3px 8px;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:5px;color:var(--green);cursor:pointer">Activer</button>':'')
-            +'<button data-pid="'+p.id+'" onclick="editProdBtn(this)" style="font-size:9px;padding:3px 8px;background:transparent;border:0.5px solid var(--b2);border-radius:5px;color:var(--t3);cursor:pointer">Éditer</button>'
-            +'</div></div></div>'
-      }).join('')
-    }
+    var cardStyle='width:78px;min-height:108px;border-radius:14px;padding:10px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;text-align:center;flex-shrink:0;'
+    var productCards=products.map(function(p){
+      var isActive=p.id===mem.active_product_id
+      var statusCol=isActive?'var(--green)':p.status==='CUT'?'var(--red)':'var(--t3)'
+      var border=isActive?'1px solid var(--gborder)':'0.5px solid var(--b2)'
+      var thumb=p.images&&p.images.length
+        ?'<img src="'+p.images[0].base64+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0">'
+        :'<div style="width:44px;height:44px;background:var(--s3);border-radius:8px;border:0.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:18px">📦</div>'
+      return '<div style="'+cardStyle+'background:var(--s2);border:'+border+'" data-pid="'+p.id+'" onclick="editProdBtn(this)">'
+        +thumb
+        +'<div style="font-size:9px;font-weight:600;color:var(--t1);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3">'+(p.name||'—')+'</div>'
+        +'<div style="font-size:8px;font-weight:700;color:'+statusCol+';letter-spacing:.04em">'+(isActive?'ACTIF':p.status||'—')+'</div>'
+        +(p.roas_be?'<div style="font-size:8px;color:var(--t2)">BE '+p.roas_be.toFixed(2)+'x</div>':'')
+        +'</div>'
+    }).join('')
+    var plusCard='<div style="'+cardStyle+'background:var(--bg);border:1px dashed var(--b3);" onclick="openProductForm()">'
+      +'<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:200;color:var(--t2);line-height:1">+</div>'
+      +'<div style="font-size:9px;color:var(--t3);margin-top:2px">Ajouter</div>'
+      +'</div>'
+    list.innerHTML=productCards+plusCard
   }
 
   /* État système */
