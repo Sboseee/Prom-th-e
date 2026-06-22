@@ -543,32 +543,7 @@
 
   </div>
 
-  <!-- ===== VUE 2 : INDICATEURS ===== -->
-  <div class="view" id="view-indicateurs">
-    <!-- Note d'intro avant le sélecteur (plus de coupure de flux) -->
-    <div class="ind-onboard-note" id="ind-note">Sélectionne ton niveau — les indicateurs demandés s'adaptent automatiquement. Si tu n'as encore lancé aucune pub, on ne te demande pas un ROAS qui n'existe pas.</div>
-
-    <!-- Niveaux — progression automatique basée sur les données réelles -->
-    <div class="sec-title">Progression <span id="ind-level-auto" style="font-weight:400;color:var(--t3);font-size:8px;margin-left:6px;letter-spacing:.05em">· évolue automatiquement avec tes résultats</span></div>
-    <div class="ind-level-track">
-      <button class="ind-lvl" id="lvl-A" onclick="setLevel('A')">A · Jamais lancé</button>
-      <span class="ind-lvl-arrow">›</span>
-      <button class="ind-lvl" id="lvl-B" onclick="setLevel('B')">B · Testé</button>
-      <span class="ind-lvl-arrow">›</span>
-      <button class="ind-lvl" id="lvl-C" onclick="setLevel('C')">C · Rentable</button>
-      <span class="ind-lvl-arrow">›</span>
-      <button class="ind-lvl" id="lvl-D" onclick="setLevel('D')">D · Scale</button>
-    </div>
-
-    <!-- Titre dynamique selon le niveau -->
-    <div class="sec-title" id="ind-fields-title">Calibrage initial · Boutique sans pub</div>
-    <div class="ind-field-grid" id="ind-fields"></div>
-
-    <!-- Libellé du bouton reflète l'action réelle (#11) -->
-    <button class="ind-submit" onclick="submitIndicators()">Calibrer le moteur →</button>
-  </div>
-
-  <!-- ===== VUE 3 : MÉMOIRE CRÉATIVE (dynamique) ===== -->
+  <!-- ===== VUE 2 : MÉMOIRE CRÉATIVE (dynamique) ===== -->
   <div class="view" id="view-memoire">
 
     <!-- Stats live depuis mémoire -->
@@ -798,10 +773,7 @@
     <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="2.4" fill="currentColor"/></svg>
     <span class="dock-lbl">Mission</span>
   </button>
-  <button class="dock-btn" id="dock-indicateurs" onclick="goView('indicateurs')">
-    <svg viewBox="0 0 20 20" fill="none"><path d="M4 14V8M10 14V4M16 14v-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    <span class="dock-lbl">Indicateurs</span>
-  </button>
+
   <button class="dock-btn" id="dock-memoire" onclick="goView('memoire')">
     <svg viewBox="0 0 20 20" fill="none"><rect x="3.5" y="4" width="13" height="12" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 8h13" stroke="currentColor" stroke-width="1.6"/></svg>
     <span class="dock-lbl">Mémoire</span>
@@ -1686,76 +1658,8 @@ function goView(name){
   if(name==='parametres') refreshParamView()
 }
 
-var indicatorSets={
-  A:{note:"Tu n'as encore lancé aucune pub. On te demande seulement les indicateurs globaux de ta boutique pour calibrer le moteur — pas de ROAS, pas de CPC : ça n'existe pas encore.",fields:[
-    {lbl:'AOV global (€)',ph:'34',group:'Économie produit'},
-    {lbl:'Marge brute (%)',ph:'45',group:'Économie produit'},
-    {lbl:'Trafic mensuel',ph:'1200',group:'Performance boutique'},
-    {lbl:'CVR site actuel (%)',ph:'1.1',group:'Performance boutique'}
-  ]},
-  B:{note:"Tu as déjà testé des pubs sans résultats stables. On te demande tes derniers indicateurs connus, même approximatifs.",fields:[
-    {lbl:'ROAS moyen',ph:'1.4',group:'Résultats Meta'},
-    {lbl:'CPC moyen (€)',ph:'0.9',group:'Résultats Meta'},
-    {lbl:'CTR moyen (%)',ph:'1.1',group:'Contexte campagne'},
-    {lbl:'Budget/jour testé (€)',ph:'30',group:'Contexte campagne'}
-  ]},
-  C:{note:"Tu as déjà des ventes rentables. On rentre tes métriques actuelles pour que le moteur calibre la logique de duplication des winners.",fields:[
-    {lbl:'ROAS actuel',ph:'2.6',group:'Performance Meta'},
-    {lbl:'CPA actuel (€)',ph:'18',group:'Performance Meta'},
-    {lbl:'Budget/jour (€)',ph:'80',group:'Contexte scale'},
-    {lbl:'AOV (€)',ph:'42',group:'Contexte scale'}
-  ]},
-  D:{note:"Tu scales déjà avec des budgets importants. On rentre tes métriques de scale pour calibrer le contrôle de fatigue créative.",fields:[
-    {lbl:'ROAS actuel',ph:'3.2',group:'Performance scale'},
-    {lbl:'CPA actuel (€)',ph:'15',group:'Performance scale'},
-    {lbl:'Budget/jour (€)',ph:'400',group:'Volume & LTV'},
-    {lbl:'LTV estimée (€)',ph:'95',group:'Volume & LTV'}
-  ]}
-}
+/* Noms de niveaux — utilisés uniquement en interne pour les bulles de progression */
 var levelNames={A:'A · Jamais lancé',B:'B · Testé',C:'C · Rentable',D:'D · Scale'}
-var levelTitles={
-  A:'Calibrage initial · Boutique sans pub',
-  B:'Calibrage · Premières données Meta',
-  C:'Calibrage · Scale rentable',
-  D:'Calibrage · Fatigue créative'
-}
-
-function setLevel(lvl){
-  document.querySelectorAll('.ind-lvl').forEach(b=>b.classList.remove('on'))
-  document.getElementById('lvl-'+lvl).classList.add('on')
-  var data=indicatorSets[lvl]
-  document.getElementById('ind-note').textContent=data.note
-  /* Titre dynamique selon niveau (#9) */
-  var titleEl=document.getElementById('ind-fields-title')
-  if(titleEl) titleEl.textContent=levelTitles[lvl]||'Indicateurs à fournir'
-  var grid=document.getElementById('ind-fields')
-  grid.innerHTML=''
-  var lastGroup=null
-  data.fields.forEach(function(f,i){
-    /* Groupement des champs (#10) : header de groupe si changement de groupe */
-    if(f.group&&f.group!==lastGroup){
-      var groupLbl=document.createElement('div')
-      groupLbl.className='ind-fields-group-lbl'
-      groupLbl.textContent=f.group
-      grid.appendChild(groupLbl)
-      lastGroup=f.group
-    }
-    var div=document.createElement('div')
-    div.className='ind-field'
-    div.innerHTML='<div class="ind-field-lbl">'+f.lbl+'</div><input class="ind-field-inp" type="number" placeholder="'+f.ph+'" id="ind-f'+i+'"><div class="ind-field-hint" id="ind-h'+i+'"></div>'
-    var inp=div.querySelector('input')
-    inp.addEventListener('input',function(){
-      var val=parseFloat(this.value)
-      var hint=div.querySelector('.ind-field-hint')
-      if(this.value===''){ div.className='ind-field';hint.textContent='' }
-      else if(isNaN(val)||val<=0){ div.className='ind-field error';hint.textContent='Valeur invalide' }
-      else{ div.className='ind-field valid';hint.textContent='✓ Enregistré' }
-    })
-    grid.appendChild(div)
-  })
-  var pl=document.getElementById('param-level')
-  if(pl)pl.textContent=levelNames[lvl]
-}
 
 var mcpConnected=false
 var higConnected=false
@@ -2470,33 +2374,6 @@ function filterMemLive(type,btn){
   })
 }
 
-function submitIndicators(){
-  /* Sauvegarder les valeurs saisies dans la mémoire */
-  var mem=memGet()
-  var lvl=mem.account&&mem.account.level||'A'
-  var data=indicatorSets[lvl]||indicatorSets['A']
-  var saved={}
-  data.fields.forEach(function(f,i){
-    var el=document.getElementById('ind-f'+i)
-    if(el&&el.value) saved[f.lbl]=parseFloat(el.value)
-  })
-  if(!mem.account) mem.account={}
-  mem.account.indicators=saved
-  mem.account.indicators_set_at=Date.now()
-  memSet(mem)
-  /* Retour Mission */
-  goView('mission')
-  /* Bulle de confirmation (pas mini-chat) */
-  setTimeout(function(){
-    renderBubble({
-      type:'sb-success',label:'Moteur calibré',
-      text:'Données boutique intégrées · Prométhée est prêt',
-      sub:'Renseigne tes métriques Meta + Shopify chaque soir pour que les décisions soient précises.',
-      why:'Le calibrage initial (AOV, marge, trafic, CVR) définit les seuils de référence du moteur ASL. Sans ça, impossible de savoir si un ROAS de 1.8x est suffisant pour ton produit.',
-      buttons:[{label:'Saisir les métriques du jour',fn:'openMetrics()',primary:true},{label:'Compris',fn:''}]
-    })
-  },400)
-}
 
 /* ── WHY SHEET — Pourquoi cette décision (zéro API, données système) ── */
 var _whyCtx={}
@@ -2576,11 +2453,8 @@ function checkAndUpdateLevel(mem){
       text:'Niveau '+next+' · '+nms[next],
       sub:'Prométhée adapte sa stratégie à ta nouvelle phase.',
       why:'Basé sur tes métriques réelles : spend cycle, ROAS, décisions J1/J2 validées.',
-      buttons:[{label:'Voir',fn:"goView('indicateurs')",primary:true}]
+      buttons:[{label:'Compris',fn:'',primary:true}]
     })
-    document.querySelectorAll('.ind-lvl').forEach(function(b){b.classList.remove('on')})
-    var btn=document.getElementById('lvl-'+next); if(btn) btn.classList.add('on')
-    var titleEl=document.getElementById('ind-fields-title'); if(titleEl) titleEl.textContent=levelTitles[next]||'Calibrage'
   }
 }
 
@@ -6712,10 +6586,10 @@ function spawnDecisionBubbles(decision){
 
 /* ── INIT ─────────────────────────────────────────────────── */
 migrateMemoryIfNeeded()
-/* Niveau initial : A (Jamais lancé) — évolue automatiquement */
+/* Niveau initial : A (Jamais lancé) — évolue automatiquement en background */
 var _initMem=memGet()
-var _savedLevel=_initMem.account&&_initMem.account.level||'A'
-setLevel(_savedLevel)
+if(!_initMem.account) _initMem.account={}
+if(!_initMem.account.level) { _initMem.account.level='A'; memSet(_initMem) }
 renderOrb()
 setBrainStatus('default')
 refreshMemView()
