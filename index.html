@@ -2775,7 +2775,7 @@ function runDecisionEngine(){
      camp.asl_phase ('TESTING'/'OPTI'/'SCALING') ne vaut JAMAIS la chaîne 'P0' — la condition
      ci-dessous tombait donc toujours sur DATA_NEEDED dès le premier lancement, avant même
      d'atteindre la Priorité 5 (CREATE_BATCH) qui est la bonne réponse ici. */
-  var firstBatchNeeded=camp.cycle_number===1&&!camp.j1_decided&&!metrics.spend
+  var firstBatchNeeded=camp.cycle_number===1&&!camp.j1_decided&&!camp.spend_cycle&&!metrics.spend
   if(!metrics.spend&&camp.asl_phase!=='P0'&&!firstBatchNeeded){
     return buildMission('DATA_NEEDED',{
       type:'t-action',tag:'Action requise',
