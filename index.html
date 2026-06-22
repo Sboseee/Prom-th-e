@@ -885,6 +885,17 @@
     Depuis <span style="color:var(--green)">Shopify Analytics</span> : CA réel · Commandes · ATC
   </div>
 
+  <!-- RÉPARTITION PAR CRÉATIVE — fondation du feedback loop (relier perf à hook/angle/mood/levier).
+       Aucune connexion Meta : Ecomnameo copie les chiffres depuis Meta Ads Manager, créative par
+       créative, dans une interface guidée par Prométhée (un champ par colonne Meta standard,
+       aucune conversion à faire). Le total ci-dessous est calculé, jamais retapé. -->
+  <div id="dce-section" style="margin-bottom:14px">
+    <div style="font-size:10px;font-weight:600;color:var(--purple);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Répartition par créative (recommandé)</div>
+    <div style="font-size:9px;color:var(--t3);margin-bottom:8px;line-height:1.5">Pour chaque créative ci-dessous, ouvre Meta Ads Manager et copie les colonnes correspondantes. C'est ce qui permet à Prométhée de relier la performance au hook/angle utilisé — sans ça, il ne peut jamais te dire "tel style de hook performe mieux".</div>
+    <div id="dce-rows"></div>
+    <button type="button" onclick="computeDailyCreativeTotals()" style="width:100%;background:var(--pdim);border:0.5px solid var(--pborder);border-radius:8px;padding:9px;color:var(--purple);font-size:10px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:4px">↓ Calculer le total dans Meta Ads ci-dessous</button>
+  </div>
+
   <div style="font-size:10px;font-weight:600;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Meta Ads</div>
   <div class="metric-grid" style="margin-bottom:12px">
     <div class="metric-field">
@@ -1320,10 +1331,19 @@ async function executeCreateBatch(s,opts){
         batch_id:batchId,
         name:b.format+' · '+b.angle+' · "'+b.hook+'"',
         angle:b.angle,format:b.format,hook:b.hook,awareness:b.awareness_level,
+        /* Attributs créatifs — calculés par Claude à la génération mais jusqu'ici jetés avant
+           memSet() (perdus pour de bon). Sans eux, impossible de répondre un jour à "les hooks
+           Hidden Fear performent mieux depuis 5 jours" : on ne saurait même pas quel style de
+           hook chaque créative utilisait. On les persiste maintenant, même sans connecteur Meta —
+           c'est ce qui permettra de les relier à la saisie quotidienne par créative (à venir). */
+        mood:b.mood||null,intensite:b.intensite||null,
+        levier_psychologique_principal:b.levier_psychologique_principal||null,
+        strategie_objection:b.strategie_objection||null,
         variable_changed:b.variable_changed,status:'DRAFT',roas:null,spend:0,days:0,
         winner_locked:false,mid_until:null,higgsfield_brief:b.higgsfield_brief,
         ad_copy:b.ad_copy,why:b.why,metrics:{j1:null,j2:null,j4:null},created_at:Date.now(),
         type_media:b.type_media,
+        daily:[] /* série temporelle par créative — alimentée par la future saisie quotidienne */,
         _brief:b /* utilisé pour la génération qui suit — jamais écrit tel quel en mémoire */
       }
     })
@@ -2393,7 +2413,125 @@ function sendChat(){
   body.scrollTop=body.scrollHeight
 }
 
-function openMetrics(){document.getElementById('metric-sheet').classList.add('open')}
+function openMetrics(){document.getElementById('metric-sheet').classList.add('open');renderDailyCreativeRows()}
+
+/* ── RÉPARTITION PAR CRÉATIVE — fondation du feedback loop, sans aucune API ──
+   Décision explicite : pas de connecteur Meta/Shopify. La discipline de saisie manuelle
+   quotidienne est maintenue, mais restructurée par créative plutôt qu'agrégée au seul niveau
+   compte — sinon Prométhée ne pourra jamais répondre à "les hooks X performent mieux depuis 5
+   jours" : il faut bien savoir QUELLE créative (donc quel hook/angle/mood/levier) a fait QUEL
+   chiffre, QUEL jour. Cette interface guide précisément quoi copier depuis Meta Ads Manager,
+   créative par créative — Prométhée dirige la saisie, comme demandé. */
+function getDailyEntryCreatives(mem){
+  var bank=getProductBank(mem)
+  return bank.filter(function(c){return c.status==='TESTING'||c.status==='MID'||c.status==='WINNER'})
+}
+function renderDailyCreativeRows(){
+  var mem=memGet()
+  var creatives=getDailyEntryCreatives(mem)
+  var el=document.getElementById('dce-rows')
+  if(!el) return
+  if(!creatives.length){
+    el.innerHTML='<div style="font-size:9px;color:var(--t3);padding:6px 0">Aucune créative active pour ce produit — la répartition par créative sera disponible après ton premier batch lancé dans Meta.</div>'
+    return
+  }
+  el.innerHTML=creatives.map(function(c){
+    var label=(c.name||(c.format+' · '+c.angle+' · "'+c.hook+'"'))
+    return '<div class="dce-row" data-cid="'+c.id+'" style="margin-bottom:8px;padding:8px;background:var(--s2);border-radius:8px">'
+      +'<div style="font-size:9px;color:var(--t2);margin-bottom:6px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(label.replace(/"/g,'&quot;'))+'">'+label+'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">'
+      +'<div><div class="metric-lbl">Spend €</div><input class="metric-inp dce-spend" type="number" step="0.01" data-cid="'+c.id+'"></div>'
+      +'<div><div class="metric-lbl">CTR %</div><input class="metric-inp dce-ctr" type="number" step="0.01" data-cid="'+c.id+'"></div>'
+      +'<div><div class="metric-lbl">CPM €</div><input class="metric-inp dce-cpm" type="number" step="0.01" data-cid="'+c.id+'"></div>'
+      +'<div><div class="metric-lbl">ATC #</div><input class="metric-inp dce-atc" type="number" data-cid="'+c.id+'"></div>'
+      +'<div><div class="metric-lbl">Achats #</div><input class="metric-inp dce-purchases" type="number" data-cid="'+c.id+'"></div>'
+      +'<div><div class="metric-lbl">CA €</div><input class="metric-inp dce-ca" type="number" step="0.01" data-cid="'+c.id+'"></div>'
+      +'</div></div>'
+  }).join('')
+}
+function readDailyCreativeRows(){
+  var rows=document.querySelectorAll('#dce-rows .dce-row')
+  var out=[]
+  rows.forEach(function(row){
+    var cid=row.getAttribute('data-cid')
+    var get=function(cls){var i=row.querySelector('.'+cls);return (i&&i.value)?parseFloat(i.value):0}
+    var spend=get('dce-spend'),ctr=get('dce-ctr'),cpm=get('dce-cpm'),atc=get('dce-atc'),purchases=get('dce-purchases'),ca=get('dce-ca')
+    if(spend>0||ca>0){
+      out.push({creative_id:cid,spend:spend,ctr:ctr,cpm:cpm,atc:atc,purchases:purchases,ca:ca,roas:spend>0?(ca/spend):null})
+    }
+  })
+  return out
+}
+/* ── BLOC 8 (fondation) — AGRÉGATION PAR ATTRIBUT CRÉATIF ──────────────────
+   La donnée brute (creative.daily[]) ne vaut rien sans ce moteur. C'est lui qui répond à
+   "les hooks Hidden Fear performent mieux depuis 5 jours" — en regroupant les jours de
+   chaque créative par l'attribut demandé (angle/format/mood/intensite/levier/awareness),
+   sur une fenêtre de N jours, sans aucune dépendance API. Pur calcul sur la mémoire locale. */
+function aggregateCreativePerformance(mem,attribute,days){
+  var bank=getProductBank(mem)
+  var cutoff=new Date()
+  cutoff.setDate(cutoff.getDate()-(days||7))
+  var cutoffStr=cutoff.toISOString().slice(0,10)
+  var groups={}
+  bank.forEach(function(c){
+    var attrVal=c[attribute]
+    if(!attrVal) return
+    ;(c.daily||[]).forEach(function(d){
+      if(!d.date||d.date<cutoffStr) return
+      if(!groups[attrVal]) groups[attrVal]={spend:0,ca:0,creative_ids:{},days_count:0}
+      groups[attrVal].spend+=(d.spend||0)
+      groups[attrVal].ca+=(d.ca||0)
+      groups[attrVal].creative_ids[c.id]=true
+      groups[attrVal].days_count++
+    })
+  })
+  var rows=Object.keys(groups).map(function(k){
+    var g=groups[k]
+    return {
+      value:k,
+      spend:Math.round(g.spend*100)/100,
+      ca:Math.round(g.ca*100)/100,
+      roas:g.spend?Math.round((g.ca/g.spend)*100)/100:null,
+      nb_creatives:Object.keys(g.creative_ids).length,
+      nb_jours_data:g.days_count
+    }
+  })
+  rows.sort(function(a,b){return (b.roas||0)-(a.roas||0)})
+  return {attribute:attribute,window_days:days||7,rows:rows}
+}
+/* Vue d'ensemble multi-attributs — le matériau brut du futur "rapport du mardi matin"
+   (Bloc 8 complet). Pas encore branché sur une mission/UI — c'est volontaire : l'engine doit
+   être validé sur de vraies données saisies plusieurs jours de suite avant de produire un
+   diagnostic présenté comme fiable. */
+function buildCreativeSignalReport(mem,days){
+  var attrs=['angle','format','mood','intensite','levier_psychologique_principal','awareness']
+  var signals=attrs.map(function(a){
+    var agg=aggregateCreativePerformance(mem,a,days)
+    if(agg.rows.length<2) return null /* besoin d'au moins 2 valeurs distinctes pour comparer */
+    return {attribute:a,window_days:days,best:agg.rows[0],worst:agg.rows[agg.rows.length-1],all:agg.rows}
+  }).filter(Boolean)
+  return {window_days:days||7,signals:signals,has_enough_data:signals.length>0}
+}
+
+function computeDailyCreativeTotals(){
+  var entries=readDailyCreativeRows()
+  if(!entries.length){pushToMiniChat('Remplis au moins une créative (Spend ou CA) pour calculer un total.');return}
+  var totalSpend=0,totalCa=0,totalAtc=0,totalPurchases=0,weightedCtr=0,weightedCpm=0
+  entries.forEach(function(e){
+    totalSpend+=e.spend;totalCa+=e.ca;totalAtc+=e.atc;totalPurchases+=e.purchases
+    weightedCtr+=e.ctr*e.spend;weightedCpm+=e.cpm*e.spend
+  })
+  var avgCtr=totalSpend?weightedCtr/totalSpend:0
+  var avgCpm=totalSpend?weightedCpm/totalSpend:0
+  var setVal=function(id,v){var el=document.getElementById(id);if(el) el.value=v}
+  setVal('m-spend',totalSpend?totalSpend.toFixed(2):'')
+  setVal('m-rev',totalCa?totalCa.toFixed(2):'')
+  setVal('m-orders',totalPurchases||0)
+  setVal('m-atc',totalAtc||0)
+  setVal('m-ctr',avgCtr?avgCtr.toFixed(2):'')
+  setVal('m-cpm',avgCpm?avgCpm.toFixed(2):'')
+  pushToMiniChat('Total calculé depuis '+entries.length+' créative(s) : '+totalSpend.toFixed(2)+'€ dépensés · '+totalCa.toFixed(2)+'€ générés. Vérifie Thumbstop/Fréquence/CVR (pas mesurables par créative) puis soumets.')
+}
 function closeMetrics(){document.getElementById('metric-sheet').classList.remove('open')}
 
 async function sendMiniChat(){
@@ -5808,6 +5946,25 @@ function submitMetrics(){
   if(mem.campaign&&mem.campaign.budget_remaining!=null){
     mem.campaign.budget_remaining=Math.max(0,mem.campaign.budget_remaining-spend)
   }
+
+  /* Persiste la répartition par créative (si remplie) — la donnée brute qui permet de relier
+     un jour performance et attributs créatifs (hook/angle/mood/levier). N'affecte JAMAIS le
+     calcul ASL ci-dessus (déjà basé sur les totaux saisis/calculés) — purement additif. */
+  var dceEntries=readDailyCreativeRows()
+  if(dceEntries.length){
+    var todayStr=new Date().toISOString().slice(0,10)
+    dceEntries.forEach(function(e){
+      var creative=mem.creative_bank.find(function(c){return c.id===e.creative_id})
+      if(creative){
+        if(!creative.daily) creative.daily=[]
+        creative.daily.push({date:todayStr,spend:e.spend,ctr:e.ctr,cpm:e.cpm,atc:e.atc,purchases:e.purchases,ca:e.ca,roas:e.roas})
+        creative.spend=(creative.spend||0)+e.spend
+        if(e.roas!=null) creative.roas=e.roas
+        creative.days=(creative.days||0)+1
+      }
+    })
+  }
+
   memSet(mem)
   closeMetrics()
   goView('mission')
