@@ -598,6 +598,17 @@
         <div class="ind-field-lbl">Marché principal</div>
         <input class="ind-field-inp" type="text" placeholder="FR" id="acc-market">
       </div>
+      <!-- BLOC 5 : phase business (CA cumulé) — distincte du cycle ASL J1/J2/J4. Seul toi connais
+           ton vrai CA cumulé, Prométhée ne peut pas le déduire seul. Détermine si le moteur
+           stratégique copie le concurrent (testing) ou fait du marketing research complet (scaling). -->
+      <div class="ind-field">
+        <div class="ind-field-lbl">Phase business (CA cumulé — selon ton playbook)</div>
+        <select class="ind-field-inp" id="acc-business-stage" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:6px;padding:8px">
+          <option value="testing_0_1kd">Testing — 0 à 1KD de CA cumulé</option>
+          <option value="opti_1kd_traction">Opti — 1KD+ avec traction</option>
+          <option value="scaling_1kd_stable">Scaling — 1KD+ stable</option>
+        </select>
+      </div>
       <div class="ind-field">
         <div class="ind-field-lbl">Budget total (€)</div>
         <input class="ind-field-inp" type="number" placeholder="2000" id="acc-budget">
@@ -1768,6 +1779,8 @@ function saveAccount(){
   mem.account.market=document.getElementById('acc-market').value.trim()||'FR'
   mem.account.budget_total=parseFloat(document.getElementById('acc-budget').value)||2000
   mem.account.budget_remaining=parseFloat(document.getElementById('acc-budget-rem').value)||mem.account.budget_total
+  var stageEl=document.getElementById('acc-business-stage')
+  mem.account.business_stage=stageEl?stageEl.value:'testing_0_1kd'
   mem.account.configured=true
   mem.campaign.budget_total=mem.account.budget_total
   mem.campaign.budget_remaining=mem.account.budget_remaining
@@ -2006,6 +2019,7 @@ function refreshParamView(){
   setValue('acc-market',acc.market||'FR')
   setValue('acc-budget',acc.budget_total||2000)
   setValue('acc-budget-rem',acc.budget_remaining||1800)
+  setValue('acc-business-stage',acc.business_stage||'testing_0_1kd')
 
   /* Liste des produits */
   var list=document.getElementById('products-list')
@@ -2168,7 +2182,7 @@ function renderStrategyTestResults(result){
     return '<div style="background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:8px">'
       +'<div style="font-weight:600;color:var(--t1);margin-bottom:4px">'+(i+1)+'. '+c.angle+' · niveau '+c.awareness_level+'/5</div>'
       +'<div style="color:var(--amber);margin-bottom:4px">Hook : "'+c.hook+'"</div>'
-      +'<div>Structure : '+c.copywriting_structure+' · Type recommandé : '+c.type_annonce_recommande+'</div>'
+      +'<div>Structure : '+c.copywriting_structure+' · Type recommandé : '+c.type_annonce_recommande+' ('+(c.type_media||'?')+')</div>'
       +'<div>UMP : '+c.ump+'</div>'
       +'<div>UMS : '+c.ums+'</div>'
       +'<div>Objection levée : '+c.objection_handled+'</div>'
@@ -2348,8 +2362,14 @@ function migrateMemoryIfNeeded(){
         store_url:'',market:'FR',meta_level:'B',
         budget_total:mem.campaign&&mem.campaign.budget_total||2000,
         budget_remaining:mem.campaign&&mem.campaign.budget_remaining||1800,
-        daily_budget:50,configured:false
+        daily_budget:50,configured:false,business_stage:'testing_0_1kd'
       }
+      dirty=true
+    }
+    /* BLOC 5 : compte existant créé avant l'ajout de business_stage → défaut le plus prudent
+       (testing) puisque Prométhée ne peut pas deviner le CA cumulé réel sans le demander. */
+    if(mem.account&&!mem.account.business_stage){
+      mem.account.business_stage='testing_0_1kd'
       dirty=true
     }
 
@@ -2430,7 +2450,8 @@ function defaultMemory(){
       budget_total:2000,
       budget_remaining:1800,
       daily_budget:50,
-      configured:false
+      configured:false,
+      business_stage:'testing_0_1kd' // BLOC 5 : testing_0_1kd | opti_1kd_traction | scaling_1kd_stable
     },
     /* CATALOGUE PRODUITS (N produits) */
     products:[],           // tableau de produits (voir schéma ci-dessous)
@@ -2944,23 +2965,32 @@ var SOP_FALLBACK={
   ],
   titre_complementarity_rule:'Créa chargée → titre simple. Créa minimaliste → titre USP ou question. Jamais répéter dans le titre ce qui est déjà dans la créa.',
   types_annonces:[
-    {type:'UGC Testimonial authentique',awareness:[3,4],win_rate:0.076,spend_ratio:'Élevé',cle:'Imperfection = confiance, structure avant/après.'},
-    {type:'Founder Story',awareness:[1,2],win_rate:null,spend_ratio:'Élevé quand scale',cle:'Connexion humaine, vulnérabilité, le pourquoi avant le quoi.'},
-    {type:'Ugly Ads',awareness:[1,2,3],win_rate:null,spend_ratio:'Moyen',cle:'Low-fi délibéré, script doit être excellent.'},
-    {type:'US vs DM (comparaison)',awareness:[3],win_rate:null,spend_ratio:'Moyen',cle:'Comparaison directe sans nommer le concurrent.'},
-    {type:'Before/After + Social Proof',awareness:[3,4],win_rate:null,spend_ratio:'Moyen',cle:'Spécificité des résultats, honnêteté sur le doute initial.'},
-    {type:'Offer First (BOFU)',awareness:[5],win_rate:0.09,spend_ratio:'30% du spend total',cle:'Urgence dès 3s, clarté absolue en <2s.'},
-    {type:'Unboxing',awareness:[3,4],win_rate:0.10,spend_ratio:'Moyen-élevé',cle:'Sous-exploité malgré la performance.'},
-    {type:'Réponses aux Objections',awareness:[4],win_rate:null,spend_ratio:'Moyen',cle:'Facecam, vraies objections, honnêteté.'},
-    {type:'Text-based Lettre',awareness:[1,2,3],win_rate:null,spend_ratio:'Très élevé quand ça marche',cle:'Ultra sous-utilisé, format le moins saturé.'},
-    {type:'Creator Partnership',awareness:[1,2,3],win_rate:null,spend_ratio:'Élevé quand scale',cle:"Diffusé depuis le compte créateur, favorisé par l'algo."}
+    {type:'UGC Testimonial authentique',awareness:[3,4],win_rate:0.076,spend_ratio:'Élevé',type_media:'video',cle:'Imperfection = confiance, structure avant/après.'},
+    {type:'Founder Story',awareness:[1,2],win_rate:null,spend_ratio:'Élevé quand scale',type_media:'video',cle:'Connexion humaine, vulnérabilité, le pourquoi avant le quoi.'},
+    {type:'Ugly Ads',awareness:[1,2,3],win_rate:null,spend_ratio:'Moyen',type_media:'video',cle:"Low-fi délibéré (= équivalent 'native'), script doit être excellent."},
+    {type:'US vs DM (comparaison)',awareness:[3],win_rate:null,spend_ratio:'Moyen',type_media:'video',cle:'Comparaison directe sans nommer le concurrent.'},
+    {type:'Before/After + Social Proof',awareness:[3,4],win_rate:null,spend_ratio:'Moyen',type_media:'flexible',cle:'Spécificité des résultats, honnêteté sur le doute initial.'},
+    {type:'Offer First (BOFU)',awareness:[5],win_rate:0.09,spend_ratio:'30% du spend total',type_media:'flexible',cle:'Urgence dès 3s, clarté absolue en <2s.'},
+    {type:'Unboxing',awareness:[3,4],win_rate:0.10,spend_ratio:'Moyen-élevé',type_media:'video',cle:'Sous-exploité malgré la performance.'},
+    {type:'Réponses aux Objections',awareness:[4],win_rate:null,spend_ratio:'Moyen',type_media:'video',cle:'Facecam, vraies objections, honnêteté.'},
+    {type:'Text-based Lettre',awareness:[1,2,3],win_rate:null,spend_ratio:'Très élevé quand ça marche',type_media:'image',cle:"Ultra sous-utilisé (= équivalent 'native'), format le moins saturé."},
+    {type:'Creator Partnership',awareness:[1,2,3],win_rate:null,spend_ratio:'Élevé quand scale',type_media:'video',cle:"Diffusé depuis le compte créateur, favorisé par l'algo."}
   ],
   types_annonces_priorite:'Chercher bon win rate ET gros spend ratio — les vraies anomalies.',
+  note_native:"Pas de catégorie 'Native' séparée — Ugly Ads et Text-based Lettre jouent ce rôle.",
   scaling_personas_prompt:"Mon produit est [X]. Ma cible large validée est [démographie + comportement]. Génère 5 personas ultra-précis : description, ce qu'ils ont déjà essayé, sentiment profond, résultat concret recherché, hook exact, niveau de conscience visé.",
   diagnostic_formula:{
     name:'Volume x Diversité x Qualité x Analyse x Double Down',
     note:'Si une variable est à 0, le résultat est 0. Mesurer le NOMBRE de winners, pas le win rate.',
     loi_8_pourcent:'8% des créatives sont winners (60% du spend). ~100 créas testées pour 8 winners.'
+  },
+  business_stage_rules:{
+    note:'Phase business (CA cumulé), distincte de campaign.asl_phase. Réglable par l\'utilisateur.',
+    stages:[
+      {id:'testing_0_1kd',label:'Testing — 0 à 1KD de CA cumulé',approche:'Copier le concurrent bête et méchant — angle, format ET funnel déjà validés. Pas de nouvel angle inventé.',marketing_research:false},
+      {id:'opti_1kd_traction',label:'Opti — 1KD+ avec traction',approche:'50% traduction concurrent + 50% début marketing research.',marketing_research:'partial'},
+      {id:'scaling_1kd_stable',label:'Scaling — 1KD+ stable',approche:'Marketing research complète, créer avec sa propre data.',marketing_research:true}
+    ]
   }
 }
 /* BLOC 4 / Modification 4.2 : profil de voix — Prométhée décide seul quand le régénérer.
@@ -3096,7 +3126,11 @@ function buildStrategyBaseContext(prod,mem,sop){
     market:{competitors:competitors,satLevels:saturation.satLevels,freeLevels:saturation.freeLevels},
     history:{usedHooks:usedHooks,usedAngles:usedAngles,winnersCount:winners.length},
     sop:sop,
-    product_id:prod.id
+    product_id:prod.id,
+    /* BLOC 5 : phase business (CA cumulé, réglée par l'utilisateur dans Réglages — Prométhée ne
+       peut pas la déduire seul). Distincte de campaign.asl_phase (cycle J1/J2/J4 d'un seul test).
+       Détermine si le moteur copie le concurrent (testing) ou fait du marketing research complet. */
+    business_stage:(mem.account&&mem.account.business_stage)||'testing_0_1kd'
   }
 }
 
@@ -3141,6 +3175,20 @@ async function generateAngles(ctx,opts){
 
   var sop=ctx.sop
   var awarenessTable=(sop.awareness_levels||[]).map(function(a){return '\nNiveau '+a.level+' ('+a.name+') : '+a.approche}).join('')
+  /* BLOC 5 : phase business — ton playbook prescrit un comportement différent selon le CA cumulé.
+     En testing (0-1KD), copier le concurrent validé plutôt qu'inventer. Sans ça, le moteur
+     contredirait le SOP qu'il est censé suivre. */
+  var stageRules=(sop.business_stage_rules&&sop.business_stage_rules.stages||[]).filter(function(s){return s.id===ctx.business_stage})[0]
+  var stageInstruction=stageRules
+    ?'\n\nPHASE BUSINESS ACTUELLE : '+stageRules.label+'\nApproche imposée pour cette phase : '+stageRules.approche
+    :''
+  if(ctx.business_stage==='testing_0_1kd'&&ctx.market.competitors.length){
+    stageInstruction+='\nEn phase testing, priorise les angles DÉJÀ observés chez la concurrence (liste ci-dessous) plutôt que d\'en inventer de nouveaux : '
+      +ctx.market.competitors.map(function(c){return c.angle}).filter(Boolean).join(', ')
+  }else if(ctx.business_stage==='testing_0_1kd'&&!ctx.market.competitors.length){
+    stageInstruction+='\nAucune concurrence renseignée (Bloc 4) — sans angle concurrent à copier, génère les angles les plus évidents et directs pour cet avatar, pas des angles sophistiqués de marketing research avancé (réservés à la phase scaling).'
+  }
+
   var prompt='Tu es le stratège créatif de Prométhée. Tu génères des ANGLES marketing — pas encore de hooks, pas de scripts.'
     +'\n\nPRODUIT : '+ctx.product.name+' · Prix '+ctx.product.price+'EUR'
     +'\nDouleur avatar : '+(ctx.avatar.pain||'non renseignée')
@@ -3148,6 +3196,7 @@ async function generateAngles(ctx,opts){
     +'\nObjections : '+(ctx.avatar.objections.join(' | ')||'aucune renseignée')
     +'\nNiveau de conscience actuel du produit : '+ctx.avatar.awareness_level+'/5'
     +(ctx.avatar.voice_profile?'\nTon de voix de l\'avatar : '+ctx.avatar.voice_profile.tone:'')
+    +stageInstruction
     +'\n\nNIVEAUX DE CONSCIENCE (Schwartz) — approche par niveau :'+awarenessTable
     +'\n\nCatégories d\'angles disponibles : '+(sop.angle_categories||[]).join(', ')
     +'\nAngles déjà saturés chez toi (INTERDITS) : '+(ctx.product.angles_saturated.join(', ')||'aucun')
@@ -3165,14 +3214,27 @@ async function generateAngles(ctx,opts){
 function simulateAngles(ctx,n){
   var cats=(ctx.sop.angle_categories||['Douleur','Transformation'])
   var free=ctx.market.freeLevels.length?ctx.market.freeLevels:[1,2,3,4,5]
+  /* Reflète la même logique de phase business que le vrai appel — sinon la simulation
+     ne testerait pas la bonne mécanique. */
+  var copyCompetitor=ctx.business_stage==='testing_0_1kd'&&ctx.market.competitors.length
   var out=[]
   for(var i=0;i<n;i++){
-    out.push({
-      angle:'[SIMULATION] '+cats[i%cats.length]+' #'+(i+1),
-      category:cats[i%cats.length],
-      awareness_level:free[i%free.length],
-      why:'(simulation) niveau '+free[i%free.length]+' choisi car libre chez la concurrence — aucune donnée réelle, pour tester la chaîne.'
-    })
+    if(copyCompetitor){
+      var comp=ctx.market.competitors[i%ctx.market.competitors.length]
+      out.push({
+        angle:'[SIMULATION] '+(comp.angle||'Angle concurrent')+' (copié de '+comp.name+')',
+        category:comp.angle||cats[0],
+        awareness_level:comp.awareness||free[i%free.length],
+        why:'(simulation) phase testing — angle copié du concurrent "'+comp.name+'" plutôt qu\'inventé, conforme au SOP.'
+      })
+    }else{
+      out.push({
+        angle:'[SIMULATION] '+cats[i%cats.length]+' #'+(i+1),
+        category:cats[i%cats.length],
+        awareness_level:free[i%free.length],
+        why:'(simulation) niveau '+free[i%free.length]+' choisi car libre chez la concurrence — aucune donnée réelle, pour tester la chaîne.'
+      })
+    }
   }
   return out
 }
@@ -3273,6 +3335,10 @@ async function generateConcept(ctx,angleObj,hookObj,opts){
   concept.hook=hookObj.hook
   concept.awareness_level=angleObj.awareness_level
   concept.hook_style=hookObj.hook_style
+  /* type_media déduit du type d'annonce choisi (table SOP), pas inventé ni laissé au Bloc 6
+     à deviner — vidéo / image / flexible selon le types_annonces.type_media. */
+  var matchedType=(sop.types_annonces||[]).filter(function(t){return t.type===concept.type_annonce_recommande})[0]
+  concept.type_media=matchedType?matchedType.type_media:'flexible'
   return concept
 }
 function simulateConcept(ctx,angleObj,hookObj){
@@ -3295,12 +3361,24 @@ function simulateConcept(ctx,angleObj,hookObj){
     benefice_principal:'(simulation) bénéfice fictif',
     titre:'[SIMULATION] Titre pour '+angleObj.angle,
     ad_copy:'[SIMULATION] Ad copy fictif pour tester la structure — '+hookObj.hook,
-    cta:'(simulation) CTA fictif'
+    cta:'(simulation) CTA fictif',
+    type_media:typeChoice?typeChoice.type_media:'flexible'
   }
 }
 
 /* ── VALIDATION DIVERSITÉ DU BATCH COMPLET ─────────────────────────────── */
-function validateBatchDiversity(concepts,sop){
+function validateBatchDiversity(concepts,sop,businessStage){
+  /* BLOC 5 : en phase testing (0-1KD), le SOP prescrit explicitement de copier fidèlement
+     le concurrent — pas de diversifier. Exiger 3 angles différents à ce stade contredirait
+     le playbook lui-même (trouvé en testant ce code avec un scénario à 2 concurrents partageant
+     le même angle validé : le check échouait alors que c'est exactement le comportement voulu). */
+  if(businessStage==='testing_0_1kd'){
+    return {
+      pass:true,skipped:true,
+      counts:{angles:0,types:0,levels:0},missing:[],
+      note:'Phase testing — diversité non exigée par le SOP (copie fidèle du concurrent attendue, pas de diversification à ce stade).'
+    }
+  }
   var rules=sop.diversity_rules||{min_angles_per_batch:3,min_types_annonces_per_batch:2,min_awareness_levels_per_batch:2}
   var angles={},types={},levels={}
   concepts.forEach(function(c){
@@ -3354,7 +3432,7 @@ async function runCreativeStrategyChain(productId,batchSize,opts){
     }
   }
 
-  var batchDiag=validateBatchDiversity(concepts,sop)
+  var batchDiag=validateBatchDiversity(concepts,sop,ctx.business_stage)
   diagnostics.batch_diversity=batchDiag
   diagnostics.steps.push('Concepts produits : '+concepts.length+'/'+batchSize)
 

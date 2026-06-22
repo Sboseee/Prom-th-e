@@ -91,20 +91,45 @@
   "titre_complementarity_rule": "Créa chargée (vidéo explicative, statique avec texte) → titre simple (promo ou bénéfice direct). Créa minimaliste (image produit, peu de texte) → titre USP ou question qui complète. Jamais répéter dans le titre ce qui est déjà dans la créa.",
 
   "types_annonces": [
-    {"type": "UGC Testimonial authentique", "awareness": [3,4], "win_rate": 0.076, "spend_ratio": "Élevé", "cle": "Pas de production parfaite — lumière naturelle imparfaite, structure avant/après, manque de perfection = confiance."},
-    {"type": "Founder Story", "awareness": [1,2], "win_rate": null, "spend_ratio": "Élevé quand scale", "cle": "Format dominant 2026. Connexion humaine, vulnérabilité, le pourquoi avant le quoi. Ne vend pas — crée la connexion. 60-120s, facecam simple."},
-    {"type": "Ugly Ads", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Moyen", "cle": "Délibérément low-fi, ressemble à de l'organique. Script doit être excellent car rien ne masque les faiblesses."},
-    {"type": "US vs DM (comparaison)", "awareness": [3], "win_rate": null, "spend_ratio": "Moyen", "cle": "Comparaison directe sans nommer le concurrent. Différenciateurs réels et tangibles."},
-    {"type": "Before/After + Social Proof", "awareness": [3,4], "win_rate": null, "spend_ratio": "Moyen", "cle": "Spécificité des résultats (chiffres précis), représentativité du profil, honnêteté sur le doute initial."},
-    {"type": "Offer First (BOFU)", "awareness": [5], "win_rate": 0.09, "spend_ratio": "30% du spend total", "cle": "Urgence/rareté/nouveauté dès les 3 premières secondes. Clarté absolue en <2s. Non optionnel dans le mix."},
-    {"type": "Unboxing", "awareness": [3,4], "win_rate": 0.10, "spend_ratio": "Moyen-élevé", "cle": "Sous-exploité — peu de concurrents le font malgré la performance. Ouverture du colis, première impression."},
-    {"type": "Réponses aux Objections", "awareness": [4], "win_rate": null, "spend_ratio": "Moyen", "cle": "Facecam simple. Identifier les vraies objections (avis, SAV, Q&A). Reconnaître quand l'objection est légitime."},
-    {"type": "Text-based Lettre", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Très élevé quand ça marche", "cle": "Ultra sous-utilisé — aucune image/vidéo, juste du texte. Format le moins saturé."},
-    {"type": "Creator Partnership", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Élevé quand scale", "cle": "Diffusé depuis le compte créateur, pas la marque — favorisé algorithmiquement par Meta."}
+    {"type": "UGC Testimonial authentique", "awareness": [3,4], "win_rate": 0.076, "spend_ratio": "Élevé", "type_media": "video", "cle": "Pas de production parfaite — lumière naturelle imparfaite, structure avant/après, manque de perfection = confiance."},
+    {"type": "Founder Story", "awareness": [1,2], "win_rate": null, "spend_ratio": "Élevé quand scale", "type_media": "video", "cle": "Format dominant 2026. Connexion humaine, vulnérabilité, le pourquoi avant le quoi. Ne vend pas — crée la connexion. 60-120s, facecam simple."},
+    {"type": "Ugly Ads", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Moyen", "type_media": "video", "cle": "Délibérément low-fi, ressemble à de l'organique (= équivalent 'native'). Script doit être excellent car rien ne masque les faiblesses."},
+    {"type": "US vs DM (comparaison)", "awareness": [3], "win_rate": null, "spend_ratio": "Moyen", "type_media": "video", "cle": "Comparaison directe sans nommer le concurrent. Différenciateurs réels et tangibles."},
+    {"type": "Before/After + Social Proof", "awareness": [3,4], "win_rate": null, "spend_ratio": "Moyen", "type_media": "flexible", "cle": "Spécificité des résultats (chiffres précis), représentativité du profil, honnêteté sur le doute initial. Vidéo ou carousel image."},
+    {"type": "Offer First (BOFU)", "awareness": [5], "win_rate": 0.09, "spend_ratio": "30% du spend total", "type_media": "flexible", "cle": "Urgence/rareté/nouveauté dès les 3 premières secondes. Clarté absolue en <2s. Non optionnel dans le mix."},
+    {"type": "Unboxing", "awareness": [3,4], "win_rate": 0.10, "spend_ratio": "Moyen-élevé", "type_media": "video", "cle": "Sous-exploité — peu de concurrents le font malgré la performance. Ouverture du colis, première impression."},
+    {"type": "Réponses aux Objections", "awareness": [4], "win_rate": null, "spend_ratio": "Moyen", "type_media": "video", "cle": "Facecam simple. Identifier les vraies objections (avis, SAV, Q&A). Reconnaître quand l'objection est légitime."},
+    {"type": "Text-based Lettre", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Très élevé quand ça marche", "type_media": "image", "cle": "Ultra sous-utilisé — aucune image/vidéo, juste du texte (= équivalent 'native'). Format le moins saturé."},
+    {"type": "Creator Partnership", "awareness": [1,2,3], "win_rate": null, "spend_ratio": "Élevé quand scale", "type_media": "video", "cle": "Diffusé depuis le compte créateur, pas la marque — favorisé algorithmiquement par Meta."}
   ],
   "types_annonces_priorite": "Chercher les créas avec BON win rate ET gros spend ratio quand elles gagnent — les vraies anomalies. Un bon win rate qui ne spend pas beaucoup est moins intéressant qu'un win rate correct qui explose en spend.",
+  "note_native": "Pas de catégorie 'Native' séparée dans ce SOP — Ugly Ads et Text-based Lettre jouent ce rôle (ressemblent à du contenu organique). Ne pas inventer de catégorie supplémentaire.",
 
   "scaling_personas_prompt": "Mon produit est [X]. Ma cible large validée est [démographie + comportement]. Mes winners actuels parlent à [avatar actuel]. Génère 5 nouveaux personas ultra-précis issus de cette cible large. Pour chaque persona : (1) description précise, (2) ce qu'elles ont déjà essayé sans succès, (3) le sentiment profond que leur procure le problème, (4) le résultat concret et spécifique recherché, (5) le hook exact à tester, (6) le niveau de conscience visé. Priorise les personas les plus distincts de ceux déjà testés.",
+
+  "business_stage_rules": {
+    "note": "Phase business (CA cumulé), distincte de campaign.asl_phase (TESTING/OPTI/SCALING qui suit un seul cycle J1/J2/J4). Réglable par l'utilisateur dans Réglages — Prométhée ne peut pas la déduire seul sans connaître le CA réel cumulé.",
+    "stages": [
+      {
+        "id": "testing_0_1kd",
+        "label": "Testing — 0 à 1KD de CA cumulé",
+        "approche": "Copier le concurrent bête et méchant. Reprendre l'angle, le format ET le funnel déjà validés par la concurrence observée (Bloc 4). Ne pas inventer de nouvel angle. Traduire, envoyer, observer.",
+        "marketing_research": false
+      },
+      {
+        "id": "opti_1kd_traction",
+        "label": "Opti — 1KD+ avec traction",
+        "approche": "50% traduction créas concurrent + 50% début de marketing research (angles, messages, painpoints) — diversité progressive.",
+        "marketing_research": "partial"
+      },
+      {
+        "id": "scaling_1kd_stable",
+        "label": "Scaling — 1KD+ stable",
+        "approche": "Marketing research complète : tous les angles, UMP/UMS, verbatim client, personas. Arrêter de traduire le concurrent — créer avec sa propre data.",
+        "marketing_research": true
+      }
+    ]
+  },
 
   "diagnostic_formula": {
     "name": "Volume x Diversité x Qualité x Analyse x Double Down",

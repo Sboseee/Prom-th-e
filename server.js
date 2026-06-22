@@ -183,23 +183,32 @@ const SOP_DEFAULT = {
   ],
   titre_complementarity_rule: 'Créa chargée → titre simple. Créa minimaliste → titre USP ou question. Jamais répéter dans le titre ce qui est déjà dans la créa.',
   types_annonces: [
-    { type: 'UGC Testimonial authentique', awareness: [3,4], win_rate: 0.076, spend_ratio: 'Élevé', cle: 'Imperfection = confiance, structure avant/après.' },
-    { type: 'Founder Story', awareness: [1,2], win_rate: null, spend_ratio: 'Élevé quand scale', cle: 'Connexion humaine, vulnérabilité, le pourquoi avant le quoi.' },
-    { type: 'Ugly Ads', awareness: [1,2,3], win_rate: null, spend_ratio: 'Moyen', cle: 'Low-fi délibéré, script doit être excellent.' },
-    { type: 'US vs DM (comparaison)', awareness: [3], win_rate: null, spend_ratio: 'Moyen', cle: 'Comparaison directe sans nommer le concurrent.' },
-    { type: 'Before/After + Social Proof', awareness: [3,4], win_rate: null, spend_ratio: 'Moyen', cle: 'Spécificité des résultats, honnêteté sur le doute initial.' },
-    { type: 'Offer First (BOFU)', awareness: [5], win_rate: 0.09, spend_ratio: '30% du spend total', cle: 'Urgence dès 3s, clarté absolue en <2s.' },
-    { type: 'Unboxing', awareness: [3,4], win_rate: 0.10, spend_ratio: 'Moyen-élevé', cle: 'Sous-exploité malgré la performance.' },
-    { type: 'Réponses aux Objections', awareness: [4], win_rate: null, spend_ratio: 'Moyen', cle: 'Facecam, vraies objections, honnêteté.' },
-    { type: 'Text-based Lettre', awareness: [1,2,3], win_rate: null, spend_ratio: 'Très élevé quand ça marche', cle: 'Ultra sous-utilisé, format le moins saturé.' },
-    { type: 'Creator Partnership', awareness: [1,2,3], win_rate: null, spend_ratio: 'Élevé quand scale', cle: 'Diffusé depuis le compte créateur, favorisé par l\'algo.' }
+    { type: 'UGC Testimonial authentique', awareness: [3,4], win_rate: 0.076, spend_ratio: 'Élevé', type_media: 'video', cle: 'Imperfection = confiance, structure avant/après.' },
+    { type: 'Founder Story', awareness: [1,2], win_rate: null, spend_ratio: 'Élevé quand scale', type_media: 'video', cle: 'Connexion humaine, vulnérabilité, le pourquoi avant le quoi.' },
+    { type: 'Ugly Ads', awareness: [1,2,3], win_rate: null, spend_ratio: 'Moyen', type_media: 'video', cle: "Low-fi délibéré (= équivalent 'native'), script doit être excellent." },
+    { type: 'US vs DM (comparaison)', awareness: [3], win_rate: null, spend_ratio: 'Moyen', type_media: 'video', cle: 'Comparaison directe sans nommer le concurrent.' },
+    { type: 'Before/After + Social Proof', awareness: [3,4], win_rate: null, spend_ratio: 'Moyen', type_media: 'flexible', cle: 'Spécificité des résultats, honnêteté sur le doute initial.' },
+    { type: 'Offer First (BOFU)', awareness: [5], win_rate: 0.09, spend_ratio: '30% du spend total', type_media: 'flexible', cle: 'Urgence dès 3s, clarté absolue en <2s.' },
+    { type: 'Unboxing', awareness: [3,4], win_rate: 0.10, spend_ratio: 'Moyen-élevé', type_media: 'video', cle: 'Sous-exploité malgré la performance.' },
+    { type: 'Réponses aux Objections', awareness: [4], win_rate: null, spend_ratio: 'Moyen', type_media: 'video', cle: 'Facecam, vraies objections, honnêteté.' },
+    { type: 'Text-based Lettre', awareness: [1,2,3], win_rate: null, spend_ratio: 'Très élevé quand ça marche', type_media: 'image', cle: "Ultra sous-utilisé (= équivalent 'native'), format le moins saturé." },
+    { type: 'Creator Partnership', awareness: [1,2,3], win_rate: null, spend_ratio: 'Élevé quand scale', type_media: 'video', cle: 'Diffusé depuis le compte créateur, favorisé par l\'algo.' }
   ],
   types_annonces_priorite: 'Chercher bon win rate ET gros spend ratio — les vraies anomalies.',
+  note_native: "Pas de catégorie 'Native' séparée — Ugly Ads et Text-based Lettre jouent ce rôle.",
   scaling_personas_prompt: 'Mon produit est [X]. Ma cible large validée est [démographie + comportement]. Génère 5 personas ultra-précis : description, ce qu\'ils ont déjà essayé, sentiment profond, résultat concret recherché, hook exact, niveau de conscience visé.',
   diagnostic_formula: {
     name: 'Volume x Diversité x Qualité x Analyse x Double Down',
     note: 'Si une variable est à 0, le résultat est 0. Mesurer le NOMBRE de winners, pas le win rate.',
     loi_8_pourcent: '8% des créatives sont winners (60% du spend). ~100 créas testées pour 8 winners.'
+  },
+  business_stage_rules: {
+    note: 'Phase business (CA cumulé), distincte de campaign.asl_phase. Réglable par l\'utilisateur.',
+    stages: [
+      { id: 'testing_0_1kd', label: 'Testing — 0 à 1KD de CA cumulé', approche: 'Copier le concurrent bête et méchant — angle, format ET funnel déjà validés. Pas de nouvel angle inventé.', marketing_research: false },
+      { id: 'opti_1kd_traction', label: 'Opti — 1KD+ avec traction', approche: '50% traduction concurrent + 50% début marketing research.', marketing_research: 'partial' },
+      { id: 'scaling_1kd_stable', label: 'Scaling — 1KD+ stable', approche: 'Marketing research complète, créer avec sa propre data.', marketing_research: true }
+    ]
   }
 }
 
