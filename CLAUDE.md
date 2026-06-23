@@ -1,5 +1,5 @@
-# ZENITH.AI — SYSTEM MEMORY v4
-> Lis ce fichier EN ENTIER avant toute action. Dernière mise à jour : 2026-06-23
+# ZENITH.AI — SYSTEM MEMORY v5
+> Lis ce fichier EN ENTIER avant toute action. Dernière mise à jour : 2026-06-23 (session 2)
 
 ---
 
@@ -30,32 +30,53 @@ Pas un dashboard — un copilote qui décide, guide, et génère des créatives.
 - Objectif actuel : outil personnel opérationnel
 - Objectif futur : SaaS
 
-**État actuel (2026-06-23)** : frontend complet, backend jamais testé avec de vraies clés API.
-Aucune image ou vidéo réelle n'a encore été produite. Blocs A+B+CLR+LOT1 implémentés, prêt pour BLOC C.
+**État actuel (2026-06-23 session 2)** : frontend complet, backend jamais testé avec de vraies clés API.
+Aucune image ou vidéo réelle n'a encore été produite. Architecture multi-produit complète (BLOCs 1-4) implémentée. index.html ~10 200 lignes.
 
-**Nouvelles features (session 2026-06-23) :**
-- Market Intelligence Engine : Tier 1 (créatives concurrentes analysées par Claude, ×2) / Tier 2 (boutiques scrapées, ×1) / Tier 3 (pricing legacy)
-- `buildCtxMarket(prod)` : remplace l'ancien inline ctxMarket — hiérarchise Tier1>Tier2>Tier3
-- `checkServerHealth()` : vérification /health avant tout appel API réel
-- Warning Product Brain incomplet (non-bloquant) avant CREATE_BATCH
-- `image_prompt` : champ dédié fal.ai dans le brief (séparé de script_complet)
-- `needs_text_overlay` : booléen explicit — remplace le fragile string-matching sur format
-- `generateImage(brief, opts)` / `generateVideo(brief, opts)` : acceptent `{simulate:true}`
-- `sendToCreativeEngine(brief, opts)` : propage opts vers les deux générateurs
-- `opts.simulate_media` dans executeCreateBatch : deep simulate pipeline média sans API
-- `importMemoryJSON()` : restauration depuis backup JSON (complète exportMemoryJSON)
-- `runCreativeStrategyChain()` : commentée — réservée Phase 5, jamais appelée en prod
-- **Creative Lifecycle Router (CLR) v1.0** : voir section 6b ci-dessous
+**Session 2026-06-23 matin — features précédentes :**
+- Market Intelligence Engine : Tier 1/Tier 2/Tier 3, `buildCtxMarket(prod)`
+- `checkServerHealth()`, warning Product Brain incomplet
+- `image_prompt` + `needs_text_overlay` dans brief
+- `generateImage/Video(brief, opts)` avec `{simulate:true}`, `importMemoryJSON()`
+- **CLR v1.0** : computeRoasTrend, detectCreativeFatigue, routeCreative, overrideBriefWithStage, applyCreativeLifecycleRouter
+- **LOT 1 Zezinho** : fix J4/J2, cost_per_atc, analyzeKPIs, checkCogsReminder, scaling_started_at
+- **LOT 2** : P7b Scaling Loop, 4 scénarios, paliers Zezinho, form budget
+- **LOT 3** : diagnoseOptiFunnel(), OPTI_C1/C2/C3/EXHAUSTED/SUCCESS, 3 cartouches
 
-**LOT 1 Zezinho — intégré (2026-06-23) :**
-- `decideJ4(roas, roas_be, roas_target, roas_minus20)` : zone OPTI = roas_minus20 → roas_target (fix critique)
-- `decideJ2(roas, roas_be, cost_per_atc, aov)` : utilise le coût/ATC en € (plus le count brut)
-- Nuance J2 documentée Zezinho : si ROAS < 1 mais coût/ATC < 50% seuil → signal orange (CUT reste la règle)
-- Nouveaux champs `last_metrics` : `cost_per_atc`, `checkout_init`, `reach` (colonnes Ads Manager Zezinho)
-- `analyzeKPIs(metrics, prod)` : benchmarks CPM/CTR/CPC/Thumbstop/Freq/CVR/ROAS/ATC après chaque saisie
-- `checkCogsReminder(mem)` : rappel COGS toutes les 2 semaines en phase SCALING (méthode Zezinho)
-- `scaling_started_at` : timestamp J4 GO confirmé (campaign data model)
-- Form métriques : 4 nouveaux champs — Coût/ATC (€), Paiement initié, Couverture, preview en temps réel
+**Session 2026-06-23 après-midi — Multi-produit complet (BLOCs 1-4) :**
+
+**BLOC 1 — Migration mem.campaign → per-product**
+- `defaultCampaignState()` : état campaign propre par produit
+- `getActiveCampaign(mem)` : wrapper qui crée le bucket `mem.campaigns[productId]` et sync l'alias `mem.campaign` → tout le code existant continue sans modification
+- `migrateMemoryIfNeeded()` : ajout migration `campaigns{}` + `product_groups[]`
+- `resetCycle()` + `setActiveProduct()` : utilisent `getActiveCampaign` — switcher de produit ne reset PLUS l'autre produit
+- `defaultMemory()` : `campaigns:{}`, `product_groups:[]`
+
+**BLOC 2 — Product Relations Layer v1**
+- `relations[]` sur chaque produit : `{type:'upsell|cross_sell|synergy', product_id, notes}`
+- `product_groups[]` dans mem root : clusters marketing (PAS des entités ASL)
+- Section 7 UI dans l'overlay produit
+- `readRelationsFromForm()`, `renderProductRelationsUI()`, `addRelationRow()`
+- **Règle absolue** : Cluster ≠ Produit. Cluster = couche marketing. ASL reste sur le produit seul.
+
+**BLOC 3 — Batch types cluster/upsell/cross-sell**
+- `buildCtxCluster(mem, primaryProd, batchType, clusterProductId)` : contexte Claude pour batches non-solo
+- `callClaudeForBriefs()` : injection ctxCluster quand batch_type ≠ 'solo'
+- `getInstructions()` : cas UPSELL_BATCH, CROSSSELL_BATCH, CLUSTER_BATCH (SCALING only)
+- `maybeSpawnClusterBatchBubble(mem)` : bulle contextuelle en SCALING si relations définies
+- `executeClusterBatch(batchType, linkedProdId)` : génère brief avec opts cluster
+- `showClusterInstructions(batchType)` : instructions Meta dans mini chat
+- creative_bank : chaque créa taguée `batch_type` (solo/upsell/cross_sell/cluster) + `cluster_product_id`
+- Hookée dans `spawnDecisionBubbles()` après la queue principale
+
+**BLOC 4 — Strategy Layer v1 (lecture + propositions, jamais exécution directe)**
+- `detectClusterPerformance(mem)` : ROAS pondéré par spend, cluster vs solo, 4+ samples minimum → {status: BETTER/SAME/WORSE/INSUFFICIENT_DATA, delta_pct, clusterRoas, soloRoas}
+- `rankProducts(mem)` : tri score de priorité SCALING winner=100 → standby=10
+- `proposeClusterActions(mem)` : 3 propositions → VALIDATE_CLUSTER / TEST_NEXT_PRODUCT / LIBERTY_UPGRADE
+- `validateCluster(groupId)` + `upgradeClusterLiberty(groupId, level)` : actions post-confirmation utilisateur
+- `renderPortfolioView(mem)` : section dynamique dans Réglages — ranking + propositions — visible uniquement 2+ produits ou propositions actives
+- `refreshParamView()` : sync `getActiveCampaign` + Portfolio View
+- **Règle absolue** : proposeClusterActions = 90% lecture, 10% proposition. Jamais exécution sans confirmation.
 
 ---
 
@@ -63,12 +84,15 @@ Aucune image ou vidéo réelle n'a encore été produite. Blocs A+B+CLR+LOT1 imp
 
 ```
 ~/promethee/
-├── index.html      ← app complète (HTML + CSS + JS vanilla, fichier unique ~8200 lignes)
+├── index.html      ← app complète (HTML + CSS + JS vanilla, fichier unique ~10 200 lignes)
 ├── server.js       ← proxy Express local, port 4200 (PORT = process.env.PORT || 4200)
 ├── .env            ← clés API (jamais committé)
 ├── sop.json        ← SOP v5 créative engine (1487 lignes, specs complètes)
 ├── package.json
-└── CLAUDE.md
+├── CLAUDE.md
+├── ZENITH_MULTI_PRODUIT_SYSTEM.md   ← design doc architecture multi-produit
+├── AUDIT_FONCTIONNEL_ZENITH.md      ← audit fonctionnel complet
+└── ZENITH_AUDIT_v2.md               ← audit technique détaillé
 ```
 
 **Règles stack :**
@@ -136,7 +160,7 @@ cd ~/promethee && node server.js & && open http://localhost:4200
     atc_ratio,        // ATCs par commande — indicateur funnel
     saisie_at
   },
-  creative_bank: [],  // chaque créative porte angle/format/hook/awareness/mood + daily[]
+  creative_bank: [],  // chaque créative porte angle/format/hook/awareness/mood + daily[] + stage + batch_type
   angle_scores: {},
   decisions_log: [],  // max 100 entrées
   weekly_patterns: [] // max 12 semaines
@@ -265,9 +289,11 @@ SCALE      → Higgsfield            → VIDEO_UGC      → 20-50€/j par créa
 1. `overrideBriefWithStage()` met `type_media='image'` en TEST/VALIDATION
 2. `sendToCreativeEngine()` contient un guard qui logge et fallback si stage ≠ SCALE
 
-**Champ ajouté dans `creative_bank` :**
+**Champs dans `creative_bank` :**
 ```js
 stage: 'TEST' | 'VALIDATION' | 'SCALE'   // décidé par CLR à la génération, immuable ensuite
+batch_type: 'solo' | 'upsell' | 'cross_sell' | 'cluster'  // utilisé par detectClusterPerformance()
+cluster_product_id: string | null  // produit lié pour les batches non-solo
 ```
 
 **Fonctions nouvelles (section 8b dans index.html) :**
@@ -328,33 +354,65 @@ docs:     documentation
 
 ---
 
-## SECTION 9 — ROADMAP (BLOCS A→G)
+## SECTION 9 — ROADMAP (BLOCS A→G + LOTs + Mission Engine)
 
 ### ✅ BLOC A (0€) — IMPLÉMENTÉ
 Frontend testé. Overlay produit, seuils ROAS, Mission Board, saisie créative.
 
 ### ✅ BLOC B (0€) — IMPLÉMENTÉ
-`opts.simulate` dans generateImage / generateVideo / sendToCreativeEngine.
-`opts.simulate_media=true` dans executeCreateBatch pour deep simulate bout-en-bout.
-→ Tester : `testCreateBatchSimulation()` + inspecter le résultat console.
+Simulate mode complet (generateImage/Video, executeCreateBatch).
+
+### ✅ CLR v1.0 — IMPLÉMENTÉ
+TEST→IMAGE / VALIDATION→UGC_IMAGE / SCALE→VIDEO. Double guard Higgsfield. 5 fonctions core.
+
+### ✅ LOT 1 — IMPLÉMENTÉ
+Fix J4/J2 ASL, cost_per_atc, analyzeKPIs, checkCogsReminder, scaling_started_at, 4 nouveaux champs métriques.
+
+### ✅ LOT 2 — IMPLÉMENTÉ
+P7b Scaling Loop, 4 scénarios (HOLD/PUSH/DOUBLE/BOOST), paliers Zezinho, form budget interactif.
+
+### ✅ LOT 3 — IMPLÉMENTÉ
+diagnoseOptiFunnel(), OPTI_C1/C2/C3/EXHAUSTED/SUCCESS dans Decision Engine, 3 cartouches, transitions ASL.
+
+### ✅ MULTI-PRODUIT BLOCs 1-4 — IMPLÉMENTÉ (session 2026-06-23 après-midi)
+Architecture complète per-product campaign state, relations/clusters, batch types cluster, Strategy Layer.
+Voir Section 2 pour le détail de chaque BLOC.
 
 ### 🔴 PROCHAIN : BLOC C (quelques centimes)
-
 Un seul appel réel callClaudeForBriefs avec batchSize=1.
-Vérifier que le JSON enrichi revient bien formé. Valider `image_prompt` + `needs_text_overlay` dans la réponse.
+Valider que le JSON enrichi revient bien formé (`image_prompt` + `needs_text_overlay`).
+**Prérequis avant tout : tester le multi-produit existant (BLOCs 1-4) — switch produit, batch cluster, portfolio view.**
 
 ### BLOC D (crédits média)
 Transformer un brief validé en vraie image (fal.ai) + vraie vidéo (Higgsfield).
-Premier test bout-en-bout réel. Prérequis : BLOC C OK.
+Prérequis : BLOC C OK.
 
-### BLOC E (0€)
-Fermer la boucle Feedback Loop : réinjecter automatiquement les attributs gagnants
-de buildCreativeSignalReport dans generateAngles / callClaudeForBriefs.
-Aujourd'hui Bloc 8 = fondation, pas encore une vraie boucle fermée.
+### 🔴 LOT 4 — Mission Engine (prochaine grande session)
+**Dashboard opérationnel multi-produit.** Objectif : toutes les décisions du jour sur tous les produits actifs, en une vue unique, priorisées.
 
-### BLOC F (après D en prod plusieurs semaines)
-Optimisation Performance : scoring créatif, priorisation budget angles, calibration seuils.
-Impossible à coder sans données réelles.
+**Ce que ça fait :**
+- Exécute `runDecisionEngine` logique sur tous les produits (pas juste le produit actif)
+- Génère une Mission Queue : liste priorisée d'actions du jour (CUT adset X / CREATE batch Y / CHECK J2 Z)
+- Chaque mission est markable done/skip — tracking manuel d'exécution Meta
+- Quand tu rentres de nouvelles métriques, la queue se rafraîchit — corrélation entre actions
+
+**Ce que ça n'est pas :**
+- Pas de connexion Meta API (tout reste manuel)
+- Pas de timestamp automatique (c'est toi qui choisis quand agir)
+- Pas de modification de l'ASL — couche de lecture au-dessus uniquement
+
+**Architecture :**
+```
+generateDailyMissions(mem) → missions[] filtrés + priorisés sur tous produits actifs
+Mission Queue UI → vue dédiée ou section Mission dans view-mission
+confirmMissionDone(missionId) / skipMission(missionId) → tracking état
+```
+
+### BLOC E (0€) — Feedback Loop
+Réinjecter automatiquement les attributs gagnants de buildCreativeSignalReport dans callClaudeForBriefs.
+
+### BLOC F (après D en prod)
+Scoring créatif, priorisation budget angles. Impossible sans données réelles.
 
 ### BLOC G (dernier)
 Version 1.0 : polish, vérification boutons, documentation usage.
