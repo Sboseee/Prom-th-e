@@ -83,7 +83,7 @@ Aucune image ou vidéo réelle n'a encore été produite. Architecture multi-pro
 ## SECTION 3 — ARCHITECTURE (RUNTIME)
 
 ```
-~/promethee/
+~/zenith.ai/
 ├── index.html      ← app complète (HTML + CSS + JS vanilla, fichier unique ~10 200 lignes)
 ├── server.js       ← proxy Express local, port 4200 (PORT = process.env.PORT || 4200)
 ├── .env            ← clés API (jamais committé)
@@ -103,7 +103,7 @@ Aucune image ou vidéo réelle n'a encore été produite. Architecture multi-pro
 
 **Lancer :**
 ```bash
-cd ~/promethee && node server.js & && open http://localhost:4200
+cd ~/zenith.ai && node server.js & && open http://localhost:4200
 ```
 
 **Structure index.html :**
@@ -254,7 +254,7 @@ CREATE_BATCH → callClaudeForBriefs(batchSize)
 **Chemin alternatif (jamais appelé en prod) :** runCreativeStrategyChain + executeFormatGeneration
 → ~16 appels Claude par batch, trop coûteux, conservé dans le code mais inactif.
 
-**Specs complètes du moteur créatif :** lire `~/promethee/sop.json` (SOP v5, 1487 lignes)
+**Specs complètes du moteur créatif :** lire `~/zenith.ai/sop.json` (SOP v5, 1487 lignes)
 Ce fichier contient : taxonomie hooks, mood×intensité, leviers copywriting, methode_3i, awareness levels 1-6, format specs.
 
 ---
@@ -424,9 +424,9 @@ Version 1.0 : polish, vérification boutons, documentation usage.
 **Lire dans cet ordre si début de session :**
 
 ```
-1. ~/promethee/VISION.md                          → LIRE EN PREMIER — intention produit, philosophie,
+1. ~/zenith.ai/VISION.md                          → LIRE EN PREMIER — intention produit, philosophie,
                                                      ce que Zenith.ai doit être et ressentir
-2. ~/promethee/sop.json                           → SOP v5 complet (créative engine, hooks, copywriting,
+2. ~/zenith.ai/sop.json                           → SOP v5 complet (créative engine, hooks, copywriting,
                                                      mood×intensité, methode_3i, awareness 1-6)
 3. ~/LOT 1/1 Étape 1 testing — Répliquer des ads.rtf   → ASL v9 Testing (bible J1/J2 — source primaire)
 4. ~/LOT 1/1.3 Étape 2 scaling — Les itérations.rtf    → ASL v9 Scaling (bible J4+ — source primaire)
@@ -434,9 +434,9 @@ Version 1.0 : polish, vérification boutons, documentation usage.
 
 **Référence technique approfondie :**
 ```
-~/promethee/ROADMAP_EXECUTION_TECHNIQUE.md    → audit technique détaillé, risques, dépendances
-~/promethee/AUDIT_PROMETHEE_2026-06-21.md     → audit complet du code réel (état à 2026-06-21)
-~/promethee/AUDIT_STRATEGIQUE_OS_MARKETING.md → stratégie marketing, positionnement SaaS
+~/zenith.ai/ROADMAP_EXECUTION_TECHNIQUE.md    → audit technique détaillé, risques, dépendances
+~/zenith.ai/AUDIT_PROMETHEE_2026-06-21.md     → audit complet du code réel (état à 2026-06-21)
+~/zenith.ai/AUDIT_STRATEGIQUE_OS_MARKETING.md → stratégie marketing, positionnement SaaS
 ~/LOT 1/Tester et Scaler sur Facebook Ads.rtf → guide complet Meta Ads 2026
 ```
 
