@@ -6,7 +6,7 @@
 --bg:#060606;--s1:#0e0e0e;--s2:#141414;--s3:#1a1a1a;
 --b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.10);--b3:rgba(255,255,255,0.18);
 --t1:#f2f2f2;--t2:rgba(255,255,255,0.55);--t3:rgba(255,255,255,0.35);
---red:#e03030;--rdim:rgba(224,48,48,0.06);--rborder:rgba(224,48,48,0.18);
+--red:#8b5cf6;--rdim:rgba(139,92,246,0.09);--rborder:rgba(139,92,246,0.30);
 --green:#22c55e;--gdim:rgba(34,197,94,0.06);--gborder:rgba(34,197,94,0.18);
 --amber:#f59e0b;--adim:rgba(245,158,11,0.06);--aborder:rgba(245,158,11,0.18);
 --blue:#3b82f6;--bdim:rgba(59,130,246,0.06);--bborder:rgba(59,130,246,0.18);
@@ -29,7 +29,8 @@
 
 /* TOPBAR (fusionné : logo + brain status + badge action) */
 .topbar{position:relative;z-index:2;display:flex;align-items:center;gap:8px;padding:11px 18px 10px;border-bottom:none}
-.tb-logo{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(180deg,#fff 0%,#e03030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0}
+@keyframes zenithLogo{0%{background-position:0% 50%}40%{background-position:65% 50%}70%{background-position:90% 50%}100%{background-position:0% 50%}}
+.tb-logo{font-size:17px;font-weight:800;letter-spacing:.05em;background:linear-gradient(105deg,#ffffff 0%,#ffffff 18%,#ede9fe 38%,#c4b5fd 60%,#8b5cf6 82%,#6d28d9 100%);background-size:220% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;animation:zenithLogo 6s cubic-bezier(.45,.05,.55,.95) infinite}
 .tb-brain{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
 .tb-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
 /* SUBBAR : pills + timing */
@@ -489,17 +490,17 @@
 
 
 
-<h2 class="sr-only">Prométhée — Dashboard principal</h2>
+<h2 class="sr-only">Zenith.ai — Dashboard principal</h2>
 
 <div class="app">
 <div class="bg-grad"></div>
 
 <!-- TOPBAR FUSIONNÉ : logo + statut brain + badge action -->
 <div class="topbar">
-  <div class="tb-logo">Prométhée</div>
+  <div class="tb-logo">Zenith.ai</div>
   <div class="tb-brain">
     <span class="brain-dot" id="brain-dot"></span>
-    <span class="brain-status" id="brain-status">Prométhée actif</span>
+    <span class="brain-status" id="brain-status">Zenith.ai actif</span>
   </div>
   <div class="tb-actions">
     <button class="brain-btn" onclick="simulateData()" title="Simuler des métriques aléatoires">⋆</button>
@@ -531,7 +532,7 @@
         <!-- Message principal -->
         <div class="orb-msg" id="orb-msg">Configure ton catalogue pour démarrer.</div>
         <!-- Raison -->
-        <div class="orb-reason" id="orb-reason">Aucun produit actif · Va dans Réglages pour initialiser Prométhée</div>
+        <div class="orb-reason" id="orb-reason">Aucun produit actif · Va dans Réglages pour initialiser Zenith.ai</div>
         <!-- Jauge -->
         <div class="orb-conf">
           <div class="conf-track"><div class="conf-fill" id="conf-fill" style="width:0%"></div></div>
@@ -821,9 +822,9 @@
       <div id="pf-images-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
       <!-- Profil de voix généré auto -->
       <div style="margin-top:14px">
-        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:6px">Profil de voix (généré par Prométhée)</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:6px">Profil de voix (généré par Zenith.ai)</div>
         <div id="pf-voice-profile" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6">
-          Pas encore généré — Prométhée le crée dès que la douleur/désir/objections sont renseignés.
+          Pas encore généré — Zenith.ai le crée dès que la douleur/désir/objections sont renseignés.
         </div>
       </div>
     </div>
@@ -937,7 +938,7 @@
       <div class="chat-ctx-val" id="chat-ctx-val">—</div>
     </div>
     <div class="chat-msg brain" id="chat-brain-msg">
-      <div class="chat-tag">Prométhée</div>
+      <div class="chat-tag">Zenith.ai/div>
       <span id="chat-msg-text">...</span>
     </div>
   </div>
@@ -964,7 +965,7 @@
 
   <!-- RÉPARTITION PAR CRÉATIVE — fondation du feedback loop (relier perf à hook/angle/mood/levier).
        Aucune connexion Meta : Ecomnameo copie les chiffres depuis Meta Ads Manager, créative par
-       créative, dans une interface guidée par Prométhée (un champ par colonne Meta standard,
+       créative, dans une interface guidée par Zenith.ai (un champ par colonne Meta standard,
        aucune conversion à faire). Le total ci-dessous est calculé, jamais retapé. -->
   <div id="dce-section" style="margin-bottom:14px">
     <div style="font-size:10px;font-weight:600;color:var(--purple);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">Répartition par créative (recommandé)</div>
@@ -1572,7 +1573,7 @@ async function askWhy(context,detail,extraCtx){
     },20000)
     var data=await resp.json()
     var txt=data.content&&data.content[0]?data.content[0].text:'(pas de réponse)'
-    pushToMiniChat('Prométhée : '+txt)
+    pushToMiniChat('Zenith.ai : '+txt)
   }catch(e){
     pushToMiniChat(detail||context||'Erreur analyse.')
   }
@@ -1690,7 +1691,7 @@ function setBrainStatus(mode){
     next.textContent='WAIT'
     next.className='brain-next bn-wait'
   }else{
-    status.textContent='Prométhée actif'
+    status.textContent='Zenith.ai actif'
     timing.textContent='prochaine analyse dans 47 min'
     var s=instrStates[currentMission]
     var actionText=s?(s.orbType||'wait').replace('bs-','').toUpperCase():'WAIT'
@@ -2531,7 +2532,7 @@ function sendWhyChat(){
   /* Réponse AI */
   var aMsg=document.createElement('div')
   aMsg.className='chat-msg brain'
-  aMsg.innerHTML='<div class="chat-tag">Prométhée</div><span style="color:var(--t3)">Analyse...</span>'
+  aMsg.innerHTML='<div class="chat-tag">Zenith.ai/div><span style="color:var(--t3)">Analyse...</span>'
   msgs.appendChild(aMsg)
   msgs.parentElement.scrollTop=msgs.parentElement.scrollHeight
   var mem=memGet(); var prod=getActiveProduct()
@@ -2542,10 +2543,10 @@ function sendWhyChat(){
     body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:180,messages:[{role:'user',content:prompt}]})
   },20000).then(function(r){return r.json()}).then(function(d){
     var txt=d.content&&d.content[0]?d.content[0].text:'(pas de réponse)'
-    aMsg.innerHTML='<div class="chat-tag">Prométhée</div>'+txt
+    aMsg.innerHTML='<div class="chat-tag">Zenith.ai/div>'+txt
     msgs.parentElement.scrollTop=msgs.parentElement.scrollHeight
   }).catch(function(){
-    aMsg.innerHTML='<div class="chat-tag">Prométhée</div>'+(_whyCtx.why||_whyCtx.sub||'Pas de contexte supplémentaire disponible.')
+    aMsg.innerHTML='<div class="chat-tag">Zenith.ai/div>'+(_whyCtx.why||_whyCtx.sub||'Pas de contexte supplémentaire disponible.')
   })
 }
 
@@ -2596,7 +2597,7 @@ function sendChat(){
   body.appendChild(u)
   var r=document.createElement('div')
   r.className='chat-msg brain chat-extra'
-  r.innerHTML='<div class="chat-tag">Prométhée</div>Analyse en cours selon les règles ASL et l\'historique de ta Creative Bank...'
+  r.innerHTML='<div class="chat-tag">Zenith.ai/div>Analyse en cours selon les règles ASL et l\'historique de ta Creative Bank...'
   body.appendChild(r)
   input.value=''
   body.scrollTop=body.scrollHeight
@@ -3142,7 +3143,7 @@ function runDecisionEngine(){
     return buildMission('NO_PRODUCT',{
       type:'t-action',tag:'Configuration requise',
       text:'Aucun produit actif. Configure ton catalogue dans Réglages.',
-      sub:'Ajoute ton premier produit pour que Prométhée commence à travailler',
+      sub:'Ajoute ton premier produit pour que Zenith.ai commence à travailler',
       conf:'0%',confBg:'var(--amber)',confLbl:'En attente',
       actionable:true,actionLabel:'Aller aux Réglages',
       dc:{trigger:'Catalogue vide',signal:'Aucun produit actif',source:'Catalogue produits',rule:'Onboarding requis'},
