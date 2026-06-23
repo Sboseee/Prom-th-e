@@ -29,8 +29,14 @@
 
 /* TOPBAR (fusionné : logo + brain status + badge action) */
 .topbar{position:relative;z-index:2;display:flex;align-items:center;gap:8px;padding:11px 18px 10px;border-bottom:none}
-@keyframes zenithLogo{0%{background-position:0% center}100%{background-position:100% center}}
-.tb-logo{font-size:17px;font-weight:800;letter-spacing:.05em;background:linear-gradient(90deg,#ffffff 0%,#ede9fe 22%,#6d28d9 46%,#4c1d95 53%,#6d28d9 60%,#ede9fe 76%,#ffffff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;animation:zenithLogo 5s ease-in-out infinite}
+@keyframes zenithLogo{
+  0%  {background-position:0% center}
+  20% {background-position:6% center}
+  55% {background-position:68% center}
+  80% {background-position:93% center}
+  100%{background-position:100% center}
+}
+.tb-logo{font-size:20px;font-weight:800;letter-spacing:.05em;background:linear-gradient(90deg,#ffffff 0%,#ede9fe 20%,#7c3aed 44%,#4c1d95 50%,#7c3aed 56%,#ede9fe 80%,#ffffff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;animation:zenithLogo 5s linear infinite}
 .tb-brain{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
 .tb-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
 /* SUBBAR : pills + timing */
