@@ -1656,6 +1656,13 @@ app.post('/api/save-creative', async (req, res) => {
   }
 })
 
+/* ── HEALTH CHECK ──
+   Permet à executeCreateBatch() de vérifier que le serveur répond AVANT de lancer
+   un appel Claude ou média — évite de découvrir l'échec après le clic utilisateur. */
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', ts: Date.now(), port: PORT || 4200 })
+})
+
 /* ── PROXY SCRAPER SITE ── */
 app.get('/api/scrape', async (req, res) => {
   try {
@@ -1668,7 +1675,7 @@ app.get('/api/scrape', async (req, res) => {
   }
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 4200
 app.listen(PORT, () => {
   console.log(`Promethee server running → http://localhost:${PORT}`)
 })
