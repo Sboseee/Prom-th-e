@@ -643,11 +643,11 @@
     <button class="ind-submit" onclick="saveAccount()" style="margin-top:8px">Enregistrer le compte</button>
 
     <!-- CATALOGUE PRODUITS -->
-    <div class="sec-title" style="margin-top:16px">
-      Catalogue produits
-      <span id="products-count" style="font-size:10px;color:var(--t3);font-weight:400;margin-left:8px"></span>
+    <div style="margin-top:20px;margin-bottom:14px;text-align:center">
+      <div style="font-size:15px;font-weight:700;color:var(--t1);letter-spacing:.01em">Catalogue produits</div>
+      <div id="products-count" style="font-size:11px;color:var(--t3);margin-top:3px"></div>
     </div>
-    <div id="products-list" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px"></div>
+    <div id="products-list" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;justify-content:center"></div>
 
     <!-- Le formulaire produit est dans l'overlay plein-écran #prod-overlay -->
 
@@ -2252,10 +2252,10 @@ function refreshParamView(){
     /* Carte + : grande si 0 produit, petite à droite si produits existent */
     var plusCard
     if(products.length===0){
-      plusCard='<div onclick="openProdOverlay(\'new\')" style="width:100%;min-height:220px;border-radius:20px;background:var(--bg);border:1.5px dashed var(--b2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;text-align:center;box-sizing:border-box;transition:background .2s">'
-        +'<div style="width:64px;height:64px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center"><span style="font-size:36px;font-weight:200;color:var(--t2)">+</span></div>'
-        +'<div style="font-size:14px;font-weight:600;color:var(--t1)">Nouveau produit</div>'
-        +'<div style="font-size:10px;color:var(--t3);line-height:1.6;padding:0 24px">Configure ton offre, tes angles et ton avatar pour que Prométhée prenne des décisions précises.</div>'
+      plusCard='<div onclick="openProdOverlay(\'new\')" style="width:160px;height:280px;border-radius:20px;background:var(--bg);border:1.5px dashed var(--b2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;text-align:center;box-sizing:border-box;transition:background .2s,border-color .2s" onmouseover="this.style.background=\'var(--s1)\'" onmouseout="this.style.background=\'var(--bg)\'">'
+        +'<div style="width:64px;height:64px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center"><span style="font-size:36px;font-weight:200;color:var(--t2);line-height:1">+</span></div>'
+        +'<div style="font-size:13px;font-weight:600;color:var(--t2)">Nouveau produit</div>'
+        +'<div style="font-size:10px;color:var(--t3);line-height:1.5;padding:0 8px">Configurer ton offre,<br>tes angles et ton avatar</div>'
         +'</div>'
     }else{
       plusCard='<div onclick="openProdOverlay(\'new\')" style="'+cardStyle+'background:var(--bg);border:1px dashed var(--b2)">'
