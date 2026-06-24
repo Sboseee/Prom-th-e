@@ -1480,13 +1480,15 @@ function renderOrb(){
   if(fill){fill.style.width=s.conf;fill.style.background=s.confBg}
   var confLbl=document.getElementById('conf-lbl')
   if(confLbl) confLbl.textContent=s.confLbl
-  /* Boutons */
+  /* Boutons — customButtons (par état) prime sur ORB_BUTTONS (par type) */
   var actionsEl=document.getElementById('orb-actions')
   if(actionsEl){
     actionsEl.innerHTML=''
-    var btns=ORB_BUTTONS[s.orbType]||ORB_BUTTONS['bs-wait']
-    /* Si la mission a un actionLabel spécifique, remplacer le bouton primaire */
-    var finalBtns=btns.map(function(b){
+    /* customButtons : défini sur la décision elle-même → navigation pure ou action spécifique.
+       ORB_BUTTONS : fallback global par type (bs-action-system, bs-alert, etc.)
+       L'actionLabel legacy reste supporté pour les états sans customButtons. */
+    var btns=s.customButtons||(ORB_BUTTONS[s.orbType]||ORB_BUTTONS['bs-wait'])
+    var finalBtns=s.customButtons?btns:btns.map(function(b){
       if((b.id==='go'||b.id==='done'||b.id==='act'||b.id==='refresh')&&s.actionLabel){
         return Object.assign({},b,{label:s.actionLabel})
       }
@@ -1498,7 +1500,7 @@ function renderOrb(){
       btn.className='orb-btn'+(b.cls?' '+b.cls:'')+secClass
       btn.textContent=b.label
       ;(function(fn){
-        btn.onclick=function(e){e.stopPropagation();eval(fn)}
+        btn.onclick=function(e){e.stopPropagation();if(fn)eval(fn)}
       })(b.fn)
       actionsEl.appendChild(btn)
     })
@@ -5660,11 +5662,16 @@ function runDecisionEngine(){
   /* Pas de produit actif → demander de configurer */
   if(!prod){
     return buildMission('NO_PRODUCT',{
-      type:'t-action',tag:'Configuration requise',
+      type:'t-info',tag:'Configuration requise',
       text:'Aucun produit actif. Configure ton catalogue dans Réglages.',
       sub:'Ajoute ton premier produit pour que Zenith.ai commence à travailler',
-      conf:'0%',confBg:'var(--amber)',confLbl:'En attente',
-      actionable:true,actionLabel:'Aller aux Réglages',
+      conf:'0%',confBg:'var(--t3)',confLbl:'En attente',
+      actionable:false,
+      /* customButtons : navigation pure — jamais confirmExecuted() ici */
+      customButtons:[
+        {id:'nav',label:'Aller aux Réglages',cls:'primary',fn:"goView('parametres')"},
+        {id:'why',label:'Pourquoi ?',cls:'',fn:'orbWhy()'}
+      ],
       dc:{trigger:'Catalogue vide',signal:'Aucun produit actif',source:'Catalogue produits',rule:'Onboarding requis'},
       why:'Je n\'ai pas encore de produit sur lequel travailler. Va dans Réglages, ajoute ton produit avec prix, COGS, images et angles — je pourrai alors générer tes premières créatives.',
       vars:[{name:'Catalogue',state:'new',label:'Vide'}]
@@ -5711,11 +5718,16 @@ function runDecisionEngine(){
   var firstBatchNeeded=camp.cycle_number===1&&!camp.j1_decided&&!camp.spend_cycle&&!metrics.spend
   if(!metrics.spend&&camp.asl_phase!=='P0'&&!firstBatchNeeded){
     return buildMission('DATA_NEEDED',{
-      type:'t-action',tag:'Action requise',
+      type:'t-info',tag:'Données requises',
       text:'Rentre les métriques du jour pour que je décide.',
       sub:'Sans données réelles, aucune décision ne sera prise — LOI 1 respectée',
-      conf:'0%',confBg:'var(--amber)',confLbl:'En attente de données',
-      actionable:true,actionLabel:'Saisir maintenant',
+      conf:'0%',confBg:'var(--t3)',confLbl:'En attente de données',
+      actionable:false,
+      /* customButtons : ouvre le formulaire métriques — pas de confirmation ASL ici */
+      customButtons:[
+        {id:'nav',label:'Saisir maintenant',cls:'primary',fn:'openMetrics()'},
+        {id:'why',label:'Pourquoi ?',cls:'',fn:'orbWhy()'}
+      ],
       dc:{trigger:'Métriques absentes',signal:'Cycle en cours sans data',
         source:'Saisie manuelle requise',rule:'LOI 1 — aucun jugement sans données'},
       why:'Je ne peux pas décider sans métriques réelles. L\'ASL interdit toute décision sur intuition ou extrapolation. Ouvre la saisie de métriques et rentre les chiffres de Meta + Shopify.',
@@ -9569,6 +9581,16 @@ function decideScalingScenario(roas_history,lastDayRoas,roasBe,roasTargetLow,roa
 
 /* ── BOUTON EXÉCUTÉ ─────────────────────────────────────────── */
 function confirmExecuted(){
+  /* Guard — états navigation-only : ces états n'ont aucune action ASL à confirmer.
+     Le bouton principal de ces états appelle directement goView() ou openMetrics() via customButtons.
+     Si confirmExecuted() est appelé malgré tout (edge case), on redirige proprement sans écrire en mémoire. */
+  var NAV_ONLY_STATES=['NO_PRODUCT','DATA_NEEDED']
+  if(NAV_ONLY_STATES.indexOf(currentMission)!==-1){
+    if(currentMission==='NO_PRODUCT') goView('parametres')
+    if(currentMission==='DATA_NEEDED') openMetrics()
+    return
+  }
+
   var mem=memGet()
   getActiveCampaign(mem)   /* sync mem.campaign → campaigns[active_product_id] */
   var key=currentMission
@@ -9875,22 +9897,10 @@ function spawnDecisionBubbles(decision){
   var roas_be=prod?prod.roas_be||2.3:2.3
   var bank=getProductBank(mem) /* BLOC 3.2 */
 
-  /* ── ÉTAT NEUTRE — aucun produit ── */
-  if(!prod||!mem.products||!mem.products.length){
-    setTimeout(function(){
-      renderBubble({
-        type:'sb-info',label:'Démarrer',
-        text:'Configure ton catalogue pour que je commence.',
-        sub:'Réglages → ajoute ton produit → je prends la main.',
-        why:'Prométhée est prêt. Il me faut un produit actif (prix, COGS, angles) pour lancer mon premier plan.',
-        buttons:[
-          {label:'Aller aux Réglages',fn:"goView('parametres')",primary:true},
-          {label:'Pourquoi ?',fn:'',isWhy:true}
-        ]
-      })
-    },600)
-    return
-  }
+  /* ── ÉTAT NEUTRE — aucun produit ──
+     L'Orb principale (NO_PRODUCT, bs-wait) affiche déjà "Aller aux Réglages" avec customButtons.
+     Pas de bulle secondaire — ce serait un doublon visuel inutile. */
+  if(!prod||!mem.products||!mem.products.length) return
 
   var queue=[]
 
@@ -10016,19 +10026,9 @@ function spawnDecisionBubbles(decision){
       buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
   }
 
-  /* Métriques manquantes */
-  if(!m.spend&&prod&&mem.campaign&&mem.campaign.spend_cycle>0){
-    queue.push({
-      type:'sb-user-action',label:'Action requise',
-      text:'Métriques du jour à saisir',
-      sub:'Sans données, aucune décision J1/J2/J4',
-      why:'LOI 1 : aucun jugement sans données. Rentre Spend Meta + CA Shopify pour que je décide.',
-      buttons:[
-        {label:'Saisir',fn:'openMetrics()',primary:true},
-        {label:'Pourquoi ?',fn:'',isWhy:true}
-      ]
-    })
-  }
+  /* Métriques manquantes — supprimé comme bulle secondaire.
+     L'Orb principale DATA_NEEDED (bs-wait + customButtons openMetrics) couvre déjà ce cas.
+     Afficher les deux créait un doublon visuel qui chargeait inutilement l'écran. */
 
   /* Briefs générés */
   if(decision.briefsGenerated&&decision.briefsGenerated.length){
