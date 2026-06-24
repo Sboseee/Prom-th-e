@@ -5762,13 +5762,16 @@ function runDecisionEngine(){
     if(spendCumul>=50&&!camp.j1_decided){
       var j1=ASL.decideJ1(metrics.orders||0,metrics.cpc||999)
       var j1Mission=j1.verdict==='GO'?{
-        type:'t-success',tag:'Décision J1 · 50€',
+        /* t-mission (bs-action-system) : la décision est positive MAIS l'utilisateur doit
+           confirmer qu'il a bien NE PAS TOUCHÉ à la CBO → confirmExecuted() enregistre
+           j1_decided=true + spend_cycle. Sans ça le système reste bloqué à J1 indéfiniment. */
+        type:'t-mission',tag:'Décision J1 · 50€ · GO',
         text:'Signal positif J1 · '+j1.reason,
         sub:'Continuer vers J2 · maintenir la CBO · ne rien toucher',
         conf:'88%',confBg:'var(--green)',confLbl:'GO · Continuer J2',
-        actionable:true,actionLabel:'Exécuté ✓ — Je continue'
+        actionable:true,actionLabel:'Confirmer GO ✓ — Je continue J2'
       }:{
-        type:'t-alert',tag:'Décision J1 · 50€',
+        type:'t-alert',tag:'Décision J1 · 50€ · CUT',
         text:'CUT J1 · '+j1.reason,
         sub:'Couper la CBO · changer angle ou créas · relancer',
         conf:'95%',confBg:'var(--red)',confLbl:'CUT',
@@ -5792,13 +5795,16 @@ function runDecisionEngine(){
         setTimeout(function(){pushSignal({type:'warning',text:'⚠️ Nuance J2 — ATC très faible',sub:j2.nuance_detail,whyText:'Règle Zezinho : certains opérateurs laissent 50€ de plus quand coût/ATC < 50% du seuil. Décision appliquée : CUT.'})},100)
       }
       var j2Mission=j2.verdict==='GO'?{
-        type:'t-success',tag:'Décision J2 · 100€',
+        /* t-mission (bs-action-system) : même logique que J1_GO — confirmation nécessaire
+           pour que confirmExecuted() enregistre j2_decided=true + spend_cycle.
+           Sans ça le waterfall J4 n'est jamais atteint. */
+        type:'t-mission',tag:'Décision J2 · 100€ · GO',
         text:'GO J2 · '+j2.reason,
         sub:'Continuer vers J4 · maintenir la CBO · pas de modification',
         conf:'85%',confBg:'var(--green)',confLbl:'GO · Continuer J4',
-        actionable:true,actionLabel:'Exécuté ✓ — Je continue'
+        actionable:true,actionLabel:'Confirmer GO ✓ — Je continue J4'
       }:{
-        type:'t-alert',tag:'Décision J2 · 100€',
+        type:'t-alert',tag:'Décision J2 · 100€ · CUT',
         text:'CUT J2 · '+j2.reason,
         sub:j2.nuance?'Couper la CBO · ⚠️ Voir signal nuance ATC avant d\'agir':'Couper la CBO · reset cycle · nouveau batch',
         conf:'93%',confBg:'var(--red)',confLbl:'CUT',
@@ -5927,7 +5933,13 @@ function runDecisionEngine(){
         text:'🎉 OPTI réussi · ROAS '+roas_real.toFixed(2)+'x ≥ Target '+roas_target.toFixed(2)+'x',
         sub:'Les modifications ont payé — retour en phase Scaling · relancer les paliers Zezinho',
         conf:'92%',confBg:'var(--green)',confLbl:'GO Scaling',
-        actionable:true,actionLabel:'Exécuté ✓ — Retour Scaling',
+        actionable:true,
+        /* customButtons : t-success n'a que "Voir" par défaut — sans ça confirmExecuted() n'est
+           jamais appelée et asl_phase ne repasse jamais en SCALING. */
+        customButtons:[
+          {id:'done',label:'Confirmer → Retour Scaling ✓',cls:'primary',fn:'confirmExecuted()'},
+          {id:'why',label:'Pourquoi ?',cls:'',fn:'orbWhy()'}
+        ],
         dc:{trigger:'OPTI réussie · ROAS ≥ Target',signal:'ROAS '+roas_real.toFixed(2)+'x',
           source:'CA Shopify',rule:'Zezinho : OPTI → Scaling si ROAS ≥ Target'},
         why:'ROAS '+roas_real.toFixed(2)+'x dépasse le target '+roas_target.toFixed(2)+'x. Les modifications effectuées ('+cartouche+') ont fonctionné. Retour en Scaling — analyse 3j reprend via P7b.',

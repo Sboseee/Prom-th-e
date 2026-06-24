@@ -1,5 +1,25 @@
-# ZENITH.AI — SYSTEM MEMORY v5
-> Lis ce fichier EN ENTIER avant toute action. Dernière mise à jour : 2026-06-23 (session 2)
+# ZENITH.AI — SYSTEM MEMORY v6
+> Lis ce fichier EN ENTIER avant toute action. Dernière mise à jour : 2026-06-24
+
+---
+
+## 🚀 PROCHAINE SESSION — LIRE EN PREMIER
+
+**Ce qui a été fait en 2026-06-24 :** Bubble System v2 — 8 corrections critiques. Tous les états ASL ont maintenant le bon type/couleur/flux `confirmExecuted()`. Bug majeur résolu : J1_GO, J2_GO (j1_decided/j2_decided jamais enregistrés), OPTI_SUCCESS (asl_phase ne repassait jamais en SCALING).
+
+**Ce qu'on attaque ensuite : LOT 4 — Mission Engine**
+
+Commencer par lire la spec complète dans Section 9 (LOT 4).
+
+Avant de coder, faire d'abord :
+1. `node server.js` + ouvrir `http://localhost:4200` — vérifier que l'app tourne
+2. Tester manuellement : saisir métriques → vérifier que J1_GO affiche bien une bulle violet + "Confirmer GO ✓" → cliquer → vérifier que `j1_decided=true` dans localStorage
+3. Si ça passe → commencer LOT 4
+
+**TODO câblé en attente (task #40) :**
+- `ctxCampaignState` dans `callClaudeForBriefs` (contexte phase ASL envoyé à Claude)
+- `DRAFT_FAILED` sur échec média (fal.ai/Higgsfield → statut créative si API échoue)
+Ces deux peuvent être faits avant ou après LOT 4 selon la priorité du moment.
 
 ---
 
@@ -30,10 +50,9 @@ Pas un dashboard — un copilote qui décide, guide, et génère des créatives.
 - Objectif actuel : outil personnel opérationnel
 - Objectif futur : SaaS
 
-**État actuel (2026-06-23 session 2)** : frontend complet, backend jamais testé avec de vraies clés API.
-Aucune image ou vidéo réelle n'a encore été produite. Architecture multi-produit complète (BLOCs 1-4) implémentée. index.html ~10 200 lignes.
+**État actuel (2026-06-24)** : frontend complet, système de bulles entièrement corrigé. Backend jamais testé avec de vraies clés API. Aucune image ou vidéo réelle produite. Architecture multi-produit complète (BLOCs 1-4) + bubble system v2. index.html ~10 300 lignes.
 
-**Session 2026-06-23 matin — features précédentes :**
+**Session 2026-06-23 matin — features :**
 - Market Intelligence Engine : Tier 1/Tier 2/Tier 3, `buildCtxMarket(prod)`
 - `checkServerHealth()`, warning Product Brain incomplet
 - `image_prompt` + `needs_text_overlay` dans brief
@@ -77,6 +96,53 @@ Aucune image ou vidéo réelle n'a encore été produite. Architecture multi-pro
 - `renderPortfolioView(mem)` : section dynamique dans Réglages — ranking + propositions — visible uniquement 2+ produits ou propositions actives
 - `refreshParamView()` : sync `getActiveCampaign` + Portfolio View
 - **Règle absolue** : proposeClusterActions = 90% lecture, 10% proposition. Jamais exécution sans confirmation.
+
+**Session 2026-06-24 — Bubble System v2 (audit + 8 corrections) :**
+
+**Root cause identifié :** `buildMission()` mappe les types de bulle en classes CSS orb. Certains états utilisaient `t-action` (→ `confirmExecuted()`) alors que ce n'était pas actionnable, ou `t-success` (→ bouton "Voir" → `orbView()`) alors que `confirmExecuted()` devait être appelée.
+
+**Corrections :**
+1. **NO_PRODUCT** : `t-action` → `t-info` + `customButtons` navigation pure (goView parametres) — `confirmExecuted()` n'était jamais pertinente ici
+2. **DATA_NEEDED** : `t-action` → `t-info` + `customButtons` navigation pure (openMetrics) — même raison
+3. **J1_GO** : `t-success` (bouton "Voir" → `orbView()`) → `t-mission` — CRITIQUE : `j1_decided` et `spend_cycle` n'étaient jamais enregistrés. Maintenant : "Go" → `showManualInstructions()` → "Fait ✓" → `confirmExecuted()` ✅
+4. **J2_GO** : `t-success` → `t-mission` — CRITIQUE : même bug, `j2_decided` jamais enregistré. Fix identique ✅
+5. **OPTI_SUCCESS** : `t-success` (bouton "Voir") → garde `t-success` (vert = signal positif) + `customButtons` avec `confirmExecuted()` — CRITIQUE : `asl_phase` ne repassait jamais en `'SCALING'` ✅
+6. **renderOrb()** : ajout support `customButtons` — champ qui override complètement `ORB_BUTTONS[orbType]` sur l'orbe principal
+7. **confirmExecuted()** : ajout guard `NAV_ONLY_STATES = ['NO_PRODUCT','DATA_NEEDED']` — retour early + navigation directe, jamais d'écriture mémoire pour ces états
+8. **spawnDecisionBubbles()** : suppression des bulles secondaires doublons pour NO_PRODUCT et DATA_NEEDED
+
+**Mapping type → comportement (référence définitive) :**
+```
+t-info    → bs-wait          (gris)   → "Saisir données" → orbInfo()       — attente, pas d'action
+t-action  → bs-action-user   (amber)  → "Fait ✓" → confirmExecuted()       — action utilisateur manuelle
+t-mission → bs-action-system (violet) → "Go" → orbGo() → showManualInstructions() → "Fait ✓" → confirmExecuted()
+t-alert   → bs-alert         (rouge)  → "Agir" → orbGo() → showManualInstructions() → "Fait ✓" → confirmExecuted()
+t-success → bs-success       (vert)   → "Voir" → orbView()                  — signal positif, SANS confirmExecuted() sauf customButtons
+```
+
+**Tableau complet — tous les états, type final correct :**
+```
+NO_PRODUCT      t-info    + customButtons nav     ✅
+DATA_NEEDED     t-info    + customButtons nav     ✅
+AUDIT_WEEKLY    t-action                          ✅ → confirme audit hebdo
+DIAGNOSTIC      t-alert                           ✅ → 2 cuts consécutifs
+J1_GO           t-mission                         ✅ FIXÉ → j1_decided + spend_cycle
+J1_CUT          t-alert                           ✅
+J2_GO           t-mission                         ✅ FIXÉ → j2_decided + spend_cycle
+J2_CUT          t-alert                           ✅
+J4_GO           t-mission                         ✅ → asl_phase=SCALING
+J4_OPTI         t-action                          ✅ → asl_phase=OPTI
+J4_CUT          t-alert                           ✅ → cuts_count++
+SCALE_UP        t-mission                         ✅ → palier suivant
+SCALE_DOWN      t-alert                           ✅ → budget réduit
+SCALE_HOLD      t-info                            ✅ → ne pas toucher
+SCALE_OPTI      t-action                          ✅ → budget=50€/j
+OPTI_C1/C2/C3   t-action                          ✅ → cartouche lancée
+OPTI_SUCCESS    t-success + customButtons         ✅ FIXÉ → asl_phase=SCALING
+OPTI_EXHAUSTED  t-alert                           ✅ → décision manuelle
+CREATE_BATCH    t-mission                         ✅ → génère batch
+WAIT            t-info                            ✅ → système en équilibre
+```
 
 ---
 
@@ -378,16 +444,10 @@ diagnoseOptiFunnel(), OPTI_C1/C2/C3/EXHAUSTED/SUCCESS dans Decision Engine, 3 ca
 Architecture complète per-product campaign state, relations/clusters, batch types cluster, Strategy Layer.
 Voir Section 2 pour le détail de chaque BLOC.
 
-### 🔴 PROCHAIN : BLOC C (quelques centimes)
-Un seul appel réel callClaudeForBriefs avec batchSize=1.
-Valider que le JSON enrichi revient bien formé (`image_prompt` + `needs_text_overlay`).
-**Prérequis avant tout : tester le multi-produit existant (BLOCs 1-4) — switch produit, batch cluster, portfolio view.**
+### ✅ BUBBLE SYSTEM v2 — IMPLÉMENTÉ (session 2026-06-24)
+8 corrections. Tous les états ASL ont maintenant le bon type, la bonne couleur, et la bonne chaîne confirmExecuted(). Voir Section 2 pour le tableau complet.
 
-### BLOC D (crédits média)
-Transformer un brief validé en vraie image (fal.ai) + vraie vidéo (Higgsfield).
-Prérequis : BLOC C OK.
-
-### 🔴 LOT 4 — Mission Engine (prochaine grande session)
+### 🔴 LOT 4 — Mission Engine (PROCHAINE SESSION — commencer par ça)
 **Dashboard opérationnel multi-produit.** Objectif : toutes les décisions du jour sur tous les produits actifs, en une vue unique, priorisées.
 
 **Ce que ça fait :**
