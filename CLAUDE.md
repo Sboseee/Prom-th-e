@@ -1,25 +1,33 @@
-# ZENITH.AI — SYSTEM MEMORY v6
-> Lis ce fichier EN ENTIER avant toute action. Dernière mise à jour : 2026-06-24
+# ZENITH.AI — SYSTEM MEMORY v7
+> Lis ce fichier EN ENTIER avant toute action. Dernière mise à jour : 2026-06-25
 
 ---
 
 ## 🚀 PROCHAINE SESSION — LIRE EN PREMIER
 
-**Ce qui a été fait en 2026-06-24 :** Bubble System v2 — 8 corrections critiques. Tous les états ASL ont maintenant le bon type/couleur/flux `confirmExecuted()`. Bug majeur résolu : J1_GO, J2_GO (j1_decided/j2_decided jamais enregistrés), OPTI_SUCCESS (asl_phase ne repassait jamais en SCALING).
+**Ce qui a été fait en 2026-06-25 :** Refonte onboarding + grille produits (4 chantiers, tous vérifiés jsdom + self-test ASL 7/7).
+1. **Nouveau parcours onboarding** : Étape 1 (URL/assets) → Étape 2 (finances) → analyse → grille. Le bouton Étape 1 ne lance plus l'analyse directement (`goToFinanceStep`), c'est l'Étape 2 (`onbFinanceCta`/`launchAnalysisFromFinance`) qui la lance.
+2. **Option A** : le produit est créé MÊME si l'analyse IA échoue (pas de crédit Claude) → `enrichment_status:'pending'`. Plus jamais de formulaire vide. Quand le crédit revient, le chemin succès met `enrichment_status:'done'` + remplit avatar/angles/market_intel.
+3. **Taux de retour facultatif** + bulle de relance dès les premières ventes (`checkReturnRateReminder`). **Bundles/offres** optionnels en Étape 2 (`pfBundles`/`buildBundlesPayload`) → MAJ AOV + stockés + injectés au moteur créatif.
+4. **Grille produits premium** : centrage permanent (`justify-content:safe center`), repositionnement FLIP, gros "+" nu, carte brouillon au clic (`startProductDraft`/`_draftActive`), hover inclinaison 3D + bordure violette (ambré supprimé), bordure blanche en normal.
 
-**Ce qu'on attaque ensuite : LOT 4 — Mission Engine**
+**Ce qu'on attaque ensuite : FICHE DÉTAIL PRODUIT EN DOSSIERS** (la seule pièce restante du parcours)
 
-Commencer par lire la spec complète dans Section 9 (LOT 4).
+Cliquer une carte produit ouvre encore l'ANCIEN gros formulaire (`openProdOverlay('edit',id)`). À remplacer par une nouvelle interface `openProductFolder(prodId)` organisée en 3 dossiers :
+- **Dossier 1 — Ce que toi tu fournis** : lien (`store_url`) + infos non-devinables (COGS, livraison, frais, taux retour, prix, bundles) + **bouton "Supprimer le produit" tout en bas de ce dossier**.
+- **Dossier 2 — Assets** : `product.images`.
+- **Dossier 3 — Ce que Zenith sait** : avatar (pain/desire/objections), USP, garantie, headline, angles, market_intel/market_summary. Si `enrichment_status==='pending'` → bouton **"Relancer l'enrichissement IA"** (rappelle `analyzeProductIntelligence`).
+DA multivers conservée. Câbler le `onclick` de la carte (refreshParamView) vers `openProductFolder` une fois la fonction créée (ref déjà retirée pour ne pas casser).
+
+**Puis : LOT 4 — Mission Engine** (spec Section 9).
 
 Avant de coder, faire d'abord :
 1. `node server.js` + ouvrir `http://localhost:4200` — vérifier que l'app tourne
-2. Tester manuellement : saisir métriques → vérifier que J1_GO affiche bien une bulle violet + "Confirmer GO ✓" → cliquer → vérifier que `j1_decided=true` dans localStorage
-3. Si ça passe → commencer LOT 4
+2. Tester le parcours : "+" → carte brouillon → Étape 1 → Continuer → Étape 2 (COGS/prix) → "Analyser le produit" → (sans crédit) produit créé en `pending`, visible dans la grille avec photo.
 
-**TODO câblé en attente (task #40) :**
+**TODO câblé en attente :**
 - `ctxCampaignState` dans `callClaudeForBriefs` (contexte phase ASL envoyé à Claude)
 - `DRAFT_FAILED` sur échec média (fal.ai/Higgsfield → statut créative si API échoue)
-Ces deux peuvent être faits avant ou après LOT 4 selon la priorité du moment.
 
 ---
 
@@ -50,7 +58,7 @@ Pas un dashboard — un copilote qui décide, guide, et génère des créatives.
 - Objectif actuel : outil personnel opérationnel
 - Objectif futur : SaaS
 
-**État actuel (2026-06-24)** : frontend complet, système de bulles entièrement corrigé. Backend jamais testé avec de vraies clés API. Aucune image ou vidéo réelle produite. Architecture multi-produit complète (BLOCs 1-4) + bubble system v2. index.html ~10 300 lignes.
+**État actuel (2026-06-25)** : frontend complet, système de bulles corrigé, onboarding refait (parcours Étape 1→2→analyse→grille + Option A) et grille produits premium (centrage, FLIP, hover 3D). Backend jamais testé avec de vraies clés API (pas de crédit Claude actuellement → Option A active). Aucune image ou vidéo réelle produite. Architecture multi-produit complète (BLOCs 1-4) + bubble system v2. index.html ~10 500 lignes.
 
 **Session 2026-06-23 matin — features :**
 - Market Intelligence Engine : Tier 1/Tier 2/Tier 3, `buildCtxMarket(prod)`
@@ -144,13 +152,37 @@ CREATE_BATCH    t-mission                         ✅ → génère batch
 WAIT            t-info                            ✅ → système en équilibre
 ```
 
+**Session 2026-06-25 — Onboarding refait + Grille produits premium (4 chantiers, vérifiés jsdom) :**
+
+**A — Nouveau parcours onboarding (Étape 1 → Étape 2 finances → analyse → grille).**
+- Phases existantes réordonnées : Phase 1 (URL/assets) → finances AVANT l'analyse → analyse → grille (plus de phase revue bloquante).
+- `goToFinanceStep()` : bouton Étape 1 « Continuer → » (ne lance plus l'analyse).
+- `onbFinanceCta()` : si `_onbIntel` déjà set (analyse/démo) → activer ; sinon → `launchAnalysisFromFinance()` (valide COGS+prix puis `startProductAnalysis()`).
+- `finishOnboardingSave(enriched)` : `saveProductFromOnboarding()` (retourne false si invalide) → `goView('parametres')` + grille.
+
+**B — Option A (produit créé même sans crédit Claude).**
+- `startProductAnalysis` : succès → `finishOnboardingSave(true)` ; **catch** → `_onbIntel=null` + `finishOnboardingSave(false)` (plus de `openFullManualForm` qui dumpait un formulaire vide).
+- `saveProductFromOnboarding` : gère `_onbIntel` nul (set `pf-name` + `pfImages` depuis `_onbAssets`). **Capture intel/url/bundles AVANT `saveProduct()`** (car `saveProduct`→`closeProdOverlay`→`clearProductForm` reset `_onbIntel`). Post-save merge : `store_url`, `enrichment_status` ('done'/'pending'), `market_intel`, `bundles`, `offer_summary`.
+
+**C — Taux de retour facultatif + Bundles.**
+- `onb-retour` laissé vide par défaut (label « optionnel »), non-bloquant. `checkReturnRateReminder(mem)` : bulle de relance dès `orders>=1` si `taux_retour` vide (anti-spam 7j), appelée dans submitMetrics à côté de `checkCogsReminder`.
+- Section « Offres / Bundles » en Étape 2 : `pfBundles[]`, `addBundleRow/removeBundleRow/updateBundleField/setBundleAov/renderBundleRows`, `buildBundlesPayload()` → {bundles, offer_summary, aov}. AOV de référence (palier marqué) → `pf-aov`. `offer_summary` injecté dans `callClaudeForBriefs` (ctxSite). Reset/charge dans `clearProductForm`/`openProdOverlay('edit')`.
+
+**D — Grille produits premium (`refreshParamView`).**
+- Centrage permanent : `.zp-row` `display:flex; align-items:center; justify-content:safe center` → groupe toujours centré, scroll horizontal sans rogner.
+- **FLIP** (`_flipCapture`/`_flipPlay`) : cartes existantes glissent (data-flip=id) ; nouvelles cartes entrent en scale+fade (`.zp-in`). Guard `offsetParent` (no-op si vue cachée → jsdom safe).
+- Gros « + » nu (`#zp-plus`, sans carte/contour). Clic → `startProductDraft()` : `_draftActive=true` → carte brouillon (`.zp-draft` skeleton) avec FLIP, puis overlay s'ouvre après 380ms. `closeProdOverlay` retire le brouillon si annulé.
+- Hover premium : inclinaison 3D fixe (`perspective rotateX/rotateY`) + bordure violette lumineuse. **Ambré supprimé** (plus de `.zp-card:hover::after` ni `zp-pop`). État normal : bordure blanche.
+
+**Reste à faire (prochaine session)** : fiche détail produit en dossiers (`openProductFolder`) — voir bloc PROCHAINE SESSION en tête de fichier. Le `onclick` carte pointe encore sur `openProdOverlay('edit',id)`.
+
 ---
 
 ## SECTION 3 — ARCHITECTURE (RUNTIME)
 
 ```
 ~/zenith.ai/
-├── index.html      ← app complète (HTML + CSS + JS vanilla, fichier unique ~10 200 lignes)
+├── index.html      ← app complète (HTML + CSS + JS vanilla, fichier unique ~10 500 lignes)
 ├── server.js       ← proxy Express local, port 4200 (PORT = process.env.PORT || 4200)
 ├── .env            ← clés API (jamais committé)
 ├── sop.json        ← SOP v5 créative engine (1487 lignes, specs complètes)
@@ -214,7 +246,9 @@ cd ~/zenith.ai && node server.js & && open http://localhost:4200
     cuts_count,
     is_monday_audit_done,
     scaling_started_at, // timestamp J4 GO confirmé → déclenche rappel COGS à 14j
-    roas_history: []    // [{roas, date}] — 3 derniers jours, sliding array
+    roas_history: [],   // [{roas, date}] — 3 derniers jours, sliding array
+    _cogs_reminder_at,      // anti-spam rappel COGS (14j)
+    _returnrate_reminder_at // anti-spam relance taux de retour (7j) — checkReturnRateReminder
   },
   last_metrics: {
     spend, ca_shopify, orders, ctr, cpc, cpm, thumbstop, freq, impr, cvr,
@@ -247,7 +281,12 @@ cd ~/zenith.ai && node server.js & && open http://localhost:4200
   angles_saturated, angles_opportunities, competitors,
   images: [], voice_profile,
   notes,
-  winner_locked
+  winner_locked,
+  store_url,            // URL page produit/boutique saisie à l'onboarding (utilisée par les UTM)
+  enrichment_status,    // 'done' (analyse IA OK) | 'pending' (Option A : créé sans crédit Claude)
+  bundles: [],          // [{qty, pack_price, per_unit, discount_pct, is_aov}] — offres optionnelles
+  offer_summary,        // résumé lisible des bundles (injecté au moteur créatif)
+  market_intel          // {competitors, market_summary, updated_at} — mergé post-save
 }
 ```
 
@@ -447,7 +486,13 @@ Voir Section 2 pour le détail de chaque BLOC.
 ### ✅ BUBBLE SYSTEM v2 — IMPLÉMENTÉ (session 2026-06-24)
 8 corrections. Tous les états ASL ont maintenant le bon type, la bonne couleur, et la bonne chaîne confirmExecuted(). Voir Section 2 pour le tableau complet.
 
-### 🔴 LOT 4 — Mission Engine (PROCHAINE SESSION — commencer par ça)
+### ✅ ONBOARDING + GRILLE PREMIUM — IMPLÉMENTÉ (session 2026-06-25)
+Parcours Étape 1→2→analyse→grille, Option A (créé sans crédit Claude), taux de retour facultatif + relance, bundles, grille centrée + FLIP + hover 3D + carte brouillon. Détails Section 2 (bloc 2026-06-25).
+
+### 🟡 FICHE DÉTAIL PRODUIT EN DOSSIERS — À FAIRE (commencer par ça)
+`openProductFolder(prodId)` : 3 dossiers (toi : lien+COGS+supprimer · assets · ce que Zenith sait + relancer enrichissement si pending). Câbler le onclick carte dessus. Voir bloc PROCHAINE SESSION en tête.
+
+### 🔴 LOT 4 — Mission Engine (APRÈS la fiche détail)
 **Dashboard opérationnel multi-produit.** Objectif : toutes les décisions du jour sur tous les produits actifs, en une vue unique, priorisées.
 
 **Ce que ça fait :**

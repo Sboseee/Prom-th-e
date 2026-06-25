@@ -147,53 +147,57 @@
 .think-check{width:14px;height:14px;border-radius:50%;border:1px solid var(--t3);flex-shrink:0}
 .think-step.done .think-check{border-color:var(--orb-accent,#e03030);background:var(--orb-accent,#e03030)}
 
-/* Mapping couleurs — bulle principale */
-/* ACTION SYSTEM (CUT/SCALE/CREATE) → rouge */
+/* ════════════════════════════════════════════════════════════════
+   CODE COULEUR STRICT — BULLE PRINCIPALE (ORB)
+   action-system → violet · action-user → bleu · alert → rouge
+   success → vert · wait/info → gris. Hex dédiés aux bulles (ne
+   touchent pas aux variables globales --red/--green/... du brand). */
+/* ACTION SYSTEM (CREATE_BATCH / décision stratégique système) → 🟣 violet */
 .orb.bs-action-system{
-  background:linear-gradient(160deg,rgba(224,48,48,.13) 0%,rgba(224,48,48,.04) 100%);
-  border-color:rgba(224,48,48,.3);--orb-glow:rgba(224,48,48,.18);
-  --orb-accent:#e03030;
+  background:linear-gradient(160deg,rgba(139,92,246,.15) 0%,rgba(139,92,246,.04) 100%);
+  border-color:rgba(139,92,246,.32);--orb-glow:rgba(139,92,246,.18);
+  --orb-accent:#8b5cf6;
 }
-.orb.bs-action-system .orb-type-label{color:var(--red)}
-.orb.bs-action-system .conf-fill{background:var(--red)}
+.orb.bs-action-system .orb-type-label{color:#8b5cf6}
+.orb.bs-action-system .conf-fill{background:#8b5cf6}
 
-/* ACTION USER → orange */
+/* ACTION USER → 🔵 bleu */
 .orb.bs-action-user{
-  background:linear-gradient(160deg,rgba(245,158,11,.13) 0%,rgba(245,158,11,.04) 100%);
-  border-color:rgba(245,158,11,.3);--orb-glow:rgba(245,158,11,.16);
-  --orb-accent:#f59e0b;
+  background:linear-gradient(160deg,rgba(10,132,255,.15) 0%,rgba(10,132,255,.04) 100%);
+  border-color:rgba(10,132,255,.32);--orb-glow:rgba(10,132,255,.18);
+  --orb-accent:#0a84ff;
 }
-.orb.bs-action-user .orb-type-label{color:var(--amber)}
-.orb.bs-action-user .orb-btn.primary{color:#1a0e00}
-.orb.bs-action-user .conf-fill{background:var(--amber)}
+.orb.bs-action-user .orb-type-label{color:#0a84ff}
+.orb.bs-action-user .orb-btn.primary{color:#fff}
+.orb.bs-action-user .conf-fill{background:#0a84ff}
 
-/* ALERT → rouge vif */
+/* ALERT → 🔴 rouge */
 .orb.bs-alert{
-  background:linear-gradient(160deg,rgba(224,48,48,.18) 0%,rgba(224,48,48,.06) 100%);
-  border-color:rgba(224,48,48,.4);--orb-glow:rgba(224,48,48,.22);
-  --orb-accent:#e03030;
+  background:linear-gradient(160deg,rgba(255,59,48,.18) 0%,rgba(255,59,48,.06) 100%);
+  border-color:rgba(255,59,48,.4);--orb-glow:rgba(255,59,48,.22);
+  --orb-accent:#ff3b30;
 }
-.orb.bs-alert .orb-type-label{color:var(--red)}
-.orb.bs-alert .conf-fill{background:var(--red)}
+.orb.bs-alert .orb-type-label{color:#ff3b30}
+.orb.bs-alert .conf-fill{background:#ff3b30}
 
-/* SUCCESS → vert */
+/* SUCCESS → 🟢 vert */
 .orb.bs-success{
-  background:linear-gradient(160deg,rgba(34,197,94,.13) 0%,rgba(34,197,94,.04) 100%);
-  border-color:rgba(34,197,94,.3);--orb-glow:rgba(34,197,94,.16);
-  --orb-accent:#22c55e;
+  background:linear-gradient(160deg,rgba(52,199,89,.14) 0%,rgba(52,199,89,.04) 100%);
+  border-color:rgba(52,199,89,.32);--orb-glow:rgba(52,199,89,.16);
+  --orb-accent:#34c759;
 }
-.orb.bs-success .orb-type-label{color:var(--green)}
+.orb.bs-success .orb-type-label{color:#34c759}
 .orb.bs-success .orb-btn.primary{color:#06140a}
-.orb.bs-success .conf-fill{background:var(--green)}
+.orb.bs-success .conf-fill{background:#34c759}
 
-/* WAIT → gris */
+/* WAIT / INFO → ⚪ gris neutre */
 .orb.bs-wait{
-  background:linear-gradient(160deg,rgba(156,163,175,.1) 0%,rgba(156,163,175,.03) 100%);
-  border-color:rgba(156,163,175,.2);--orb-glow:rgba(156,163,175,.1);
-  --orb-accent:#9ca3af;
+  background:linear-gradient(160deg,rgba(142,142,147,.1) 0%,rgba(142,142,147,.03) 100%);
+  border-color:rgba(142,142,147,.22);--orb-glow:rgba(142,142,147,.1);
+  --orb-accent:#8e8e93;
 }
-.orb.bs-wait .orb-type-label{color:var(--gray)}
-.orb.bs-wait .conf-fill{background:var(--gray)}
+.orb.bs-wait .orb-type-label{color:#8e8e93}
+.orb.bs-wait .conf-fill{background:#8e8e93}
 
 /* ── BULLES SECONDAIRES ────────────────────────── */
 .bubbles-zone{
@@ -266,41 +270,46 @@
 
 .bubble.read{opacity:.45}
 
-/* Couleurs secondaires */
+/* ════════════════════════════════════════════════════════════════
+   CODE COULEUR STRICT — BULLES SECONDAIRES
+   alert → rouge · success → vert · insight → bleu
+   user-action → orange · info → gris. Hex dédiés (pas les vars brand). */
 .bubble.sb-alert{
-  background:linear-gradient(145deg,rgba(224,48,48,.12) 0%,rgba(224,48,48,.03) 100%);
-  border-color:rgba(224,48,48,.25);--bub-glow:rgba(224,48,48,.15);
+  background:linear-gradient(145deg,rgba(255,59,48,.12) 0%,rgba(255,59,48,.03) 100%);
+  border-color:rgba(255,59,48,.25);--bub-glow:rgba(255,59,48,.15);
 }
-.bubble.sb-alert .bubble-label{color:var(--red);border-color:rgba(224,48,48,.3);background:rgba(224,48,48,.1)}
-.bubble.sb-alert .bubble-dot{background:var(--red)}
+.bubble.sb-alert .bubble-label{color:#ff3b30;border-color:rgba(255,59,48,.3);background:rgba(255,59,48,.1)}
+.bubble.sb-alert .bubble-dot{background:#ff3b30}
 
+/* INSIGHT (analyse / opportunité) → 🔵 bleu */
 .bubble.sb-insight{
-  background:linear-gradient(145deg,rgba(168,85,247,.12) 0%,rgba(168,85,247,.03) 100%);
-  border-color:rgba(168,85,247,.25);--bub-glow:rgba(168,85,247,.15);
+  background:linear-gradient(145deg,rgba(10,132,255,.12) 0%,rgba(10,132,255,.03) 100%);
+  border-color:rgba(10,132,255,.25);--bub-glow:rgba(10,132,255,.15);
 }
-.bubble.sb-insight .bubble-label{color:var(--purple);border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.1)}
-.bubble.sb-insight .bubble-dot{background:var(--purple)}
+.bubble.sb-insight .bubble-label{color:#0a84ff;border-color:rgba(10,132,255,.3);background:rgba(10,132,255,.1)}
+.bubble.sb-insight .bubble-dot{background:#0a84ff}
 
 .bubble.sb-success{
-  background:linear-gradient(145deg,rgba(34,197,94,.12) 0%,rgba(34,197,94,.03) 100%);
-  border-color:rgba(34,197,94,.25);--bub-glow:rgba(34,197,94,.14);
+  background:linear-gradient(145deg,rgba(52,199,89,.12) 0%,rgba(52,199,89,.03) 100%);
+  border-color:rgba(52,199,89,.25);--bub-glow:rgba(52,199,89,.14);
 }
-.bubble.sb-success .bubble-label{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.1)}
-.bubble.sb-success .bubble-dot{background:var(--green)}
+.bubble.sb-success .bubble-label{color:#34c759;border-color:rgba(52,199,89,.3);background:rgba(52,199,89,.1)}
+.bubble.sb-success .bubble-dot{background:#34c759}
 
 .bubble.sb-info{
-  background:linear-gradient(145deg,rgba(156,163,175,.1) 0%,rgba(156,163,175,.03) 100%);
-  border-color:rgba(156,163,175,.2);--bub-glow:rgba(156,163,175,.1);
+  background:linear-gradient(145deg,rgba(142,142,147,.1) 0%,rgba(142,142,147,.03) 100%);
+  border-color:rgba(142,142,147,.2);--bub-glow:rgba(142,142,147,.1);
 }
-.bubble.sb-info .bubble-label{color:var(--gray);border-color:rgba(156,163,175,.25);background:rgba(156,163,175,.08)}
-.bubble.sb-info .bubble-dot{background:var(--gray)}
+.bubble.sb-info .bubble-label{color:#8e8e93;border-color:rgba(142,142,147,.25);background:rgba(142,142,147,.08)}
+.bubble.sb-info .bubble-dot{background:#8e8e93}
 
+/* USER ACTION (action humaine requise) → 🟠 orange */
 .bubble.sb-user-action{
-  background:linear-gradient(145deg,rgba(245,158,11,.12) 0%,rgba(245,158,11,.03) 100%);
-  border-color:rgba(245,158,11,.25);--bub-glow:rgba(245,158,11,.14);
+  background:linear-gradient(145deg,rgba(255,159,10,.12) 0%,rgba(255,159,10,.03) 100%);
+  border-color:rgba(255,159,10,.25);--bub-glow:rgba(255,159,10,.14);
 }
-.bubble.sb-user-action .bubble-label{color:var(--amber);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.1)}
-.bubble.sb-user-action .bubble-dot{background:var(--amber)}
+.bubble.sb-user-action .bubble-label{color:#ff9f0a;border-color:rgba(255,159,10,.3);background:rgba(255,159,10,.1)}
+.bubble.sb-user-action .bubble-dot{background:#ff9f0a}
 
 /* ── ANIMATIONS ────────────────────────────────── */
 @keyframes orbEntry{from{opacity:0;transform:scale(.97) translateY(-6px)}to{opacity:1;transform:scale(1) translateY(0)}}
@@ -423,6 +432,33 @@
 /* ── ONBOARDING PHASES ── */
 .ov-phase{flex:1;overflow-y:auto;padding:0 18px 100px;display:none;flex-direction:column}
 .ov-phase.active{display:flex}
+/* ── Grille produits : rangée centrée, cartes premium ── */
+.zp-row{display:flex;align-items:center;justify-content:safe center;gap:16px;overflow-x:auto;overflow-y:visible;padding:30px 8px 34px;-webkit-overflow-scrolling:touch}
+.zp-row::-webkit-scrollbar{height:6px}
+.zp-row::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+.zp-row::-webkit-scrollbar-track{background:transparent}
+/* État normal : bordure blanche sobre, aucune inclinaison */
+.zp-card{position:relative;flex-shrink:0;transform-style:preserve-3d;
+  transition:transform .28s cubic-bezier(.22,.61,.36,1), box-shadow .28s ease, border-color .28s ease;
+  will-change:transform}
+/* Hover premium : légère inclinaison 3D + profondeur + bordure violette lumineuse */
+.zp-card:hover{transform:perspective(950px) rotateX(3.5deg) rotateY(-5deg) translateY(-7px) scale(1.035);
+  border-color:rgba(139,92,246,.92)!important;
+  box-shadow:0 24px 48px -18px rgba(139,92,246,.50), 0 0 0 1px rgba(139,92,246,.42), 0 0 26px -8px rgba(139,92,246,.38)}
+/* Entrée d'une carte créée devant l'utilisateur */
+.zp-in{animation:zpIn .52s cubic-bezier(.22,.61,.36,1) both}
+@keyframes zpIn{0%{opacity:0;transform:scale(.86) translateY(14px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+/* Le gros "+" : symbole blanc nu, sans carte ni contour */
+#zp-plus{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:92px;height:250px;cursor:pointer;
+  color:#fff;font-weight:200;font-size:80px;line-height:1;opacity:.8;user-select:none;
+  transition:transform .26s cubic-bezier(.22,.61,.36,1), opacity .26s ease, text-shadow .26s ease;
+  text-shadow:0 2px 20px rgba(255,255,255,.16)}
+#zp-plus:hover{opacity:1;transform:scale(1.14);text-shadow:0 2px 30px rgba(139,92,246,.65)}
+#zp-plus:active{transform:scale(.95)}
+/* Carte brouillon (produit en cours de création) */
+.zp-draft{border:1px dashed rgba(139,92,246,.55)!important;background:var(--s1)!important}
+.zp-sk{background:linear-gradient(90deg,var(--s3),var(--s2),var(--s3));background-size:200% 100%;animation:zpSk 1.1s linear infinite;border-radius:9px}
+@keyframes zpSk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .onb-phase-dots{display:flex;gap:5px;justify-content:center;padding:10px 0 4px;flex-shrink:0}
 .onb-dot{width:5px;height:5px;border-radius:50%;background:var(--b2);transition:all .2s}
 .onb-dot.on{width:14px;border-radius:3px;background:var(--red)}
@@ -722,7 +758,7 @@
       <div style="font-size:15px;font-weight:700;color:var(--t1);letter-spacing:.01em">Catalogue produits</div>
       <div id="products-count" style="font-size:11px;color:var(--t3);margin-top:3px"></div>
     </div>
-    <div id="products-list" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;justify-content:center"></div>
+    <div id="products-list" class="zp-row" style="margin-bottom:14px"></div>
 
     <!-- Le formulaire produit est dans l'overlay plein-écran #prod-overlay -->
 
@@ -750,7 +786,6 @@
     <button onclick="testCreateBatchSimulation()" style="width:100%;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:10px;padding:11px;color:var(--green);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">🧪 Tester CREATE_BATCH — le vrai chemin (simulation, 0€)</button>
     <button onclick="testClaudeCallReal()" style="width:100%;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:10px;padding:11px;color:var(--green);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">📡 BLOC 3 — Tester appel Claude réel (batchSize=1, ~0.05€)</button>
     <button onclick="testImageGenReal()" style="width:100%;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:10px;padding:11px;color:var(--green);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">🖼 BLOC 4 — Tester génération image réelle fal.ai (~0.05€)</button>
-    <button onclick="testStrategyEngineSimulation()" style="width:100%;background:var(--gdim);border:0.5px solid var(--gborder);border-radius:10px;padding:11px;color:var(--green);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">🧪 Tester le moteur stratégique Bloc 5/6 (simulation, 0€)</button>
     <button onclick="resetCurrentCycle()" style="width:100%;background:transparent;border:0.5px solid var(--rborder);border-radius:10px;padding:11px;color:var(--red);font-size:11px;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:8px">Réinitialiser le cycle actuel</button>
 
   </div>
@@ -824,7 +859,7 @@
       <button class="onb-add-competitor-btn" onclick="addOnbCompetitorUrl()" id="onb-add-comp-btn">+ Ajouter une boutique concurrente (max 5)</button>
 
       <div style="margin-top:16px;flex-shrink:0">
-        <button class="onb-cta" id="onb-analyze-btn" disabled onclick="startProductAnalysis()">✦ Analyser mon produit</button>
+        <button class="onb-cta" id="onb-analyze-btn" disabled onclick="goToFinanceStep()">Continuer →</button>
         <button class="onb-cta-outline" onclick="openFullManualForm()">Remplir manuellement →</button>
         <button style="width:100%;background:transparent;border:none;color:var(--t3);font-size:10px;font-family:'Poppins',sans-serif;cursor:pointer;padding:8px 0;margin-top:2px;text-decoration:underline" onclick="runOnbDemoMode()">Tester le flow sans analyse (démo)</button>
       </div>
@@ -880,24 +915,32 @@
         <div class="onb-fin-field">
           <div class="onb-fin-lbl">Livraison absorbée (€)</div>
           <input class="onb-fin-input" type="number" id="onb-livraison" placeholder="0" oninput="calcOnbFinRoas()">
+          <div style="font-size:8.5px;color:var(--t3);margin-top:3px;line-height:1.4">Port que TU paies par commande (livraison offerte). Si le client paie → 0.</div>
         </div>
         <div class="onb-fin-field">
           <div class="onb-fin-lbl">Frais paiement (%)</div>
           <input class="onb-fin-input" type="number" id="onb-frais" placeholder="2.5" oninput="calcOnbFinRoas()">
         </div>
         <div class="onb-fin-field">
-          <div class="onb-fin-lbl">Taux de retour (%)</div>
-          <input class="onb-fin-input" type="number" id="onb-retour" placeholder="5" oninput="calcOnbFinRoas()">
+          <div class="onb-fin-lbl">Taux de retour (%) · optionnel</div>
+          <input class="onb-fin-input" type="number" id="onb-retour" placeholder="laisse vide si inconnu" oninput="calcOnbFinRoas()">
+          <div style="font-size:8.5px;color:var(--t3);margin-top:3px;line-height:1.4">Inconnu au début, c'est normal. Zenith te le demandera dès tes premières ventes.</div>
         </div>
       </div>
       <div class="onb-fin-note">Ces données alimentent directement le calcul de tes seuils ROAS (J1, J2, J4). Sans COGS, pas de décision fiable.</div>
+
+      <!-- Offres / Bundles (optionnel) -->
+      <div class="onb-section-divider" style="margin-top:14px">Offres / Bundles <span style="font-size:8px;color:var(--t3);text-transform:none;letter-spacing:0;font-weight:400">· optionnel</span></div>
+      <div style="font-size:9.5px;color:var(--t3);line-height:1.5;margin-bottom:8px">Si ta page propose des packs (2 pour X€, 3 pour Y€…), saisis-les tels quels. Zenith calcule la remise, choisit ton AOV de référence et s'en sert pour les créas. Pas d'offre ? Laisse vide.</div>
+      <div id="onb-bundle-list"></div>
+      <button class="onb-add-competitor-btn" type="button" onclick="addBundleRow()" style="margin-bottom:14px">+ Ajouter un palier (pack)</button>
       <div id="onb-fin-roas-bar" style="display:none;background:var(--s2);border:0.5px solid var(--b1);border-radius:10px;padding:12px 13px;display:none;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
         <div style="text-align:center"><div style="font-size:9px;color:var(--t3);margin-bottom:3px">Perte −20%</div><div id="onb-r-m20" style="font-size:14px;font-weight:600;color:var(--red)">—</div></div>
         <div style="text-align:center"><div style="font-size:9px;color:var(--t3);margin-bottom:3px">Breakeven</div><div id="onb-r-be" style="font-size:14px;font-weight:600;color:var(--amber,#f59e0b)">—</div></div>
         <div style="text-align:center"><div style="font-size:9px;color:var(--t3);margin-bottom:3px">Target 15%</div><div id="onb-r-tl" style="font-size:14px;font-weight:600;color:var(--t2)">—</div></div>
         <div style="text-align:center"><div style="font-size:9px;color:var(--t3);margin-bottom:3px">Target 20% ✦</div><div id="onb-r-t" style="font-size:14px;font-weight:600;color:var(--green)">—</div></div>
       </div>
-      <button class="onb-cta" id="onb-save-btn" style="flex-shrink:0;margin-top:auto" onclick="saveProductFromOnboarding()">Activer ce produit →</button>
+      <button class="onb-cta" id="onb-save-btn" style="flex-shrink:0;margin-top:auto" onclick="onbFinanceCta()">✦ Analyser le produit →</button>
     </div>
   </div>
 
@@ -997,6 +1040,23 @@
       <div class="ind-field" style="margin-bottom:8px">
         <div class="ind-field-lbl">Garantie / structure d'offre</div>
         <input class="ind-field-inp" type="text" placeholder="Ex: Garantie 30 jours satisfait ou remboursé" id="pf-guarantee">
+      </div>
+      <div class="ind-field" style="margin-bottom:8px">
+        <div class="ind-field-lbl">Nature créative dominante (oriente le format — le stage garde la décision business)</div>
+        <select class="ind-field-inp" id="pf-creative-profile">
+          <option value="hybrid">Hybride (image + vidéo selon le stage)</option>
+          <option value="static">Static-dominant (image même en scale)</option>
+          <option value="video">Vidéo-dominant (vidéo possible dès le test)</option>
+        </select>
+        <div id="pf-creative-profile-hint" style="margin-top:5px;font-size:10px;color:var(--t3)"></div>
+      </div>
+      <div class="ind-field" style="margin-bottom:8px">
+        <div class="ind-field-lbl">Stratégie de funnel (propriété du produit — tracée sur chaque créa)</div>
+        <select class="ind-field-inp" id="pf-funnel-strategy">
+          <option value="direct">Direct (fiche produit)</option>
+          <option value="lp">Landing page dédiée</option>
+          <option value="listicle">Listicle / advertorial</option>
+        </select>
       </div>
       <div class="ind-field">
         <div class="ind-field-lbl">Headline above the fold (message match)</div>
@@ -1325,16 +1385,6 @@
   <button class="metric-submit" onclick="saveSOP()" style="margin-top:12px">Sauvegarder le SOP</button>
 </div>
 
-<!-- STRATEGY TEST SHEET (BLOC 5) -->
-<div class="metric-sheet" id="strategy-test-sheet">
-  <div class="metric-sheet-title">
-    <div>
-      <div style="font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">Bloc 5 · zéro coût</div>
-      <div style="font-size:13px;font-weight:600">Test du moteur stratégique (simulation)</div>
-    </div>
-    <span class="metric-close" onclick="closeStrategyTestSheet()">×</span>
-  </div>
-  <div id="strategy-test-results" style="font-size:11px;color:var(--t2);line-height:1.6;max-height:60vh;overflow-y:auto"></div>
 </div>
 
 </div>
@@ -1403,18 +1453,18 @@ var currentMission='loading'
    BUBBLE RENDER ENGINE — brain output → UI
    ═══════════════════════════════════════════════
 
-   Mapping :
-   action CUT/SCALE/CREATE + ownership SYSTEM → bs-action-system (rouge)
-   ownership USER                              → bs-action-user   (orange)
-   severity HIGH                               → bs-alert         (rouge vif)
-   action WAIT                                 → bs-wait          (gris)
-   action SUCCESS                              → bs-success       (vert)
+   Mapping couleur (strict) :
+   décision stratégique / CREATE_BATCH (ownership SYSTEM) → bs-action-system (violet)
+   ownership USER                                         → bs-action-user   (bleu)
+   severity HIGH                                          → bs-alert         (rouge)
+   action WAIT / info                                     → bs-wait          (gris)
+   action SUCCESS                                         → bs-success       (vert)
 */
 
-/* ── Noms d'affichage et couleurs par classe ── */
+/* ── Noms d'affichage et couleurs par classe (accentKey = doc, la couleur réelle vient du CSS) ── */
 var ORB_TYPES={
-  'bs-action-system': {label:'Mission · Action système', accentKey:'red'},
-  'bs-action-user':   {label:'Action requise',           accentKey:'amber'},
+  'bs-action-system': {label:'Mission · Action système', accentKey:'violet'},
+  'bs-action-user':   {label:'Action requise',           accentKey:'blue'},
   'bs-alert':         {label:'Alerte critique',          accentKey:'red'},
   'bs-success':       {label:'Mission terminée',         accentKey:'green'},
   'bs-wait':          {label:'En attente',               accentKey:'gray'}
@@ -1444,6 +1494,43 @@ var ORB_BUTTONS={
     {id:'why',   label:'Pourquoi ?',   cls:'',        fn:'orbWhy()'},
     {id:'refresh',label:'Saisir données',cls:'primary',fn:"openMetrics()"}
   ]
+}
+
+/* GARDE-FOU #2 — REGISTRY D'ACTIONS UI (remplace eval).
+   Les boutons (ORB + bulles) portent une chaîne fn comme "orbGo()" ou "goView('memoire')".
+   Au lieu d'exécuter la chaîne en brut (footgun : une chaîne malformée exécute n'importe quoi),
+   on parse name(args) et on n'appelle QUE des fonctions de cette liste blanche. Arguments :
+   littéraux chaîne uniquement (c'est tout ce qu'utilisent les boutons). Toute action inconnue
+   ou tout argument non littéral → log + no-op (jamais d'exécution arbitraire). */
+var UI_ACTIONS={
+  orbWhy:function(){return orbWhy.apply(null,arguments)},
+  orbGo:function(){return orbGo.apply(null,arguments)},
+  orbView:function(){return orbView.apply(null,arguments)},
+  orbViewPlan:function(){return orbViewPlan.apply(null,arguments)},
+  orbDiagnostic:function(){return orbDiagnostic.apply(null,arguments)},
+  goView:function(){return goView.apply(null,arguments)},
+  openMetrics:function(){return openMetrics.apply(null,arguments)},
+  confirmExecuted:function(){return confirmExecuted.apply(null,arguments)},
+  showClusterInstructions:function(){return showClusterInstructions.apply(null,arguments)},
+  executeClusterBatch:function(){return executeClusterBatch.apply(null,arguments)},
+  applyCreativeActionByIndex:function(){return applyCreativeActionByIndex.apply(null,arguments)}
+}
+function runUiAction(fnStr){
+  if(!fnStr) return
+  var m=String(fnStr).match(/^\s*([a-zA-Z_$][\w$]*)\s*\((.*)\)\s*$/)
+  if(!m){console.warn('[runUiAction] format non reconnu, ignoré :',fnStr);return}
+  var name=m[1], raw=m[2].trim()
+  var fn=UI_ACTIONS[name]
+  if(typeof fn!=='function'){console.warn('[runUiAction] action non autorisée, ignorée :',name);return}
+  var args=[]
+  if(raw!==''){
+    args=raw.split(',').map(function(a){
+      var lit=a.trim().match(/^(['"])([\s\S]*)\1$/)
+      return lit?lit[2]:null
+    })
+    if(args.indexOf(null)!==-1){console.warn('[runUiAction] argument non littéral, ignoré :',fnStr);return}
+  }
+  try{ fn.apply(null,args) }catch(e){ console.error('[runUiAction] erreur exécution',name,e) }
 }
 
 /* ── Rendu de la bulle principale ── */
@@ -1500,7 +1587,7 @@ function renderOrb(){
       btn.className='orb-btn'+(b.cls?' '+b.cls:'')+secClass
       btn.textContent=b.label
       ;(function(fn){
-        btn.onclick=function(e){e.stopPropagation();if(fn)eval(fn)}
+        btn.onclick=function(e){e.stopPropagation();if(fn)runUiAction(fn)}
       })(b.fn)
       actionsEl.appendChild(btn)
     })
@@ -1578,8 +1665,19 @@ function generateMetaExecutionPlan(mem,prod,entries,clrResult){
   var roas_be=prod?(prod.roas_be||'?'):'?'
   var roas_target=prod?(prod.roas_target||'?'):'?'
 
+  /* #1 — URL complète prête à coller si la boutique est connue (store_url produit puis compte).
+     Sinon on garde le placeholder explicite. Le séparateur ? ou & selon que l'URL a déjà des params. */
+  var _baseUrl=(prod&&prod.store_url)||(mem.account&&mem.account.store_url)||''
   var creas=(entries||[]).map(function(e,i){
-    return '  → Pub'+(i+1)+' T'+batchNum+' : "'+e.hook+'" ('+e.type_media+')'
+    var utm=e.attribution_key||e.id
+    var utmQuery='utm_source=meta&utm_medium=cpc&utm_content='+utm
+    var urlLine=_baseUrl
+      ?(_baseUrl+(_baseUrl.indexOf('?')>=0?'&':'?')+utmQuery)
+      :('<fiche produit>?'+utmQuery)
+    /* BLOC 3 — chaque pub porte son utm_content = creative.id → CA Shopify attribuable par créa. */
+    return '  → '+(e.meta_ad_name||('Pub'+(i+1)))+' ('+e.type_media+')'
+      +'\n       Nom de pub Meta (à recopier EXACTEMENT) : '+(e.meta_ad_name||('Pub'+(i+1)+' T'+batchNum))
+      +'\n       URL (copier-coller) : '+urlLine
   })
 
   var lines=[
@@ -1601,7 +1699,9 @@ function generateMetaExecutionPlan(mem,prod,entries,clrResult){
   ].concat(creas).concat([
     '  → Upload une par une, même ad copy + headline pour toutes',
     '  → Ad copy : méthode AIDA — traduis top concurrent Afterlib',
-    '  → CTA : Acheter · URL : fiche produit directe',
+    '  → CTA : Acheter · URL : voir l\'URL utm_content par pub ci-dessus',
+    '  ⚠️ OBLIGATOIRE : chaque pub doit garder SON utm_content (=creative.id) dans l\'URL,',
+    '     et son nom de pub Meta exact. C\'est ce qui rend le CA Shopify attribuable par créative.',
     '',
     '▸ CHECKPOINTS ASL (NE PAS TOUCHER entre les seuils)',
     '  J1 → 50€ : vente ? CPC < 1€ ? → si oui GO · si non CUT',
@@ -1876,6 +1976,15 @@ function getInstructions(k){
       +'→ Confirme quand fait.'
   }
 
+  /* ── DIAGNOSTIC (2 cuts consécutifs) ─────────────────────────────────── */
+  if(k==='DIAGNOSTIC')
+    return '🔍 DIAGNOSTIC — 2 cuts consécutifs. Avant de relancer, vérifie :\n'
+      +'1. CVR boutique ≥ 1% ? (sinon problème site, pas créa)\n'
+      +'2. Message match créa ↔ landing page ?\n'
+      +'3. Scoring produit P1 refait ?\n'
+      +'4. ROAS BE réaliste (marge réelle) ?\n'
+      +'→ Confirme : le compteur de cuts repasse à 0 et un nouveau cycle de testing démarre.'
+
   return "Suis les règles ASL. Confirme quand c'est fait."
 }
 
@@ -1886,8 +1995,7 @@ function getInstructions(k){
    (fal.ai/Higgsfield)". Avant ce bloc, les règles ASL P4 (jamais répéter un hook déjà testé,
    max de mots, diversité du batch) n'étaient que des INSTRUCTIONS dans le prompt — rien ne
    garantissait que Claude les respecte vraiment. Ici on les fait respecter en CODE, pas en
-   confiance — exactement le même principe que le garde-fou hookSimilarity déjà utilisé dans
-   le Bloc 5 (generateHooksForAngle), mais enfin appliqué au chemin réellement utilisé en
+   confiance — via le garde-fou hookSimilarity, appliqué au chemin réellement utilisé en
    production (executeCreateBatch → callClaudeForBriefs). */
 function validateBriefsQuality(briefs,ctx){
   var sop=ctx.sop||{}
@@ -1957,6 +2065,43 @@ async function checkServerHealth(){
   }catch(e){ return false }
 }
 
+/* BLOC 2.5 — CREATIVE TRACE SYSTEM. Construit la trace complète et FIGÉE d'une créative
+   réellement générée : intention (routing) + exécution réelle (post-soft-cap). Append-only.
+   Ce n'est PAS du learning — juste une mémoire structurée et fiable, base du BLOC 3.
+   funnel_type : source primaire = produit (funnel_strategy) ; fallback = brief Claude ; défaut 'direct'. */
+function buildCreativeTrace(entry,genResult,prod){
+  var r=(entry&&entry._brief&&entry._brief._routing)||{}
+  var routedMedia=r.media||(entry&&entry._brief&&entry._brief.type_media)||null
+  var executedMedia=genResult?genResult.type:null
+  var executedFormat
+  if(!genResult) executedFormat=null
+  else if(executedMedia===routedMedia) executedFormat=r.format||null
+  else executedFormat=(executedMedia==='video'?'VIDEO_UGC':'IMAGE_FALLBACK') /* soft-cap : vidéo retombée en image */
+  return {
+    creative_id:entry.id,
+    product_id:entry.product_id,
+    batch_id:entry.batch_id||null,
+    attribution_key:entry.attribution_key||entry.id, /* BLOC 3 — = utm_content */
+    meta_ad_name:entry.meta_ad_name||null,
+    /* DURCISSEMENT — lignée figée dans la trace (BLOC 4 groupera les variantes par lineage_id). */
+    lineage_id:entry.lineage_id||entry.id,
+    parent_id:entry.parent_id||null,
+    version_index:entry.version_index||1,
+    stage:r.stage||entry.stage||null,
+    product_profile:r.creative_profile||(prod&&prod.creative_profile)||null,
+    routed_format:r.format||null,        /* intention CLR : IMAGE_STATIC | UGC_IMAGE | VIDEO_UGC */
+    routed_media:routedMedia,            /* intention : image | video */
+    executed_format:executedFormat,      /* réel (post-soft-cap) — IMAGE_FALLBACK si vidéo→image */
+    executed_media:executedMedia,        /* réel : image | video | null si échec */
+    hook:entry.hook||null,
+    angle:entry.angle||null,
+    funnel_type:(prod&&prod.funnel_strategy)||(entry&&entry._brief&&entry._brief.funnel_type)||'direct',
+    prompt_version:PROMPT_VERSION,
+    created_at:Date.now(),
+    status:genResult?'GENERATED':'FAILED'
+  }
+}
+
 async function executeCreateBatch(s,opts){
   opts=opts||{}
   if(_batchRunning){pushToMiniChat('Un batch est déjà en cours de génération — patiente.');return}
@@ -2014,7 +2159,9 @@ async function executeCreateBatch(s,opts){
   }
 
   try{
-    var result=await callClaudeForBriefs(mem,batchSize,{simulate:opts.simulate})
+    /* F3/F4 — on fait suivre parent (déclinaison ADN winner) + batch_type/cluster (contexte cluster)
+       à callClaudeForBriefs, pour que le prompt en tienne compte AVANT génération. */
+    var result=await callClaudeForBriefs(mem,batchSize,{simulate:opts.simulate,parent:opts.parent,batch_type:opts.batch_type,cluster_product_id:opts.cluster_product_id})
     if(!result||!result.briefs||!result.briefs.length) throw new Error('Aucun brief retourné par Claude')
 
     /* BLOC 7 — QUALITY CONTROL : garde-fou programmatique entre "Claude a répondu" et "on
@@ -2040,18 +2187,31 @@ async function executeCreateBatch(s,opts){
     pushToMiniChat('🎯 CLR — Stage batch : '+clrResult.batch_stage
       +' · ROAS='+(clrResult.roas_at_routing!==null?(clrResult.roas_at_routing||0).toFixed(2)+'x':'N/A')
       +' · Trend='+clrResult.roas_trend)
+    var _r0=clrResult.briefs[0]&&clrResult.briefs[0]._routing
+    /* Label = média RÉELLEMENT routé (stage + nature produit), pas une assomption stage=format. */
+    var _routedLabel=_r0?(_r0.media==='video'?'Higgsfield (vidéo · '+_r0.format+')':'fal.ai (image · '+_r0.format+')'):'fal.ai (image)'
     pushSignal({type:'info',text:'Creative Lifecycle Router',
-      sub:'Batch '+clrResult.batch_stage+' — '+(clrResult.briefs.length)+' créa(s) routée(s) vers '+
-        (clrResult.batch_stage==='SCALE'?'Higgsfield (vidéo)':'fal.ai (image)'),
-      whyText:clrResult.briefs[0]&&clrResult.briefs[0]._routing?clrResult.briefs[0]._routing.rationale:''})
+      sub:'Batch '+clrResult.batch_stage+' · '+( _r0?_r0.creative_profile+'-dominant':'?')+' — '+(clrResult.briefs.length)+' créa(s) → '+_routedLabel,
+      whyText:_r0?_r0.rationale:''})
 
     /* Archivage DRAFT — id stable généré ici, utilisé ensuite pour corréler la génération média
        (corrige aussi le matching fragile angle+format+hook de l'ancien displayCreative) */
-    var entries=result.briefs.map(function(b){
+    var entries=result.briefs.map(function(b,i){
+      var cid='creative_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)
       return {
-        id:'creative_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+        id:cid,
         product_id:productId,
         batch_id:batchId,
+        /* BLOC 3 — pont d'identité : utm_content = creative.id (attribution Shopify par UTM)
+           + nom de pub Meta déterministe (ancre de saisie DCE → évite la mauvaise attribution). */
+        attribution_key:cid,
+        meta_ad_name:'Pub'+(i+1)+' · '+(b.angle||'')+' · "'+((b.hook||'').slice(0,28))+'"',
+        /* DURCISSEMENT — lignée d'identité. Par défaut chaque créa est racine de sa propre lignée.
+           Un futur flux d'itération (déclinaison winner / refresh) passera opts.parent pour relier :
+           parent_id = créa source, lineage_id = racine commune, version_index = profondeur. */
+        lineage_id:(opts&&opts.parent&&(opts.parent.lineage_id||opts.parent.id))||cid,
+        parent_id:(opts&&opts.parent&&opts.parent.id)||null,
+        version_index:(opts&&opts.parent&&((opts.parent.version_index||1)+1))||1,
         name:b.format+' · '+b.angle+' · "'+b.hook+'"',
         angle:b.angle,format:b.format,hook:b.hook,awareness:b.awareness_level,
         /* Attributs créatifs — calculés par Claude à la génération mais jusqu'ici jetés avant
@@ -2106,6 +2266,7 @@ async function executeCreateBatch(s,opts){
 
     /* Génération média réelle (Claude → fal.ai/Higgsfield) puis sauvegarde en fichier local (server.js) */
     var produced=0
+    var batchTraces=[] /* BLOC 2.5 — traces collectées, écrites en une seule fois après la boucle */
     for(var i=0;i<entries.length;i++){
       var entry=entries[i]
       var genResult=await sendToCreativeEngine(entry._brief)
@@ -2125,6 +2286,14 @@ async function executeCreateBatch(s,opts){
           sub:'DRAFT_FAILED · relance le batch pour réessayer',
           whyText:'sendToCreativeEngine a retourné null (erreur fal.ai ou Higgsfield). La créative reste dans la bank sans média.'})
       }
+      /* BLOC 2.5 — trace complète et figée (intention + exécution réelle), succès comme échec. */
+      batchTraces.push(buildCreativeTrace(entry,genResult,clrProd))
+    }
+    /* Append-only : une écriture unique de toutes les traces du batch. */
+    if(batchTraces.length){
+      var traceMem=memGet()
+      traceMem.creative_traces=(traceMem.creative_traces||[]).concat(batchTraces)
+      memSet(traceMem)
     }
 
     /* META EXECUTION ENGINE — génère le plan de lancement après le batch réel */
@@ -2298,7 +2467,7 @@ function renderBubble(b){
     btn.onclick=function(e){
       e.stopPropagation();markRead(div)
       if(bd.isWhy) openWhySheet(b.label,b.text,b.sub,b.why||b.text+' — '+b.sub)
-      else if(bd.fn) eval(bd.fn)
+      else if(bd.fn) runUiAction(bd.fn)
     }
     acts.appendChild(btn)
   })
@@ -2306,6 +2475,29 @@ function renderBubble(b){
 
   div.onclick=function(){markRead(div)}
   zone.appendChild(div)
+}
+
+/* FIX BLOC 1 — pushSignal : appelé 10× (executeCreateBatch, J2 nuance, server down, meta plan…)
+   mais JAMAIS défini → ReferenceError qui faisait planter TOUTE génération réelle (catch → échec).
+   Bug pré-existant (la "Signal Feed" de la doc n'a jamais été implémentée). On l'adapte sur
+   renderBubble (qui existe et marche) → le signal devient une bulle secondaire. Repli pushToMiniChat
+   si le rendu échoue. Mapping type → classe couleur stricte. */
+function pushSignal(sig){
+  if(!sig) return
+  var TYPE_MAP={alert:'sb-alert',warning:'sb-user-action',info:'sb-info',success:'sb-success',insight:'sb-insight'}
+  var LABEL_MAP={alert:'Alerte',warning:'Attention',info:'Info',success:'Succès',insight:'Insight'}
+  try{
+    renderBubble({
+      type:TYPE_MAP[sig.type]||'sb-info',
+      label:LABEL_MAP[sig.type]||'Signal',
+      text:sig.text||'',
+      sub:sig.sub||'',
+      why:sig.whyText||sig.sub||sig.text||'',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]
+    })
+  }catch(e){
+    if(typeof pushToMiniChat==='function') pushToMiniChat((sig.text||'Signal')+(sig.sub?' — '+sig.sub:''))
+  }
 }
 
 /* Alias pour compatibilité */
@@ -2535,7 +2727,7 @@ async function analyzeCompetitorCreatives(competitorAds){
     if(data.error) throw new Error(data.error.message||data.error.type)
     if(!data.content) throw new Error('Réponse vide')
     var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
-    var parsed=JSON.parse(text.replace(/```json|```/g,'').trim())
+    var parsed=JSON.parse(extractJsonObject(text))
     return parsed.creatives||[]
   }catch(e){
     console.warn('[analyzeCompetitorCreatives] échec :',e)
@@ -2743,6 +2935,42 @@ function showOnbPhase(n){
   if(t) t.textContent=titles[n]||'Nouveau produit'
 }
 
+/* ── NOUVEAU PARCOURS : Étape 1 (URL/assets) → Étape 2 (finances) → analyse → grille produits.
+   Option A : le produit est créé MÊME si l'analyse IA échoue (ex: pas de crédit Claude),
+   avec enrichment_status='pending' ; l'enrichissement se relance depuis la fiche produit. ── */
+function goToFinanceStep(){
+  /* Étape 2 = ce que Zenith ne peut pas deviner. Prix saisi (pas encore scrapé à ce stade). */
+  var pd=document.getElementById('onb-price-display'); if(pd) pd.style.display='none'
+  var pe=document.getElementById('onb-price-edit-row'); if(pe) pe.style.display='block'
+  var fr=document.getElementById('onb-frais'); if(fr&&!fr.value) fr.value='2.5'
+  /* Taux de retour : laissé VIDE (facultatif) — tu pars de 0 vente, Zenith le redemandera dès tes premières ventes. */
+  var btn=document.getElementById('onb-save-btn'); if(btn) btn.textContent='✦ Analyser le produit →'
+  showOnbPhase(4)
+}
+function onbFinanceCta(){
+  /* Si l'analyse (réelle ou démo) a déjà tourné → activer le produit ; sinon → lancer l'analyse. */
+  if(_onbIntel) finishOnboardingSave(true)
+  else launchAnalysisFromFinance()
+}
+function launchAnalysisFromFinance(){
+  var cogs=parseFloat((document.getElementById('onb-cogs')||{}).value)||0
+  var price=parseFloat((document.getElementById('onb-price-inp')||{}).value)||0
+  if(!cogs){pushToMiniChat('Le COGS est obligatoire — Zenith ne peut pas le deviner.');return}
+  if(!price){pushToMiniChat('Le prix de vente est obligatoire.');return}
+  if(price<=cogs){pushToMiniChat('Le prix doit être supérieur au COGS.');return}
+  startProductAnalysis()
+}
+function finishOnboardingSave(enriched){
+  var ok=saveProductFromOnboarding()
+  if(ok===false) return
+  /* saveProduct() a déjà fermé l'overlay + rafraîchi ; on atterrit sur la grille produits. */
+  goView('parametres')
+  refreshParamView()
+  pushToMiniChat(enriched
+    ?'✅ Produit analysé et activé — visible dans tes produits.'
+    :'✅ Produit créé. Enrichissement IA en attente — relance-le depuis la fiche produit quand tu auras du crédit Claude.')
+}
+
 /* ── Overlay back button ── */
 function handleOverlayBack(){
   if(_onbMode==='edit'){closeProdOverlay();return}
@@ -2927,13 +3155,15 @@ async function startProductAnalysis(){
     await new Promise(function(r){setTimeout(r,300)})
     setOnbStep(6,'done')
 
-    showOnbPhase(3)
-    renderReviewCards(_onbIntel,_onbScrapeData)
+    /* Analyse OK → produit créé et enrichi, retour direct à la grille produits. */
+    finishOnboardingSave(true)
   }catch(e){
-    console.error('[onboarding] analyzeProductIntelligence échoué :',e)
-    pushToMiniChat('⚠️ Analyse échouée ('+e.message+') — passage en mode manuel.')
-    openFullManualForm()
-    if(_onbScrapeData) prefillFormFromScrape(_onbScrapeData)
+    /* Option A — analyse IA indisponible (ex: pas de crédit Claude). On crée QUAND MÊME le
+       produit avec tes finances + le scrape éventuel ; enrichissement marqué en attente. */
+    console.warn('[onboarding] analyse IA indisponible — produit créé sans enrichissement :',e&&e.message)
+    pushToMiniChat('⚠️ Enrichissement IA indisponible ('+(e&&e.message||'')+') — produit créé, enrichissement en attente.')
+    _onbIntel=null
+    finishOnboardingSave(false)
   }
 }
 
@@ -3015,7 +3245,7 @@ async function analyzeProductIntelligence(scrapeData,productName,assets){
   if(data.error) throw new Error('Claude : '+(data.error.message||data.error.type||JSON.stringify(data.error)))
   if(!data.content) throw new Error('Réponse Claude sans contenu')
   var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
-  return JSON.parse(text.replace(/```json|```/g,'').trim())
+  return JSON.parse(extractJsonObject(text))
 }
 
 /* ── ÉTAPE 3 : Rendu des cartes de review ── */
@@ -3158,9 +3388,10 @@ function confirmReviewAndGoFinance(){
   /* Valeurs par défaut finances */
   var cogsEl=document.getElementById('onb-frais')
   if(cogsEl&&!cogsEl.value) cogsEl.value='2.5'
-  var retourEl=document.getElementById('onb-retour')
-  if(retourEl&&!retourEl.value) retourEl.value='5'
+  /* Taux de retour facultatif — laissé vide si inconnu. */
 
+  /* Ici l'analyse (réelle ou démo) a déjà tourné → le CTA finances active le produit. */
+  var finBtn=document.getElementById('onb-save-btn'); if(finBtn) finBtn.textContent='Activer ce produit →'
   showOnbPhase(4)
 }
 
@@ -3204,6 +3435,66 @@ function calcOnbFinRoas(){
   set('onb-r-t',marge>.20?(1/(marge-.20)).toFixed(2)+'x':'N/A')
 }
 
+/* ── BUNDLES / OFFRES (optionnel) — saisis tels quels depuis ta page produit ── */
+var pfBundles=[]
+function bundleUnitPrice(){
+  var p=parseFloat((document.getElementById('onb-price-inp')||{}).value)||0
+  if(!p){var pf=parseFloat((document.getElementById('pf-price')||{}).value)||0;p=pf}
+  return p
+}
+function addBundleRow(data){
+  pfBundles.push(data||{qty:2,pack_price:'',is_aov:!pfBundles.some(function(b){return b.is_aov})})
+  renderBundleRows()
+}
+function removeBundleRow(i){
+  pfBundles.splice(i,1)
+  if(pfBundles.length&&!pfBundles.some(function(b){return b.is_aov})) pfBundles[0].is_aov=true
+  renderBundleRows()
+}
+function updateBundleField(i,f,v){
+  if(!pfBundles[i]) return
+  if(f==='qty') v=parseInt(v)||1
+  if(f==='pack_price') v=parseFloat(v)||0
+  pfBundles[i][f]=v
+  renderBundleRows()
+}
+function setBundleAov(i){
+  pfBundles.forEach(function(b,j){b.is_aov=(j===i)})
+  renderBundleRows()
+}
+function renderBundleRows(){
+  var list=document.getElementById('onb-bundle-list'); if(!list) return
+  var unit=bundleUnitPrice()
+  list.innerHTML=pfBundles.map(function(b,i){
+    var per=(b.qty&&b.pack_price)?b.pack_price/b.qty:0
+    var off=(unit&&per)?Math.round((1-per/unit)*100):0
+    var meta=b.pack_price?('−'+off+'% · '+per.toFixed(1)+'€/u'):'—'
+    return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">'
+      +'<input class="ind-field-inp" type="number" min="1" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:6px;padding:6px 8px;width:46px" value="'+(b.qty||'')+'" oninput="updateBundleField('+i+',\'qty\',this.value)" title="Quantité">'
+      +'<span style="font-size:10px;color:var(--t3)">pour</span>'
+      +'<input class="ind-field-inp" type="number" step="0.01" style="background:var(--s2);border:0.5px solid var(--b1);border-radius:6px;padding:6px 8px;width:66px" placeholder="€" value="'+(b.pack_price||'')+'" oninput="updateBundleField('+i+',\'pack_price\',this.value)" title="Prix du pack">'
+      +'<span style="font-size:9px;color:var(--green);flex:1;min-width:0">'+meta+'</span>'
+      +'<button type="button" onclick="setBundleAov('+i+')" title="AOV de référence pour Zenith" style="background:'+(b.is_aov?'var(--rdim)':'transparent')+';border:0.5px solid '+(b.is_aov?'var(--rborder)':'var(--b2)')+';border-radius:6px;color:'+(b.is_aov?'var(--red)':'var(--t3)')+';font-size:8px;font-weight:700;cursor:pointer;padding:4px 6px">AOV</button>'
+      +'<button type="button" onclick="removeBundleRow('+i+')" style="background:transparent;border:none;color:var(--red);font-size:15px;cursor:pointer;padding:2px 4px;line-height:1">×</button>'
+      +'</div>'
+  }).join('')
+}
+/* Construit l'objet bundles propre + résumé offre + AOV de référence (ou null si pas d'offre). */
+function buildBundlesPayload(){
+  var unit=bundleUnitPrice()
+  var clean=pfBundles.filter(function(b){return b.qty>0&&b.pack_price>0})
+  if(!clean.length) return {bundles:[],offer_summary:'',aov:null}
+  var tiers=clean.map(function(b){
+    var per=b.pack_price/b.qty
+    return {qty:b.qty,pack_price:b.pack_price,per_unit:Math.round(per*100)/100,
+      discount_pct:unit?Math.round((1-per/unit)*100):0,is_aov:!!b.is_aov}
+  })
+  if(!tiers.some(function(t){return t.is_aov})) tiers[0].is_aov=true
+  var aovTier=tiers.find(function(t){return t.is_aov})
+  var summary=tiers.map(function(t){return t.qty+' pour '+t.pack_price+'€ (−'+t.discount_pct+'%)'}).join(' · ')
+  return {bundles:tiers,offer_summary:summary,aov:aovTier?aovTier.pack_price:null}
+}
+
 /* ── ÉTAPE 4 : Peupler le formulaire caché + sauvegarder ── */
 function populateFormFromIntelligence(intel){
   if(!intel) return
@@ -3238,7 +3529,7 @@ function prefillFormFromScrape(scrape){
 function saveProductFromOnboarding(){
   /* 1. Lire les données financières de la phase 4 */
   var cogsVal=parseFloat((document.getElementById('onb-cogs')||{}).value)||0
-  if(!cogsVal){pushToMiniChat('Le COGS est obligatoire pour calculer les seuils ROAS.');return}
+  if(!cogsVal){pushToMiniChat('Le COGS est obligatoire pour calculer les seuils ROAS.');return false}
 
   var livrVal=parseFloat((document.getElementById('onb-livraison')||{}).value)||0
   var fraisVal=parseFloat((document.getElementById('onb-frais')||{}).value)||2.5
@@ -3248,11 +3539,20 @@ function saveProductFromOnboarding(){
   var priceVal=_onbIntel&&_onbIntel.price_scraped&&document.getElementById('onb-price-display')&&document.getElementById('onb-price-display').style.display!=='none'
     ?_onbIntel.price_scraped
     :parseFloat((document.getElementById('onb-price-inp')||{}).value)||0
-  if(!priceVal){pushToMiniChat('Le prix de vente est obligatoire.');return}
-  if(priceVal<=cogsVal){pushToMiniChat('Le prix doit être supérieur au COGS.');return}
+  if(!priceVal){pushToMiniChat('Le prix de vente est obligatoire.');return false}
+  if(priceVal<=cogsVal){pushToMiniChat('Le prix doit être supérieur au COGS.');return false}
 
-  /* 2. Peupler le formulaire caché depuis l'intel */
-  populateFormFromIntelligence(_onbIntel)
+  /* 2. Peupler le formulaire caché depuis l'intel (ou, Option A, au moins le nom + les assets) */
+  if(_onbIntel){
+    populateFormFromIntelligence(_onbIntel)
+  }else{
+    var onbName=((document.getElementById('onb-name-only')||{}).value||'').trim()
+    var onbUrl0=((document.getElementById('onb-url')||{}).value||'').trim()
+    setValue('pf-name', onbName || (onbUrl0?onbUrl0.replace(/^https?:\/\//,'').split('/')[0]:'Produit'))
+    pfImages=_onbAssets.filter(function(a){return a.type==='image'}).map(function(a){
+      return {id:a.id,name:a.name,base64:a.base64,type:'product'}
+    })
+  }
 
   /* 3. Peupler les champs financiers dans le formulaire caché */
   setValue('pf-price',priceVal)
@@ -3260,25 +3560,42 @@ function saveProductFromOnboarding(){
   setValue('pf-livraison',livrVal)
   setValue('pf-frais-paiement',fraisVal)
   setValue('pf-taux-retour',retourVal)
-  setValue('pf-aov',priceVal) /* AOV = prix si mono-produit */
+  /* AOV : si un bundle est marqué référence → son prix de pack, sinon le prix unitaire. */
+  var _bundlePayload=buildBundlesPayload()
+  setValue('pf-aov', _bundlePayload.aov||priceVal)
 
-  /* 4. Appeler saveProduct() qui lit depuis le formulaire caché */
+  /* 4. Capturer l'intel + l'URL AVANT saveProduct() — car saveProduct() appelle closeProdOverlay()
+     qui réinitialise _onbIntel et les inputs onboarding (sinon enrichment_status retombe à pending). */
+  var capHadIntel=!!_onbIntel
+  var capIntelName=_onbIntel&&_onbIntel.product_name||null
+  var capMarketIntel=_onbIntel&&_onbIntel._market_intel||null
+  var capUrl=((document.getElementById('onb-url')||{}).value||'').trim()
+  var capBundles=_bundlePayload
+
   saveProduct()
 
-  /* 5. Post-save : injecter market_intel dans le produit nouvellement créé
-     (saveProduct() ne connaît pas le nouveau schema market_intel — on le merge après) */
-  if(_onbIntel&&_onbIntel._market_intel){
-    try{
-      var mem=memGet()
-      var savedProd=(mem.products||[]).find(function(p){
-        return p.name&&_onbIntel.product_name&&p.name.toLowerCase()===_onbIntel.product_name.toLowerCase()
-      })||((mem.products||[]).length?(mem.products[mem.products.length-1]):null)
-      if(savedProd){
-        savedProd.market_intel=_onbIntel._market_intel
-        memSet(mem)
+  /* 5. Post-save : store_url + statut d'enrichissement + market_intel sur le produit créé. */
+  try{
+    var mem=memGet()
+    var savedProd=null
+    if(capIntelName){
+      savedProd=(mem.products||[]).find(function(p){
+        return p.name&&p.name.toLowerCase()===capIntelName.toLowerCase()
+      })
+    }
+    if(!savedProd) savedProd=(mem.products||[]).length?mem.products[mem.products.length-1]:null
+    if(savedProd){
+      if(capUrl) savedProd.store_url=capUrl
+      savedProd.enrichment_status=capHadIntel?'done':'pending'
+      if(capMarketIntel) savedProd.market_intel=capMarketIntel
+      if(capBundles&&capBundles.bundles&&capBundles.bundles.length){
+        savedProd.bundles=capBundles.bundles
+        savedProd.offer_summary=capBundles.offer_summary
       }
-    }catch(e){console.warn('[saveProductFromOnboarding] merge market_intel échoué :',e)}
-  }
+      memSet(mem)
+    }
+  }catch(e){console.warn('[saveProductFromOnboarding] post-save merge échoué :',e)}
+  return true
 }
 
 /* ── ONBOARDING PRODUIT ───────────────────────────────────── */
@@ -3419,6 +3736,11 @@ function saveProduct(){
     },
     usp:document.getElementById('pf-usp').value.trim(),
     guarantee:document.getElementById('pf-guarantee').value.trim(),
+    /* BLOC 2 — nature créative dominante (manuel). Oriente le format dans le CLR ;
+       le stage garde la décision business, la perf historique l'affinera (BLOC 3). */
+    creative_profile:(document.getElementById('pf-creative-profile')&&document.getElementById('pf-creative-profile').value)||'hybrid',
+    /* BLOC 2.5 — stratégie de funnel (propriété produit, source primaire du funnel_type tracé). */
+    funnel_strategy:(document.getElementById('pf-funnel-strategy')&&document.getElementById('pf-funnel-strategy').value)||'direct',
     angles_saturated:angSat,angles_opportunities:angOpp,
     headline:document.getElementById('pf-headline').value.trim(),
     images:pfImages.slice(),
@@ -3569,6 +3891,16 @@ function openProdOverlay(mode, prodId){
     setValue('pf-objections',(prod.avatar&&prod.avatar.objections||[]).join(', '))
     setValue('pf-usp',prod.usp||'')
     setValue('pf-guarantee',prod.guarantee||'')
+    setValue('pf-creative-profile',prod.creative_profile||'hybrid')
+    setValue('pf-funnel-strategy',prod.funnel_strategy||'direct')
+    /* Suggestion auto (BLOC 2 — "les deux") : non-bloquante, n'écrase jamais le manuel. */
+    try{
+      var infHint=document.getElementById('pf-creative-profile-hint')
+      if(infHint){
+        var inf=inferCreativeProfile(memGet(),prodId)
+        infHint.textContent=inf.profile?('Perf suggère : '+inf.profile+'-dominant ('+inf.basis+')'):'Perf : pas encore assez de winners pour suggérer.'
+      }
+    }catch(e){}
     setValue('pf-headline',prod.headline||'')
     setValue('pf-sat',(prod.angles_saturated||[]).join(', '))
     setValue('pf-opp',(prod.angles_opportunities||[]).join(', '))
@@ -3576,6 +3908,8 @@ function openProdOverlay(mode, prodId){
     setValue('pf-notes',prod.notes||'')
     pfCompetitors=(prod.market_intel&&prod.market_intel.competitors||[]).slice()
     renderCompetitorRows()
+    pfBundles=(prod.bundles||[]).map(function(b){return {qty:b.qty,pack_price:b.pack_price,is_aov:!!b.is_aov}})
+    renderBundleRows()
     renderVoiceProfileDisplay(prod.avatar?prod.avatar.voice_profile:null)
     /* Relations produit — rendu après que le produit est chargé */
     renderProductRelationsUI(prodId)
@@ -3625,6 +3959,8 @@ function openProdOverlay(mode, prodId){
 function closeProdOverlay(){
   var ov=document.getElementById('prod-overlay')
   if(ov) ov.classList.remove('open')
+  /* Si on fermait pendant une création (brouillon affiché) → on le retire et on recentre. */
+  if(_draftActive){ _draftActive=false; try{refreshParamView()}catch(e){} }
 }
 
 /* Alias pour compatibilité avec les appels existants */
@@ -3635,6 +3971,7 @@ function editProduct(prodId){ openProdOverlay('edit', prodId) }
 function clearProductForm(){
   pfImages=[]
   pfCompetitors=[]
+  pfBundles=[]
   _onbIntel=null
   _onbScrapeData=null
   _onbAssets=[]
@@ -3648,6 +3985,7 @@ function clearProductForm(){
   var preview=document.getElementById('pf-images-preview')
   if(preview) preview.innerHTML=''
   renderCompetitorRows()
+  renderBundleRows()
   renderVoiceProfileDisplay(null)
   /* Reset relations section */
   var relList=document.getElementById('pf-relations-list')
@@ -3801,6 +4139,48 @@ function archiveBrief(idx,briefId){
 }
 
 /* ── RENDU DYNAMIQUE — VUE RÉGLAGES ──────────────────────── */
+var _prevProdCount=-1
+var _draftActive=false   /* carte brouillon affichée pendant la création d'un produit */
+
+/* FLIP — repositionnement fluide : les cartes glissent de leur ancienne à leur nouvelle
+   position au lieu de sauter ; les nouvelles cartes entrent en scale+fade. */
+function _flipCapture(list){
+  var m={}
+  if(!list||!list.offsetParent) return m
+  Array.prototype.forEach.call(list.querySelectorAll('[data-flip]'),function(el){
+    m[el.getAttribute('data-flip')]=el.getBoundingClientRect()
+  })
+  return m
+}
+function _flipPlay(list,firstMap){
+  if(!list||!list.offsetParent) return
+  Array.prototype.forEach.call(list.querySelectorAll('[data-flip]'),function(el){
+    var key=el.getAttribute('data-flip'), first=firstMap[key]
+    if(first){
+      var last=el.getBoundingClientRect()
+      var dx=first.left-last.left, dy=first.top-last.top
+      if(dx||dy){
+        el.style.transition='none'
+        el.style.transform='translate('+dx+'px,'+dy+'px)'
+        el.getBoundingClientRect() /* reflow */
+        requestAnimationFrame(function(){ el.style.transition=''; el.style.transform='' })
+      }
+    }else if(el.classList.contains('zp-card')){
+      el.classList.add('zp-in')
+      setTimeout(function(){el.classList.remove('zp-in')},560)
+    }
+  })
+}
+
+/* Clic sur "+" : la carte brouillon naît dans la grille (pousse les autres, recentre),
+   puis l'overlay de création s'ouvre une fois l'animation lancée. */
+function startProductDraft(){
+  if(_draftActive){ openProdOverlay('new'); return }
+  _draftActive=true
+  refreshParamView()
+  setTimeout(function(){ openProdOverlay('new') },380)
+}
+
 function refreshParamView(){
   var mem=memGet()
   getActiveCampaign(mem)   /* sync mem.campaign → campaigns[active_product_id] */
@@ -3821,37 +4201,37 @@ function refreshParamView(){
   var products=mem.products||[]
   if(count) count.textContent=products.length+' produit(s)'
   if(list){
-    var cardStyle='width:calc(50% - 5px);min-height:180px;border-radius:16px;padding:16px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;text-align:center;flex-shrink:0;box-sizing:border-box;'
+    /* Toutes les cartes : même rectangle vertical fixe. */
+    var cardStyle='width:150px;height:250px;border-radius:18px;padding:16px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-align:center;box-sizing:border-box;'
     var productCards=products.map(function(p){
       var isActive=p.id===mem.active_product_id
       var statusCol=isActive?'var(--green)':p.status==='CUT'?'var(--red)':'var(--t2)'
-      var border=isActive?'1.5px solid var(--gborder)':'0.5px solid var(--b2)'
+      /* État normal : bordure blanche sobre (le hover passe en violet via CSS). */
+      var border=isActive?'1.5px solid rgba(255,255,255,.92)':'1px solid rgba(255,255,255,.70)'
+      var pending=p.enrichment_status==='pending'
       var thumb=p.images&&p.images.length
-        ?'<img src="'+p.images[0].base64+'" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex-shrink:0">'
-        :'<div style="width:64px;height:64px;background:var(--s3);border-radius:10px;border:0.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:26px">📦</div>'
-      return '<div style="'+cardStyle+'background:var(--s2);border:'+border+'" data-pid="'+p.id+'" onclick="openProdOverlay(\'edit\',\''+p.id+'\')">'
+        ?'<img src="'+p.images[0].base64+'" style="width:74px;height:74px;object-fit:cover;border-radius:12px;flex-shrink:0">'
+        :'<div style="width:74px;height:74px;background:var(--s3);border-radius:12px;border:0.5px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:30px">📦</div>'
+      return '<div class="zp-card" data-flip="'+p.id+'" style="'+cardStyle+'background:var(--s2);border:'+border+'" data-pid="'+p.id+'" onclick="openProdOverlay(\'edit\',\''+p.id+'\')">'
         +thumb
-        +'<div style="font-size:11px;font-weight:700;color:var(--t1);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(p.name||'—')+'</div>'
+        +'<div style="font-size:11.5px;font-weight:700;color:var(--t1);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(p.name||'—')+'</div>'
         +'<div style="font-size:9px;font-weight:700;color:'+statusCol+';letter-spacing:.06em">'+(isActive?'ACTIF':p.status||'—')+'</div>'
-        +(p.roas_be?'<div style="font-size:9px;color:var(--t3)">BE '+p.roas_be+'x · Target '+p.roas_target+'x</div>':'')
-        +(p.marge_nette?'<div style="font-size:9px;color:var(--green)">'+p.marge_nette+'% marge nette</div>':'')
+        +(p.roas_be?'<div style="font-size:9px;color:var(--t3)">BE '+p.roas_be+'x · Tgt '+p.roas_target+'x</div>':'')
+        +(pending?'<div style="font-size:8px;color:var(--amber,#f59e0b);margin-top:auto">⏳ enrichissement en attente</div>':(p.marge_nette?'<div style="font-size:9px;color:var(--green);margin-top:auto">'+p.marge_nette+'% marge nette</div>':''))
         +'</div>'
     }).join('')
-    /* Carte + : grande si 0 produit, petite à droite si produits existent */
-    var plusCard
-    if(products.length===0){
-      plusCard='<div onclick="openProdOverlay(\'new\')" style="width:160px;height:280px;border-radius:20px;background:var(--bg);border:1.5px dashed var(--b2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;text-align:center;box-sizing:border-box;transition:background .2s,border-color .2s" onmouseover="this.style.background=\'var(--s1)\'" onmouseout="this.style.background=\'var(--bg)\'">'
-        +'<div style="width:64px;height:64px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center"><span style="font-size:36px;font-weight:200;color:var(--t2);line-height:1">+</span></div>'
-        +'<div style="font-size:13px;font-weight:600;color:var(--t2)">Nouveau produit</div>'
-        +'<div style="font-size:10px;color:var(--t3);line-height:1.5;padding:0 8px">Configurer ton offre,<br>tes angles et ton avatar</div>'
-        +'</div>'
-    }else{
-      plusCard='<div onclick="openProdOverlay(\'new\')" style="'+cardStyle+'background:var(--bg);border:1px dashed var(--b2)">'
-        +'<div style="font-size:28px;color:var(--t3)">+</div>'
-        +'<div style="font-size:10px;color:var(--t3)">Ajouter</div>'
-        +'</div>'
-    }
-    list.innerHTML=productCards+plusCard
+    /* Carte brouillon : apparaît au clic sur "+", le temps que l'overlay s'ouvre. */
+    var draftCard=_draftActive?('<div class="zp-card zp-draft" data-flip="__draft" style="'+cardStyle+'justify-content:center;gap:11px">'
+      +'<div class="zp-sk" style="width:74px;height:74px;border-radius:12px"></div>'
+      +'<div class="zp-sk" style="width:78%;height:11px"></div>'
+      +'<div class="zp-sk" style="width:52%;height:9px"></div>'
+      +'<div style="font-size:9px;color:var(--red);margin-top:6px;font-weight:600;letter-spacing:.04em">création…</div>'
+      +'</div>'):''
+    /* Le "+" : gros symbole blanc nu, sans carte ni contour, toujours à droite. */
+    var plus='<div id="zp-plus" data-flip="__plus" onclick="startProductDraft()" title="Ajouter un produit">+</div>'
+    var _ff=_flipCapture(list)
+    list.innerHTML=productCards+draftCard+plus
+    _flipPlay(list,_ff)
   }
 
   /* État système */
@@ -4138,89 +4518,6 @@ async function testImageGenReal(){
   }
 }
 
-/* BLOC 5 : test du moteur stratégique en mode simulation — zéro appel API réel, zéro coût.
-   Vérifie uniquement la plomberie (Angles→Hooks→Concept, diversité, empreinte Andromeda
-   partielle) — pas la qualité du contenu, qui ne peut être jugée qu'avec de vrais appels. */
-async function testStrategyEngineSimulation(){
-  var mem=memGet()
-  if(!mem.active_product_id){pushToMiniChat('⚠️ Configure et active un produit avant de tester le moteur stratégique.');return}
-  var prod=mem.products.find(function(p){return p.id===mem.active_product_id})
-  pushToMiniChat('🧪 Test Bloc 5 + Bloc 6 en simulation (zéro coût, zéro appel réel)...')
-  try{
-    var batchSize=ASL.computeBatchSize(mem)
-    var result=await runCreativeStrategyChain(mem.active_product_id,batchSize,{simulate:true})
-    /* BLOC 6 : chaque concept passe par le routeur de format → brief d'exécution réel */
-    for(var i=0;i<result.concepts.length;i++){
-      try{
-        result.concepts[i]._execution_brief=await executeFormatGeneration(result.concepts[i],prod,{simulate:true,sop:result.context_used.sop})
-      }catch(e){
-        result.concepts[i]._execution_error=e.message
-      }
-    }
-    renderStrategyTestResults(result)
-    openStrategyTestSheet()
-    pushToMiniChat('🧪 Simulation terminée — '+result.concepts.length+' concept(s) → brief(s) d\'exécution. Détail dans le panneau.')
-  }catch(e){
-    console.error('[testStrategyEngineSimulation]',e)
-    pushToMiniChat('⚠️ Test simulation échoué : '+e.message)
-  }
-}
-function openStrategyTestSheet(){document.getElementById('strategy-test-sheet').classList.add('open')}
-function closeStrategyTestSheet(){document.getElementById('strategy-test-sheet').classList.remove('open')}
-function renderStrategyTestResults(result){
-  var el=document.getElementById('strategy-test-results')
-  if(!el) return
-  var d=result.diagnostics
-  var html='<div style="background:'+(d.batch_diversity.pass?'var(--gdim)':'var(--rdim)')+';border:0.5px solid '+(d.batch_diversity.pass?'var(--gborder)':'var(--rborder)')+';border-radius:8px;padding:10px 12px;margin-bottom:10px">'
-    +'<b>Diversité du batch :</b> '+(d.batch_diversity.pass?'✅ conforme':'⚠️ insuffisante')
-    +'<br>'+d.batch_diversity.counts.angles+' angles · '+d.batch_diversity.counts.types+' types d\'annonces · '+d.batch_diversity.counts.levels+' niveaux de conscience'
-    +(d.batch_diversity.missing.length?'<br>Manque : '+d.batch_diversity.missing.join(', '):'')
-    +'</div>'
-  if(d.errors.length){
-    html+='<div style="background:var(--rdim);border:0.5px solid var(--rborder);border-radius:8px;padding:10px 12px;margin-bottom:10px"><b>Erreurs :</b><br>'+d.errors.join('<br>')+'</div>'
-  }
-  html+=result.concepts.map(function(c,i){
-    var fp=c._fingerprint_check||{}
-    return '<div style="background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:8px">'
-      +'<div style="font-weight:600;color:var(--t1);margin-bottom:4px">'+(i+1)+'. '+c.angle+' · niveau '+c.awareness_level+'/6</div>'
-      +'<div style="color:var(--amber);margin-bottom:4px">Hook : "'+c.hook+'"</div>'
-      +'<div>Structure : '+c.copywriting_structure+' · Type recommandé : '+c.type_annonce_recommande+' ('+(c.type_media||'?')+')</div>'
-      +'<div>UMP : '+c.ump+'</div>'
-      +'<div>UMS : '+c.ums+'</div>'
-      +'<div>Objection levée : '+c.objection_handled+'</div>'
-      +'<div>Titre : '+c.titre+'</div>'
-      +'<div style="margin-top:4px;color:var(--t3);font-size:10px">Empreinte Andromeda : '+(fp.note||'non vérifiée')+'</div>'
-      +renderExecutionBriefHtml(c)
-      +'</div>'
-  }).join('')
-  el.innerHTML=html
-}
-/* BLOC 6 : affichage du brief d'exécution (Static/Vidéo/Native) rattaché à un concept */
-function renderExecutionBriefHtml(c){
-  if(c._execution_error) return '<div style="margin-top:6px;padding:8px;background:var(--rdim);border-radius:6px;color:var(--red);font-size:10px">⚠️ Bloc 6 échoué : '+c._execution_error+'</div>'
-  var b=c._execution_brief
-  if(!b) return ''
-  var pipelineLabel={static:'Static',video:'Vidéo',native:'Native'}[b._pipeline]||b._pipeline
-  var html='<div style="margin-top:6px;padding:8px;background:var(--pdim);border:0.5px solid var(--pborder);border-radius:6px;font-size:10px">'
-    +'<b>Bloc 6 — Pipeline '+pipelineLabel+'</b>'
-  if(b._pipeline==='static'){
-    html+='<br>Format : '+b.format_choisi+' — '+(b.justification||'')
-      +'<br>Layout : '+(b.composition&&b.composition.layout||'')
-      +'<br>Titre final : '+b.titre_final
-  }else if(b._pipeline==='video'){
-    html+='<br>Type : '+b.type_video_choisi
-      +'<br>Durée estimée : '+b.duree_estimee_secondes+'s · Audio : '+b.audio_approach
-      +'<br>Levier crédibilité : '+b.perceived_likelihood_levier
-      +'<br>Script : '+(b.script_complet||'').slice(0,150)+'...'
-  }else if(b._pipeline==='native'){
-    html+='<br>Format : '+b.format_choisi+' · Catégorie : '+b.categorie_visuelle+' · Pattern : '+b.pattern_copy
-      +'<br>Longueur : '+b.longueur
-      +'<br>Copy : '+(b.copy_complet||'').slice(0,150)+'...'
-  }
-  html+='</div>'
-  return html
-}
-
 function downloadCreative(creativeId,type){
   var mem=memGet()
   var c=mem.creative_bank.find(function(x){return x.id===creativeId})
@@ -4381,16 +4678,20 @@ function renderDailyCreativeRows(){
     return
   }
   el.innerHTML=creatives.map(function(c){
-    var label=(c.name||(c.format+' · '+c.angle+' · "'+c.hook+'"'))
+    /* BLOC 3 — ancre d'attribution : nom de pub Meta + utm_content (=creative.id). Tu saisis ici
+       les chiffres Meta de CETTE pub (CA Meta = valeur de conversion par pub). */
+    var label=(c.meta_ad_name||c.name||(c.format+' · '+c.angle+' · "'+c.hook+'"'))
+    var utm=c.attribution_key||c.id
     return '<div class="dce-row" data-cid="'+c.id+'" style="margin-bottom:8px;padding:8px;background:var(--s2);border-radius:8px">'
-      +'<div style="font-size:9px;color:var(--t2);margin-bottom:6px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(label.replace(/"/g,'&quot;'))+'">'+label+'</div>'
+      +'<div style="font-size:9px;color:var(--t2);margin-bottom:2px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(label.replace(/"/g,'&quot;'))+'">'+label+'</div>'
+      +'<div style="font-size:8px;color:var(--t3);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">utm_content='+utm+'</div>'
       +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">'
-      +'<div><div class="metric-lbl">Spend €</div><input class="metric-inp dce-spend" type="number" step="0.01" data-cid="'+c.id+'"></div>'
+      +'<div><div class="metric-lbl">Spend € (Meta)</div><input class="metric-inp dce-spend" type="number" step="0.01" data-cid="'+c.id+'"></div>'
       +'<div><div class="metric-lbl">CTR %</div><input class="metric-inp dce-ctr" type="number" step="0.01" data-cid="'+c.id+'"></div>'
       +'<div><div class="metric-lbl">CPM €</div><input class="metric-inp dce-cpm" type="number" step="0.01" data-cid="'+c.id+'"></div>'
       +'<div><div class="metric-lbl">ATC #</div><input class="metric-inp dce-atc" type="number" data-cid="'+c.id+'"></div>'
       +'<div><div class="metric-lbl">Achats #</div><input class="metric-inp dce-purchases" type="number" data-cid="'+c.id+'"></div>'
-      +'<div><div class="metric-lbl">CA €</div><input class="metric-inp dce-ca" type="number" step="0.01" data-cid="'+c.id+'"></div>'
+      +'<div><div class="metric-lbl">CA Meta €</div><input class="metric-inp dce-ca" type="number" step="0.01" data-cid="'+c.id+'"></div>'
       +'</div></div>'
   }).join('')
 }
@@ -4412,7 +4713,10 @@ function readDailyCreativeRows(){
    "les hooks Hidden Fear performent mieux depuis 5 jours" — en regroupant les jours de
    chaque créative par l'attribut demandé (angle/format/mood/intensite/levier/awareness),
    sur une fenêtre de N jours, sans aucune dépendance API. Pur calcul sur la mémoire locale. */
-function aggregateCreativePerformance(mem,attribute,days){
+function aggregateCreativePerformance(mem,attribute,days,opts){
+  /* BLOC 3 — measuredOnly (défaut TRUE) : exclut les jours IMPUTÉS (split égal) de tout agrégat
+     de learning. La donnée imputée existe pour l'affichage mais ne corrèle jamais → zéro bruit. */
+  var measuredOnly=!opts||opts.measuredOnly!==false
   var bank=getProductBank(mem)
   var cutoff=new Date()
   cutoff.setDate(cutoff.getDate()-(days||7))
@@ -4422,6 +4726,7 @@ function aggregateCreativePerformance(mem,attribute,days){
     var attrVal=c[attribute]
     if(!attrVal) return
     ;(c.daily||[]).forEach(function(d){
+      if(measuredOnly&&(d.source==='imputed'||d.source==='global_fallback')) return /* exclusion stricte */
       if(!d.date||d.date<cutoffStr) return
       if(!groups[attrVal]) groups[attrVal]={spend:0,ca:0,creative_ids:{},days_count:0}
       groups[attrVal].spend+=(d.spend||0)
@@ -4471,6 +4776,281 @@ function buildCreativeSignalReport(mem,days){
   return {window_days:days||7,signals:signals,has_enough_data:signals.length>0}
 }
 
+/* ── BLOC 3 — getCreativeTruth : INTERFACE DE LECTURE UNIQUE de la vérité de performance ────────
+   Joint trace (BLOC 2.5) + série MESURÉE (creative.daily measured) + facteur de calibration du jour
+   (daily_totals) + score de confiance. Calibration Meta→Shopify DÉRIVÉE À LA LECTURE (jamais stockée :
+   la donnée brute reste lossless, BLOC 4 pourra recalibrer avec un facteur lissé).
+   Read-only, pur. C'est ce que BLOC 4 (learning) consommera — et RIEN d'autre. */
+function getCreativeTruth(mem,creativeId,opts){
+  mem=mem||memGet()
+  /* DURCISSEMENT — basis STRICT : 'raw' (Meta brut, signal de ranking, DÉFAUT) ou 'calibrated'
+     (Meta × facteur Shopify du jour, magnitude business). La série ne contient QUE la base demandée
+     → impossible pour BLOC 4 d'apprendre par erreur sur une valeur transformée. */
+  var basis=(opts&&opts.basis==='calibrated')?'calibrated':'raw'
+  /* F5 — en CALIBRÉ on applique le facteur Meta→Shopify LISSÉ (getCalibrationModel, EWMA pondéré
+     volume) plutôt que le facteur brut du jour : magnitude business stable. Le RAW (ranking) reste
+     intact, la donnée brute stockée n'est jamais modifiée (lossless). */
+  var smoothedF=(basis==='calibrated')?getCalibrationModel(mem).smoothed_factor:null
+  var c=(mem.creative_bank||[]).find(function(x){return x.id===creativeId})
+  var trace=(mem.creative_traces||[]).find(function(t){return t.creative_id===creativeId})||null
+  var totalsByDate={}
+  ;(mem.daily_totals||[]).forEach(function(t){ totalsByDate[t.date]=t })
+  var measured=[],imputedCount=0
+  ;(c&&c.daily||[]).forEach(function(d){
+    if(d.source==='imputed'||d.source==='global_fallback'){ imputedCount++; return }
+    measured.push(d)
+  })
+  var series=measured.map(function(d){
+    var t=totalsByDate[d.date]||{}
+    var f=(t.recon_factor!=null)?t.recon_factor:null
+    var item={date:d.date, spend:d.spend, recon_factor:f, day_confidence:t.spend_confidence||'unknown'}
+    if(basis==='raw'){
+      item.ca=d.ca; item.roas=d.roas               /* Meta brut */
+    }else{
+      var calF=(smoothedF!=null)?smoothedF:f       /* lissé si dispo, sinon facteur du jour */
+      item.ca=(calF!=null&&d.ca!=null)?Math.round(d.ca*calF*100)/100:null                 /* calibré Shopify (lissé) */
+      item.roas=(calF!=null&&d.spend>0&&d.ca!=null)?Math.round((d.ca*calF/d.spend)*100)/100:null
+    }
+    return item
+  })
+  var measuredSpend=measured.reduce(function(s,d){return s+(d.spend||0)},0)
+  var total=measured.length+imputedCount
+  var data_confidence={
+    measured_days:measured.length,
+    imputed_days:imputedCount,
+    measured_spend:Math.round(measuredSpend*100)/100,
+    pct_measured:total>0?Math.round(measured.length/total*100):0,
+    has_trace:!!trace,
+    /* HIGH = exploitable learning · LOW = présent mais insuffisant · NONE = rien de mesuré */
+    level:(measured.length>=SIGNAL_MIN_DAYS&&measuredSpend>=SIGNAL_MIN_SPEND)?'HIGH':(measured.length>=1?'LOW':'NONE')
+  }
+  /* Lignée d'identité (durcissement) : permet à BLOC 4 de grouper les variantes d'une même créa. */
+  var lineage={
+    lineage_id:(c&&c.lineage_id)||(trace&&trace.lineage_id)||creativeId,
+    parent_id:(c&&c.parent_id)||(trace&&trace.parent_id)||null,
+    version_index:(c&&c.version_index)||(trace&&trace.version_index)||1
+  }
+  return {creative_id:creativeId, exists:!!c, basis:basis, trace:trace, lineage:lineage, measured:series, imputed_count:imputedCount, data_confidence:data_confidence}
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOC 4 — CREATIVE LEARNING LAYER (lecture/proposition uniquement, jamais de décision)
+   ─────────────────────────────────────────────────────────────────────────
+   Invariants NON négociables (cf. cadrage validé) :
+   · Ranking = Meta BRUT uniquement (getCreativeTruth basis:'raw'). Jamais le calibré.
+   · Imputé EXCLU (getCreativeTruth ne renvoie que measured) + jours low_confidence exclus.
+   · STRATIFIÉ : on ne compare jamais à travers stage/produit différents (anti-confondant).
+   · SCOPÉ prompt_version : jamais de mélange inter-versions.
+   · GROUPÉ par lineage_id (prêt pour les variantes).
+   · États explicites : RELIABLE / INSUFFICIENT_DATA. Aucun faux signal sous seuil.
+   · Zéro écriture routing/ASL/CLR. Sortie = scores + propositions read-only + feedback prompt.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* C1 — SCORING ENGINE : agrège la perf MESURÉE par (attribut, valeur, stage, prompt_version),
+   pondérée par le spend (le spend EST la confiance), groupée par lignée. Produit-actif uniquement. */
+function scoreCreativeAttributes(mem,opts){
+  opts=opts||{}
+  var days=opts.days||14
+  var cutoff=new Date(); cutoff.setDate(cutoff.getDate()-days)
+  var cutoffStr=cutoff.toISOString().slice(0,10)
+  var bank=getProductBank(mem)
+  var buckets={}
+  bank.forEach(function(c){
+    var truth=getCreativeTruth(mem,c.id,{basis:'raw'})           /* mesuré + RAW (ranking) */
+    if(truth.data_confidence.level==='NONE') return
+    var tr=truth.trace||{}
+    var stage=tr.stage||c.stage||'UNKNOWN'                       /* stratum anti-confondant */
+    var pv=tr.prompt_version||'unknown'                          /* scope version de prompt */
+    var lineage=truth.lineage.lineage_id
+    var spend=0,ca=0,nbDays=0
+    truth.measured.forEach(function(d){
+      if(d.day_confidence==='low') return                        /* jour non réconcilié → exclu */
+      if(d.date<cutoffStr) return
+      spend+=(d.spend||0); ca+=(d.ca||0); nbDays++
+    })
+    if(spend<=0||nbDays===0) return
+    var attrVals={
+      angle:c.angle, format:c.format, mood:c.mood, intensite:c.intensite,
+      levier_psychologique_principal:c.levier_psychologique_principal, awareness:c.awareness,
+      funnel_type:tr.funnel_type, product_profile:tr.product_profile
+    }
+    Object.keys(attrVals).forEach(function(attr){
+      var val=attrVals[attr]
+      if(val==null||val==='') return
+      var key=attr+'||'+val+'||'+stage+'||'+pv
+      var b=buckets[key]||(buckets[key]={attribute:attr,value:val,stage:stage,prompt_version:pv,spend:0,ca:0,days:0,creatives:{},lineages:{}})
+      b.spend+=spend; b.ca+=ca; b.days+=nbDays; b.creatives[c.id]=true; b.lineages[lineage]=true
+    })
+  })
+  return Object.keys(buckets).map(function(k){
+    var b=buckets[k]
+    return {attribute:b.attribute,value:b.value,stage:b.stage,prompt_version:b.prompt_version,
+      spend:Math.round(b.spend*100)/100, roas:b.spend>0?Math.round((b.ca/b.spend)*100)/100:null,
+      nb_jours_data:b.days, nb_creatives:Object.keys(b.creatives).length, nb_lineages:Object.keys(b.lineages).length}
+  })
+}
+
+/* C1 — RAPPORT : compare les valeurs UNIQUEMENT à l'intérieur d'une même strate (attribut+stage+version).
+   Output-compatible avec l'ancien buildCreativeSignalReport (signals[].best/.worst) → swap transparent. */
+function buildCreativeScoreReport(mem,days){
+  var rows=scoreCreativeAttributes(mem,{days:days||14})
+  var groups={}
+  rows.forEach(function(r){
+    var g=r.attribute+'||'+r.stage+'||'+r.prompt_version
+    ;(groups[g]||(groups[g]=[])).push(r)
+  })
+  var allSignals=[]
+  Object.keys(groups).forEach(function(g){
+    var arr=groups[g].filter(function(r){return r.nb_jours_data>=SIGNAL_MIN_DAYS&&r.spend>=SIGNAL_MIN_SPEND})
+    if(arr.length<2) return                                       /* besoin de 2 valeurs fiables DANS la strate */
+    arr.sort(function(a,b){return (b.roas||0)-(a.roas||0)})
+    var best=arr[0],worst=arr[arr.length-1]
+    if(!best.roas||!worst.roas||best.roas<worst.roas*SIGNAL_MIN_ECART_ROAS) return /* écart pas assez net */
+    allSignals.push({
+      attribute:best.attribute, stratum:best.stage, prompt_version:best.prompt_version, window_days:days||14, state:'RELIABLE',
+      best:{value:best.value,roas:best.roas,nb_creatives:best.nb_creatives,nb_jours_data:best.nb_jours_data,spend:best.spend,nb_lineages:best.nb_lineages},
+      worst:{value:worst.value,roas:worst.roas,nb_creatives:worst.nb_creatives,nb_jours_data:worst.nb_jours_data,spend:worst.spend,nb_lineages:worst.nb_lineages},
+      all:arr
+    })
+  })
+  /* Un signal par attribut pour le consommateur prompt (la strate la mieux dotée), tout le reste dans all_signals. */
+  var byAttr={}
+  allSignals.forEach(function(s){
+    var prev=byAttr[s.attribute]
+    if(!prev||(s.best.spend+s.worst.spend)>(prev.best.spend+prev.worst.spend)) byAttr[s.attribute]=s
+  })
+  var topSignals=Object.keys(byAttr).map(function(a){return byAttr[a]})
+  return {window_days:days||14, signals:topSignals, all_signals:allSignals, has_enough_data:topSignals.length>0}
+}
+
+/* C2 — RECOMMANDATIONS read-only (jamais exécutées). "Double down X / éviter Y", par strate. */
+function buildCreativeRecommendations(mem){
+  var rep=buildCreativeScoreReport(mem,14)
+  return rep.all_signals.map(function(s){
+    return {
+      read_only:true, attribute:s.attribute, stratum:s.stratum, prompt_version:s.prompt_version,
+      double_down:s.best.value, avoid:s.worst.value,
+      detail:'"'+s.best.value+'" '+s.best.roas+'x vs "'+s.worst.value+'" '+s.worst.roas+'x · stage '+s.stratum+' · '+s.best.nb_lineages+' lignée(s) · '+s.window_days+'j'
+    }
+  })
+}
+
+/* C3 — CONVERGENCE de la calibration Meta→Shopify (ISOLÉE : magnitude business uniquement,
+   ne touche JAMAIS le ranking raw). EWMA pondéré par volume sur daily_totals.recon_factor + dérive. */
+function getCalibrationModel(mem){
+  mem=mem||memGet()
+  var hist=(mem.daily_totals||[]).filter(function(t){return t.recon_factor!=null})
+  if(!hist.length) return {smoothed_factor:null,latest_factor:null,drift:'NO_DATA',n:0}
+  var baseVol=50, ewma=null
+  hist.forEach(function(t){
+    if(ewma==null){ ewma=t.recon_factor; return }
+    var w=Math.max(1,t.spend||1)
+    var k=1-Math.pow(0.6, w/baseVol)            /* plus de volume ce jour → pas plus grand vers ce facteur */
+    ewma=ewma+k*(t.recon_factor-ewma)
+  })
+  var latest=hist[hist.length-1].recon_factor
+  var dv=ewma?(latest-ewma)/ewma:0
+  return {smoothed_factor:Math.round(ewma*1000)/1000, latest_factor:latest,
+    drift:dv>0.15?'RISING':dv<-0.15?'FALLING':'STABLE', n:hist.length}
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOC 5 — CREATIVE STRATEGY LAYER : traducteur intelligence(BLOC4) → actions créatives.
+   2 fonctions pures + exécution via le pipeline EXISTANT (le "Go"). Read-only, ASL-gated,
+   doctrine-bounded. NE décide jamais argent/campagne (ASL souverain). N'écrit AUCUN état.
+   Ne touche ni BLOC 3 (vérité) ni BLOC 4 (signal) ni CLR/routing. Une responsabilité : quoi générer ensuite.
+   ════════════════════════════════════════════════════════════════════════════ */
+var _bloc5Actions=null /* dernière sortie de buildCreativeActions, pour exécution par index (registry-safe) */
+
+/* 5.1 — INSIGHT STABILIZER (anti-flip-flop / dwell) : un signal n'est actionnable que s'il est
+   RELIABLE sur la fenêtre courte (7j) ET confirmé sur la longue (14j), même gagnant, non contredit. */
+function getStableCreativeSignals(mem){
+  mem=mem||memGet()
+  var recent=buildCreativeScoreReport(mem,7).all_signals
+  var base=buildCreativeScoreReport(mem,14).all_signals
+  var k=function(s){return s.attribute+'||'+s.stratum+'||'+s.prompt_version}
+  var baseMap={}; base.forEach(function(s){baseMap[k(s)]=s})
+  var stable=[]
+  recent.forEach(function(sr){
+    var sb=baseMap[k(sr)]
+    if(!sb) return                              /* pas confirmé sur l'horizon long → instable */
+    if(sr.best.value!==sb.best.value) return     /* gagnant incohérent entre fenêtres → instable */
+    if(sr.best.value===sb.worst.value) return    /* contredit (récent best = long worst) → instable */
+    stable.push({attribute:sr.attribute,stratum:sr.stratum,prompt_version:sr.prompt_version,
+      best:sr.best,worst:sr.worst,stability:'STABLE',windows:{recent:7,base:14}})
+  })
+  return stable
+}
+
+/* 5.2 — ACTION MAPPER : signaux stables + lectures INLINE par créa (winner_locked, fatigue mesurée,
+   getCreativeTruth.level) → propositions read-only, FILTRÉES par asl_phase. Aucune exécution ici. */
+function buildCreativeActions(mem){
+  mem=mem||memGet()
+  var camp=getActiveCampaign(mem)
+  var phase=(camp&&camp.asl_phase)||'TESTING'
+  var prod=getActiveProduct()||{}
+  var roas_be=prod.roas_be||2.3, roas_minus20=prod.roas_minus20||1.84
+  var stable=getStableCreativeSignals(mem)
+
+  /* Niveau ATTRIBUT (doctrine-bounded : ce sont les dimensions du SOP) */
+  var attribute_actions=[]
+  stable.forEach(function(s){
+    attribute_actions.push({type:'double_down',attribute:s.attribute,value:s.best.value,stratum:s.stratum,roas:s.best.roas})
+    attribute_actions.push({type:'avoid',attribute:s.attribute,value:s.worst.value,stratum:s.stratum,roas:s.worst.roas})
+  })
+
+  /* Niveau CRÉATIVE (lectures inline, zéro état stocké). HIGH confidence only → pas de petit échantillon. */
+  var creative_actions=[]
+  getProductBank(mem).forEach(function(c){
+    var truth=getCreativeTruth(mem,c.id,{basis:'raw'})
+    if(truth.data_confidence.level!=='HIGH') return
+    var sp=0,ca=0; truth.measured.forEach(function(d){sp+=(d.spend||0);ca+=(d.ca||0)})
+    var roas=sp>0?ca/sp:0
+    var fat=detectCreativeFatigue({daily:truth.measured}) /* fatigue sur MESURÉ only */
+    var winner=c.winner_locked===true
+    if(winner){
+      if(fat.fatigued) creative_actions.push({type:'refresh',creative_id:c.id,reason:'winner fatigué ('+fat.reason+') — décliner un remplaçant (jamais couper le lock)'})
+      else if(phase==='SCALING') creative_actions.push({type:'declinate_winner',creative_id:c.id,reason:'winner stable en SCALING — décliner l\'ADN gagnant'})
+    }else{
+      if(fat.fatigued) creative_actions.push({type:'kill_creative',creative_id:c.id,reason:'fatigue confirmée ('+fat.reason+') — sortir de la composition (PAS une coupe campagne)'})
+      else if(roas>=roas_be&&(phase==='OPTI'||phase==='TESTING')) creative_actions.push({type:'iterate',creative_id:c.id,reason:'validé (ROAS '+roas.toFixed(2)+'x ≥ BE) — itérer un levier'})
+      else if(roas>0&&roas<roas_minus20) creative_actions.push({type:'kill_creative',creative_id:c.id,reason:'sous-performance confirmée (ROAS '+roas.toFixed(2)+'x) — sortir de la composition'})
+    }
+  })
+
+  /* Ordre de composition du prochain batch (SPEC, pas une génération) */
+  var favor=attribute_actions.filter(function(a){return a.type==='double_down'}).map(function(a){return {attribute:a.attribute,value:a.value}})
+  var avoid=attribute_actions.filter(function(a){return a.type==='avoid'}).map(function(a){return {attribute:a.attribute,value:a.value}})
+  var declinate=creative_actions.filter(function(a){return a.type==='declinate_winner'||a.type==='refresh'}).map(function(a){return a.creative_id})
+  var size=(typeof ASL!=='undefined'&&ASL.computeBatchSize)?ASL.computeBatchSize(mem):4
+  var out={read_only:true,asl_phase:phase,attribute_actions:attribute_actions,creative_actions:creative_actions,
+    batch_suggestion:{size:size,favor:favor,avoid:avoid,declinate:declinate},
+    has_actions:(attribute_actions.length+creative_actions.length)>0}
+  _bloc5Actions=out
+  return out
+}
+
+/* 5.3 — EXÉCUTION via le pipeline EXISTANT (le "Go"). Une déclinaison/itération/refresh lance
+   executeCreateBatch avec opts.parent → POPULE parent_id/lineage_id (boucle lignée enfin fermée).
+   Jamais auto : déclenché uniquement depuis un bouton de proposition. */
+function applyCreativeAction(action){
+  if(!action) return
+  if(action.type==='declinate_winner'||action.type==='refresh'||action.type==='iterate'){
+    var mem=memGet()
+    var parent=(mem.creative_bank||[]).find(function(c){return c.id===action.creative_id})
+    if(!parent){pushToMiniChat('Créative parente introuvable pour l\'action '+action.type+'.');return}
+    pushToMiniChat('🧬 '+action.type+' de "'+(parent.meta_ad_name||parent.id)+'" — génération d\'une variante (lignée préservée).')
+    return executeCreateBatch({missionKey:'CREATE_BATCH',text:action.type},{parent:parent})
+  }else{
+    pushToMiniChat('Action créative read-only : '+action.type+' · '+(action.creative_id||action.value||''))
+  }
+}
+/* Wrapper registry-safe (argument string) pour les boutons de bulle/Orb. */
+function applyCreativeActionByIndex(i){
+  if(!_bloc5Actions||!_bloc5Actions.creative_actions) return
+  applyCreativeAction(_bloc5Actions.creative_actions[parseInt(i,10)])
+}
+
 /* ── BLOC E — FEEDBACK LOOP ──────────────────────────────────────────────────
    buildFeedbackContext : agrège les signaux de performance en objet standardisé.
    Safe state garanti : retourne DEFAULT si 0 data, jamais null, jamais erreur.
@@ -4495,8 +5075,9 @@ function buildFeedbackContext(mem){
     })
     if(!hasData) return DEFAULT
 
-    /* Utilise buildCreativeSignalReport sur 14 jours (plus de recul = plus de signal) */
-    var report=buildCreativeSignalReport(mem,14)
+    /* BLOC 4 — source = moteur de scoring stratifié + scopé version (measured/raw only).
+       Output-compatible avec l'ancien report → consommateurs inchangés, mais zéro confondant/bruit. */
+    var report=buildCreativeScoreReport(mem,14)
 
     /* Confidence selon profondeur des données */
     var totalEntries=bank.reduce(function(acc,c){return acc+(c.daily?c.daily.length:0)},0)
@@ -5078,6 +5659,10 @@ var MEM_KEY='promethee_v1'
 /* Les clés API vivent UNIQUEMENT dans .env, lues côté serveur (server.js). */
 /* Le front n'a jamais connaissance des clés : il appelle SERVER+'/api/...' */
 var SERVER='http://localhost:4200'
+/* BLOC 2.5 — version du prompt créatif. À incrémenter manuellement à chaque changement
+   structurel du prompt de callClaudeForBriefs. Tracée sur chaque créative pour ne jamais
+   corréler des perfs issues de prompts différents (évite l'apprentissage sur du bruit). */
+var PROMPT_VERSION='2.5.0'
 
 /* BLOC 2 / Modification 2.4 : timeout cohérent sur tous les appels réseau.
    Avant : aucun fetch() n'avait de limite de temps — un appel qui ne répond jamais
@@ -5097,9 +5682,29 @@ async function fetchWithTimeout(url,options,timeoutMs){
   }
 }
 
+/* GARDE-FOU MÉMOIRE #1 — clés racines indispensables. Si l'une manque (parse partiel,
+   migration ratée, écriture corrompue par une édition future), on la répare en la remplaçant
+   par sa valeur par défaut SANS toucher aux données déjà présentes. Réparation à la lecture
+   uniquement (aucune écriture surprise dans memGet) ; le prochain memSet persiste la forme saine. */
+var MEM_ROOT_KEYS=['account','products','active_product_id','campaign','last_metrics','creative_bank','angle_scores','decisions_log','weekly_patterns','campaigns','product_groups','creative_traces','daily_totals']
+function validateMemoryShape(mem){
+  if(!mem||typeof mem!=='object') return defaultMemory()
+  var def=null
+  for(var i=0;i<MEM_ROOT_KEYS.length;i++){
+    var k=MEM_ROOT_KEYS[i]
+    if(!(k in mem)||mem[k]==null){ if(!def)def=defaultMemory(); mem[k]=def[k] }
+  }
+  return mem
+}
 function memGet(){
-  try{var r=localStorage.getItem(MEM_KEY);return r?JSON.parse(r):defaultMemory()}
-  catch(e){return defaultMemory()}
+  try{
+    var r=localStorage.getItem(MEM_KEY)
+    if(!r) return defaultMemory()
+    return validateMemoryShape(JSON.parse(r))
+  }catch(e){
+    console.error('[memGet] lecture/parse JSON échoué — mémoire par défaut utilisée (non persistée) :',e)
+    return defaultMemory()
+  }
 }
 /* BLOC 1 / Modification 1.3 : un échec de sauvegarde doit être visible, jamais avalé en silence.
    Avant : catch(e){} vide — au-delà du quota localStorage, toute la mémoire (campagne, décisions,
@@ -5211,6 +5816,8 @@ function migrateMemoryIfNeeded(){
 
     /* Multi-produit : product_groups (clusters) si absent */
     if(!mem.product_groups){ mem.product_groups=[]; dirty=true }
+    if(!mem.creative_traces){ mem.creative_traces=[]; dirty=true } /* BLOC 2.5 */
+    if(!mem.daily_totals){ mem.daily_totals=[]; dirty=true } /* BLOC 3 */
 
     /* Tagger les creative_bank orphelines (sans product_id, créées avant le Bloc 1/3) */
     var orphans=(mem.creative_bank||[]).filter(function(c){return !c.product_id})
@@ -5286,6 +5893,12 @@ function defaultMemory(){
     },
     /* CREATIVE BANK (liée au produit actif) */
     creative_bank:[],
+    /* BLOC 2.5 — Creative Trace System : log append-only, une trace complète et figée par
+       créative réellement générée. Source unique de vérité pour le learning (BLOC 3). */
+    creative_traces:[],
+    /* BLOC 3 — historique des totaux du jour + facteur de calibration Meta→Shopify (observation
+       brute, jamais appliquée). Comble l'absence d'historique des totaux (last_metrics est écrasé). */
+    daily_totals:[],
     /* SCORES ANGLES (par produit actif) */
     angle_scores:{},
     /* HISTORIQUE */
@@ -5658,6 +6271,8 @@ function runDecisionEngine(){
 
   /* Rappel COGS bi-mensuel (Zezinho) — non bloquant, pousse un signal si pertinent */
   try{checkCogsReminder(mem)}catch(e){}
+  /* Relance taux de retour dès les premières ventes (si laissé vide à l'onboarding) */
+  try{checkReturnRateReminder(mem)}catch(e){}
 
   /* Pas de produit actif → demander de configurer */
   if(!prod){
@@ -5988,23 +6603,36 @@ function runDecisionEngine(){
     })
   }
 
-  /* PRIORITÉ 5 — CREATE (nouveau batch nécessaire)
-     Décision basée uniquement sur la phase ASL + spend cycle.
-     Le choix des angles est délégué à callClaudeForBriefs (Creative Strategist). */
+  /* PRIORITÉ 5 — CREATE (nouveau batch nécessaire) → PHASE STRATÉGIE de l'Orb.
+     L'Orb décrit le batch (objectif + type média + taille) et attend le clic "Go".
+     Aucune génération ici : la création part exclusivement du Go (orbGo → executeCreateBatch).
+     Objectif et type média sont calculés par le CLR (routeCreative — fonction pure, 0 appel API).
+     L'angle exact, les hooks et les leviers sont choisis par Claude au moment du Go. */
   var needsBatch=(camp.j4_decided&&camp.asl_phase!=='P7')||(camp.cycle_number===1&&!camp.j1_decided&&!metrics.spend)
   if(needsBatch){
     var batchSize=ASL.computeBatchSize(mem)
+    var roasForClr=metrics.roas_real||(metrics.ca_shopify&&metrics.spend?metrics.ca_shopify/metrics.spend:null)
+    var clrRoute=routeCreative({roas:roasForClr,roas_trend:computeRoasTrend(mem),spend:(metrics.spend||0),creative_profile:resolveCreativeProfile(mem,prod),prod:prod})
+    var OBJECTIF_LABEL={TEST:'Test',VALIDATION:'Validation',SCALE:'Scale'}
+    var MEDIA_LABEL={IMAGE_STATIC:'image statique',UGC_IMAGE:'UGC (image)',VIDEO_UGC:'vidéo UGC'}
+    var objectifTxt=OBJECTIF_LABEL[clrRoute.stage]||clrRoute.stage
+    var mediaTxt=MEDIA_LABEL[clrRoute.format]||clrRoute.format
     return buildMission('CREATE_BATCH',{
       type:'t-mission',tag:'Aujourd\'hui · Créer',
-      text:'Générer '+batchSize+' créatives pour le batch suivant.',
-      sub:'Phase '+camp.asl_phase+' · Cycle '+camp.cycle_number+' · Budget restant : '+(mem.account&&mem.account.budget_remaining!=null?mem.account.budget_remaining+'€':'?'),
-      conf:'78%',confBg:'var(--red)',confLbl:'Basé sur phase ASL + budget',
-      actionable:true,actionLabel:'Go — Générer',
+      text:'Créer '+batchSize+' créas — objectif '+objectifTxt+' · '+mediaTxt,
+      sub:'Angle choisi à la génération · '+clrRoute.tool+' · Phase '+camp.asl_phase+' · Cycle '+camp.cycle_number,
+      conf:'78%',confBg:'var(--red)',confLbl:'Objectif '+objectifTxt+' · '+mediaTxt,
+      actionable:true,
+      /* Phase stratégie : 2 boutons seulement (Go déclenche la création, Pourquoi explique). */
+      customButtons:[
+        {id:'go',label:'Go — Générer',cls:'primary',fn:'orbGo()'},
+        {id:'why',label:'Pourquoi ?',cls:'',fn:'orbWhy()'}
+      ],
       dc:{trigger:'Nouveau batch requis',signal:camp.cycle_number===1?'Premier batch P4':'Post-décision J4',
-        source:'Phase ASL + spend cycle',rule:'ASL P4 — 3-6 créas testing'},
-      why:'Le système décide de générer '+batchSize+' créatives selon la phase ('+camp.asl_phase+') et le budget disponible. Les angles, hooks et leviers sont sélectionnés par le Creative Strategist (Claude + Feedback Loop).',
-      vars:[{name:'Batch',state:'new',label:batchSize+' créa·s'},{name:'Phase',state:'new',label:camp.asl_phase}],
-      result:{objectif:'Générer batch créatif',resultat:batchSize+' créatives · briefs Claude + fal.ai/Higgsfield',duree:'5-15 min'}
+        source:'Phase ASL + CLR (stage '+clrRoute.stage+')',rule:'ASL P4 — 3-6 créas testing'},
+      why:'Objectif '+objectifTxt+' → '+mediaTxt+' ('+clrRoute.tool+'). '+clrRoute.rationale+'. '+batchSize+' créas seront générées au clic "Go" ; l\'angle, les hooks et les leviers sont sélectionnés par Claude à ce moment-là. Aucune création ni dépense média avant le Go.',
+      vars:[{name:'Batch',state:'new',label:batchSize+' créa·s'},{name:'Objectif',state:'new',label:objectifTxt},{name:'Type',state:'new',label:mediaTxt},{name:'Phase',state:'new',label:camp.asl_phase}],
+      result:{objectif:'Générer batch créatif',resultat:batchSize+' créatives '+mediaTxt+' · briefs Claude + '+clrRoute.tool,duree:'5-15 min'}
     })
   }
 
@@ -7608,7 +8236,7 @@ async function maybeRefreshVoiceProfile(productId){
     if(data.error) throw new Error(data.error.message||data.error.type||'erreur API Claude')
     if(!data.content) throw new Error('réponse Claude inattendue (pas de champ content)')
     var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
-    var profile=JSON.parse(text.replace(/```json|```/g,'').trim())
+    var profile=JSON.parse(extractJsonObject(text))
 
     var mem2=memGet()
     var prod2=mem2.products&&mem2.products.find(function(p){return p.id===productId})
@@ -7648,6 +8276,25 @@ async function loadSOP(){
     return SOP_FALLBACK
   }
 }
+/* F9 — EXTRACTEUR JSON ROBUSTE. Les LLM enrobent parfois le JSON de prose ("Voici les briefs : {…}").
+   On strippe les fences puis on isole l'objet du premier '{' à son '}' équilibré (en ignorant les
+   accolades à l'intérieur des chaînes). Si pas d'objet ou accolade non fermée (troncature), on rend
+   au mieux et JSON.parse échouera proprement en aval. Pur, aucune nouvelle source de vérité. */
+function extractJsonObject(text){
+  if(text==null) return ''
+  var t=String(text).replace(/```json|```/g,'').trim()
+  var start=t.indexOf('{')
+  if(start<0) return t
+  var depth=0,inStr=false,esc=false
+  for(var i=start;i<t.length;i++){
+    var ch=t.charAt(i)
+    if(inStr){ if(esc){esc=false} else if(ch==='\\'){esc=true} else if(ch==='"'){inStr=false} ; continue }
+    if(ch==='"'){ inStr=true; continue }
+    if(ch==='{'){ depth++ }
+    else if(ch==='}'){ depth--; if(depth===0) return t.slice(start,i+1) }
+  }
+  return t.slice(start)
+}
 function formatSOPForPrompt(sop){
   var winRatesTxt=Object.keys(sop.win_rates).map(function(k){
     var pct=(sop.win_rates[k]*100).toFixed(1).replace(/\.0$/,'')
@@ -7655,79 +8302,6 @@ function formatSOPForPrompt(sop){
   }).join(' | ')
   var rulesTxt=sop.rules_p4.map(function(r){return '\n- '+r}).join('')
   return {winRatesTxt:winRatesTxt,rulesTxt:rulesTxt,batchMix:sop.batch_mix_instruction||''}
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   BLOC 5 — CREATIVE STRATEGY ENGINE
-   ═══════════════════════════════════════════════════════════════════════════
-   Construit, mais PAS ENCORE branché sur executeCreateBatch (qui utilise toujours
-   callClaudeForBriefs en un seul appel, déjà testé en réel). Tant que le Bloc 6 n'existe
-   pas pour transformer un "concept" en script/brief par format, brancher ce moteur sur le
-   chemin réel casserait le pipeline qui fonctionne. Ce moteur est 100% testable dès
-   maintenant via le mode simulation (zéro coût, zéro appel API réel).
-
-   Chaîne : Angles → Hooks → Concept, sur un socle de contexte construit une seule fois,
-   fidèle au document ASL fourni (diversité, empreinte Andromeda, structures de copy,
-   UMP/UMS, types d'annonces réels). Rien n'est inventé hors de ce document + ce qui
-   existe déjà dans Prométhée (avatar, voix, concurrence, SOP). */
-
-/* ── SOCLE DE CONTEXTE — construit une seule fois par génération ── */
-function buildStrategyBaseContext(prod,mem,sop){
-  var bank=getProductBank(mem)
-  var winners=bank.filter(function(c){return c.status==='WINNER'})
-  var usedHooks=bank.map(function(c){return c.hook}).filter(Boolean)
-  var usedAngles={}
-  bank.forEach(function(c){
-    if(!c.angle) return
-    if(!usedAngles[c.angle]) usedAngles[c.angle]=[]
-    /* Empreinte partielle — hook_visuel et audio_musique ne sont connus qu'à l'exécution (Bloc 6).
-       angle_central et texte_headline sont déjà vérifiables dès le Bloc 5. */
-    usedAngles[c.angle].push({
-      angle_central:c.angle,texte_headline:c.hook,format:c.format||null,
-      audio_musique:null,hook_visuel:null,created_at:c.created_at,
-      status:c.status||null,roas:c.roas||null
-    })
-  })
-  var competitors=(prod.market_intel&&prod.market_intel.competitors||[]).filter(function(c){return c.name})
-  var saturation=computeSaturationLevels(competitors)
-  return {
-    product:{
-      name:prod.name,price:prod.price,cogs:prod.cogs,roas_be:prod.roas_be,roas_target:prod.roas_target,
-      headline:prod.headline,usp:prod.usp,guarantee:prod.guarantee,angles_saturated:prod.angles_saturated||[]
-    },
-    avatar:{
-      pain:prod.avatar&&prod.avatar.pain||'',
-      desire:prod.avatar&&prod.avatar.desire||'',
-      objections:prod.avatar&&prod.avatar.objections||[],
-      awareness_level:prod.avatar&&prod.avatar.awareness_level||2,
-      voice_profile:prod.avatar&&prod.avatar.voice_profile||null
-    },
-    market:{competitors:competitors,satLevels:saturation.satLevels,freeLevels:saturation.freeLevels},
-    history:{usedHooks:usedHooks,usedAngles:usedAngles,winnersCount:winners.length},
-    sop:sop,
-    product_id:prod.id,
-    /* BLOC 5 : phase business (CA cumulé, réglée par l'utilisateur dans Réglages — Prométhée ne
-       peut pas la déduire seul). Distincte de campaign.asl_phase (cycle J1/J2/J4 d'un seul test).
-       Détermine si le moteur copie le concurrent (testing) ou fait du marketing research complet. */
-    business_stage:(mem.account&&mem.account.business_stage)||'testing_0_1kd'
-  }
-}
-
-/* ── APPEL CLAUDE GÉNÉRIQUE POUR LE MOTEUR — JSON strict, erreurs explicites (Bloc 2) ── */
-async function callClaudeJSON(prompt,maxTokens){
-  var resp=await fetchWithTimeout(SERVER+'/api/claude',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens||1200,messages:[{role:'user',content:prompt}]})
-  },45000)
-  var data=await resp.json()
-  if(data.error) throw new Error('Claude a renvoyé une erreur : '+(data.error.message||data.error.type||JSON.stringify(data.error)))
-  if(!data.content) throw new Error('Réponse Claude inattendue (pas de champ content)')
-  var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
-  try{
-    return JSON.parse(text.replace(/```json|```/g,'').trim())
-  }catch(e){
-    throw new Error('Réponse Claude non parsable en JSON ('+e.message+') — début : '+text.slice(0,150))
-  }
 }
 
 /* ── OUTIL : similarité programmatique entre deux hooks (anti-saturation, pas juste demandé au LLM) ──
@@ -7744,570 +8318,6 @@ function hookSimilarity(a,b){
 }
 function isHookTooSimilar(hook,usedHooks){
   return usedHooks.some(function(h){return hookSimilarity(hook,h)>0.6})
-}
-
-/* ── ÉTAPE 1 — ANGLES ──────────────────────────────────────────────────── */
-async function generateAngles(ctx,opts){
-  opts=opts||{}
-  var n=opts.count||5
-  if(opts.simulate) return simulateAngles(ctx,n)
-
-  var sop=ctx.sop
-  var awarenessTable=(sop.awareness_levels||[]).map(function(a){
-    var subTxt=(a.sub_niveaux||[]).length?(' Sous-niveaux : '+a.sub_niveaux.join(' / ')):''
-    return '\nNiveau '+a.level+' ('+a.name+') : '+a.approche+subTxt
-  }).join('')
-  var maxAwareness=(sop.awareness_levels||[]).length||5
-  /* BLOC 5 : phase business — ton playbook prescrit un comportement différent selon le CA cumulé.
-     En testing (0-1KD), copier le concurrent validé plutôt qu'inventer. Sans ça, le moteur
-     contredirait le SOP qu'il est censé suivre. */
-  var stageRules=(sop.business_stage_rules&&sop.business_stage_rules.stages||[]).filter(function(s){return s.id===ctx.business_stage})[0]
-  var stageInstruction=stageRules
-    ?'\n\nPHASE BUSINESS ACTUELLE : '+stageRules.label+'\nApproche imposée pour cette phase : '+stageRules.approche
-    :''
-  if(ctx.business_stage==='testing_0_1kd'&&ctx.market.competitors.length){
-    stageInstruction+='\nEn phase testing, priorise les angles DÉJÀ observés chez la concurrence (liste ci-dessous) plutôt que d\'en inventer de nouveaux : '
-      +ctx.market.competitors.map(function(c){return c.angle}).filter(Boolean).join(', ')
-  }else if(ctx.business_stage==='testing_0_1kd'&&!ctx.market.competitors.length){
-    stageInstruction+='\nAucune concurrence renseignée (Bloc 4) — sans angle concurrent à copier, génère les angles les plus évidents et directs pour cet avatar, pas des angles sophistiqués de marketing research avancé (réservés à la phase scaling).'
-  }
-
-  var prompt='Tu es le stratège créatif de Prométhée. Tu génères des ANGLES marketing — pas encore de hooks, pas de scripts.'
-    +'\n\nPRODUIT : '+ctx.product.name+' · Prix '+ctx.product.price+'EUR'
-    +'\nDouleur avatar : '+(ctx.avatar.pain||'non renseignée')
-    +'\nDésir/transformation : '+(ctx.avatar.desire||'non renseigné')
-    +'\nObjections : '+(ctx.avatar.objections.join(' | ')||'aucune renseignée')
-    +'\nNiveau de conscience actuel du produit (baseline prospect froid) : '+ctx.avatar.awareness_level+'/5'
-    +(ctx.avatar.voice_profile?'\nTon de voix de l\'avatar : '+ctx.avatar.voice_profile.tone:'')
-    +stageInstruction
-    +'\n\nNIVEAUX DE CONSCIENCE (Schwartz + extension 2026) — approche par niveau, '+maxAwareness+' niveaux disponibles :'+awarenessTable
-    +'\n\nLe niveau 6 (Customer-aware) cible une audience catégoriquement différente (déjà acheté chez toi ou un concurrent) — à proposer SEULEMENT si pertinent pour ce produit (signal de retention/winback/concurrence mature), jamais par défaut.'
-    +'\n\nCatégories d\'angles disponibles : '+(sop.angle_categories||[]).join(', ')
-    +'\nAngles déjà saturés chez toi (INTERDITS) : '+(ctx.product.angles_saturated.join(', ')||'aucun')
-    +(ctx.market.satLevels.length?'\nNiveaux de conscience SATURÉS par la concurrence (à éviter si possible) : '+ctx.market.satLevels.join(', '):'')
-    +(ctx.market.freeLevels.length?'\nNiveaux de conscience LIBRES chez la concurrence (opportunité prioritaire) : '+ctx.market.freeLevels.join(', '):'')
-    +'\n\nRÈGLE "FOND AVANT FORME" : '+(sop.diversity_rules&&sop.diversity_rules.priority_note||'diversifier les messages avant le format.')
-    +'\nRègle de diversité du batch : minimum '+(sop.diversity_rules&&sop.diversity_rules.min_angles_per_batch||3)+' angles différents, '+(sop.diversity_rules&&sop.diversity_rules.min_awareness_levels_per_batch||2)+' niveaux de conscience différents.'
-    +'\n\nGénère '+n+' angles candidats, en couvrant des niveaux de conscience différents et en priorisant les niveaux libres identifiés ci-dessus. Réponds UNIQUEMENT en JSON :'
-    +'\n{"angles":[{"angle":"nom court de l\'angle","category":"une catégorie de la liste","awareness_level":1-'+maxAwareness+',"why":"pourquoi cet angle maintenant, en lien avec l\'avatar et la concurrence"}]}'
-
-  var result=await callClaudeJSON(prompt,1200)
-  if(!result.angles||!result.angles.length) throw new Error('Aucun angle retourné par Claude')
-  return result.angles
-}
-function simulateAngles(ctx,n){
-  var cats=(ctx.sop.angle_categories||['Douleur','Transformation'])
-  var free=ctx.market.freeLevels.length?ctx.market.freeLevels:[1,2,3,4,5]
-  /* Reflète la même logique de phase business que le vrai appel — sinon la simulation
-     ne testerait pas la bonne mécanique. */
-  var copyCompetitor=ctx.business_stage==='testing_0_1kd'&&ctx.market.competitors.length
-  var out=[]
-  for(var i=0;i<n;i++){
-    if(copyCompetitor){
-      var comp=ctx.market.competitors[i%ctx.market.competitors.length]
-      out.push({
-        angle:'[SIMULATION] '+(comp.angle||'Angle concurrent')+' (copié de '+comp.name+')',
-        category:comp.angle||cats[0],
-        awareness_level:comp.awareness||free[i%free.length],
-        why:'(simulation) phase testing — angle copié du concurrent "'+comp.name+'" plutôt qu\'inventé, conforme au SOP.'
-      })
-    }else{
-      out.push({
-        angle:'[SIMULATION] '+cats[i%cats.length]+' #'+(i+1),
-        category:cats[i%cats.length],
-        awareness_level:free[i%free.length],
-        why:'(simulation) niveau '+free[i%free.length]+' choisi car libre chez la concurrence — aucune donnée réelle, pour tester la chaîne.'
-      })
-    }
-  }
-  return out
-}
-
-/* ── ÉTAPE 2 — HOOKS ───────────────────────────────────────────────────── */
-async function generateHooksForAngle(ctx,angleObj,opts){
-  opts=opts||{}
-  var n=opts.count||3
-  if(opts.simulate) return simulateHooks(ctx,angleObj,n)
-
-  var sop=ctx.sop
-  var voice=ctx.avatar.voice_profile
-  var he=sop.hook_engineering||{}
-  var musts=(he['3_musts']&&he['3_musts'].liste||[]).join(' | ')
-  var stratTxt=(he.strategies_unaware||[]).map(function(s){
-    return s.nom+' — '+s.structure+' Ex: '+(s.exemples||[]).slice(0,2).join(' / ')
-  }).join('\n')
-  var alignExample=he.alignement_awareness&&he.alignement_awareness.exemples_par_stage
-  var levelName=(sop.awareness_levels||[]).filter(function(a){return a.level===angleObj.awareness_level})[0]
-  /* Les clés de exemples_par_stage ("Problem-aware") ne matchent pas exactement le name de
-     awareness_levels ("Problem Aware") — comparaison normalisée (espaces/tirets/casse ignorés)
-     plutôt qu'une égalité stricte fragile. */
-  var normKey=function(s){return (s||'').toLowerCase().replace(/[\s-]/g,'')}
-  var alignMatch=''
-  if(alignExample&&levelName){
-    Object.keys(alignExample).forEach(function(k){if(normKey(k)===normKey(levelName.name)) alignMatch=alignExample[k]})
-  }
-  var alignTxt=alignMatch?('\nExemple de hook calibré pour ce niveau ('+levelName.name+') : "'+alignMatch+'"'):''
-  var moodGrid=he.mood_x_intensite
-  var moodTxt=moodGrid?('\n\nMATRICE MOOD x INTENSITÉ — répartis tes '+n+' hooks sur des cases DIFFÉRENTES (jamais tous dans la même case, même si une case convertit bien — c\'est ce qui fait monter le CPM via le Creative Similarity Score de Andromeda) :\nMood : '+moodGrid.mood.join(', ')+'\nIntensité : '+moodGrid.intensite.join(', ')+'\nRègle : '+moodGrid.regle):''
-  var prompt='Tu écris des HOOKS (accroche des 2-3 premières secondes/lignes) pour Prométhée — pas encore le script complet. Le hook EST le targeting Meta : '+(he.fonction||'')
-    +'\n\nAngle retenu : '+angleObj.angle+' ('+angleObj.category+') — niveau de conscience '+angleObj.awareness_level+'/6'
-    +'\nPourquoi cet angle : '+angleObj.why
-    +(voice?'\n\nVOIX DE L\'AVATAR — utilise ce vocabulaire, pas un ton corporate :\nTon : '+voice.tone+'\nExpressions typiques : '+(voice.phrases||[]).join(' | ')+(voice.avoid?'\nÀ éviter : '+voice.avoid:''):'')
-    +(musts?'\n\n3 MUSTS — chaque hook a besoin d\'au moins 2/3 (les meilleurs ont les 3) : '+musts:'')
-    +(stratTxt?'\n\n4 STRATÉGIES DE HOOK (surtout pour niveaux 1-2, mais réutilisables ailleurs) :\n'+stratTxt:'')
-    +alignTxt
-    +moodTxt
-    +'\n\nStyles de hook disponibles (catégories courtes) : '+(sop.hook_styles||[]).join(', ')
-    +'\nFormule de headline : '+(sop.headline_formula||'[Power Word] + [Pain Point] + [Contexte]')
-    +'\nPower words par catégorie : '+JSON.stringify(sop.power_words||{})
-    +'\nHooks déjà testés (NE JAMAIS reformuler, même légèrement) : '+(ctx.history.usedHooks.join(' | ')||'aucun')
-    +'\n\nGénère '+n+' hooks différents pour cet angle, chacun dans une case Mood x Intensité différente si possible. Réponds UNIQUEMENT en JSON :'
-    +'\n{"hooks":[{"hook":"le hook exact","hook_style":"un style de la liste","mood":"Positif|Négatif|Neutre","intensite":"Faible|Moyenne|Haute","power_words_used":["mots utilisés"]}]}'
-
-  var result=await callClaudeJSON(prompt,900)
-  if(!result.hooks||!result.hooks.length) throw new Error('Aucun hook retourné par Claude pour l\'angle "'+angleObj.angle+'"')
-  /* Garde-fou programmatique — pas seulement une instruction au LLM (Modification 5.4) */
-  var filtered=result.hooks.filter(function(h){return !isHookTooSimilar(h.hook,ctx.history.usedHooks)})
-  if(!filtered.length) throw new Error('Tous les hooks générés pour "'+angleObj.angle+'" sont trop proches de hooks déjà testés (similarité >60%)')
-  return filtered
-}
-function simulateHooks(ctx,angleObj,n){
-  var styles=ctx.sop.hook_styles||['Question choc']
-  var moods=['Positif','Négatif','Neutre']
-  var intensites=['Faible','Moyenne','Haute']
-  var out=[]
-  for(var i=0;i<n;i++){
-    out.push({
-      hook:'[SIMULATION] Hook '+(i+1)+' pour '+angleObj.angle,
-      hook_style:styles[i%styles.length],
-      mood:moods[i%moods.length],
-      intensite:intensites[i%intensites.length],
-      power_words_used:['(simulation)']
-    })
-  }
-  return out
-}
-
-/* ── EMPREINTE ANDROMEDA — vérification de diversité (Modification 5.4) ──
-   Partielle au stade Bloc 5 : angle_central et texte_headline sont connus ici. format,
-   audio_musique et hook_visuel ne seront tranchés qu'à l'exécution (Bloc 6) — le Bloc 6
-   devra refaire cette vérification une fois ces 3 éléments choisis. */
-function checkFingerprintDiversity(angleObj,hookObj,ctx){
-  var history=ctx.history.usedAngles[angleObj.angle]||[]
-  if(!history.length) return {checked:false,sufficient:true,note:'Premier passage sur cet angle — rien à comparer.',iteration_mode:'big_swing',iteration_mode_reason:'Aucun historique sur cet angle — phase early, big swing (s\'inspirer largement, tester en entonnoir).'}
-  var last=history[history.length-1]
-  var elements=(ctx.sop.andromeda_fingerprint&&ctx.sop.andromeda_fingerprint.elements)||['hook_visuel','texte_headline','audio_musique','format','angle_central']
-  var changed=[]
-  if(last.angle_central!==angleObj.angle) changed.push('angle_central')
-  if(hookSimilarity(last.texte_headline,hookObj.hook)<0.6) changed.push('texte_headline')
-  /* format/audio/hook_visuel : pas encore connus à ce stade — non comptés ni contre ni pour */
-  var minRequired=(ctx.sop.andromeda_fingerprint&&ctx.sop.andromeda_fingerprint.min_elements_changed)||3
-
-  /* Méthode 3i (Kahel/Luma) : une vraie "winner" mature (≥12 spins avec bon ROAS sur cet angle)
-     se travaille en itération ISOLÉE (un levier à la fois, ordre de priorité du SOP). Un angle
-     encore jeune (<12 essais) se travaille en BIG SWING (on garde l'ADN, on change beaucoup,
-     façon entonnoir) — itérer trop finement un angle pas encore validé gaspille du budget testing. */
-  var m3i=(ctx.sop.andromeda_fingerprint&&ctx.sop.andromeda_fingerprint.methode_3i)||{}
-  var spins=history.length
-  var hasWinner=history.some(function(h){return h.status==='WINNER'})
-  var iterationMode=(spins>=12&&hasWinner)?'isolee':'big_swing'
-  var isolationOrder=m3i.ordre_isolation_priorite||[]
-
-  return {
-    checked:true,
-    changed_so_far:changed,
-    elements_pending_bloc6:['hook_visuel','audio_musique','format'],
-    sufficient:null, /* ne peut être tranché définitivement qu'après le Bloc 6 */
-    min_required:minRequired,
-    spins_on_this_angle:spins,
-    has_winner_on_this_angle:hasWinner,
-    iteration_mode:iterationMode,
-    iteration_mode_reason:iterationMode==='isolee'
-      ?(spins+' essais dont au moins une WINNER — angle mature, isoler UN levier à la fois, dans l\'ordre : '+isolationOrder.join(' > '))
-      :(spins+' essais, pas encore '+(m3i.seuil_avant_iteration||'12 spins avec bon ROAS')+' — rester en big swing (garder l\'ADN de l\'angle, changer beaucoup d\'éléments à la fois) avant d\'isoler finement.'),
-    note:changed.length+'/2 éléments vérifiables changés à ce stade ('+changed.join(', ')+') — le Bloc 6 doit vérifier les 3 restants avant validation finale.'
-  }
-}
-
-/* ── ÉTAPE 3 — CONCEPT ─────────────────────────────────────────────────── */
-async function generateConcept(ctx,angleObj,hookObj,opts){
-  opts=opts||{}
-  if(opts.simulate) return simulateConcept(ctx,angleObj,hookObj)
-
-  var sop=ctx.sop
-  var applicableStructures=(sop.copywriting_structures||[]).filter(function(s){return (s.awareness||[]).indexOf(angleObj.awareness_level)>=0})
-  if(!applicableStructures.length) applicableStructures=sop.copywriting_structures||[]
-  var applicableTypes=(sop.types_annonces||[]).filter(function(t){return (t.awareness||[]).indexOf(angleObj.awareness_level)>=0})
-  if(!applicableTypes.length) applicableTypes=sop.types_annonces||[]
-
-  var cl=sop.copywriting_leviers||{}
-  var leviersMenuTxt='\n\nLEVIER PSYCHOLOGIQUE PRINCIPAL — choisis-en UN qui sert le mieux cet angle/cette objection, nomme-le explicitement dans la réponse :'
-    +'\n- Autorité ('+((cl.autorite&&cl.autorite.principe)||'')+' — 3 niveaux : tu ES l\'autorité / tu as appris d\'une autorité / tu connais quelqu\'un, + 2 boosters cachés : Relatability et Transparency Authority)'
-    +'\n- Mécanisme unique ('+((cl.mecanismes_uniques&&cl.mecanismes_uniques.principe)||'')+' — 3 types : vrai nouveau mécanisme / mécanisme non-dit chez les concurrents / mécanisme renommé)'
-    +'\n- Self-concept ('+((cl.self_concept&&cl.self_concept.principe)||'')+' — vendre qui le client VEUT être, pas qui il EST)'
-    +'\n- Raise the stakes (5 leviers empilables : bigger / témoin / urgent / permanent / cost more)'
-  var objMenuTxt=cl.objections?('\n\nGESTION DE L\'OBJECTION — choisis UNE des 4 stratégies par ordre de puissance et nomme-la : '+(cl.objections['4_strategies_par_ordre_de_puissance']||[]).map(function(s){return s.nom}).join(' > ')):''
-  var faitsRegle=cl.faits_vs_opinions?('\n\nRÈGLE FAITS > OPINIONS : '+cl.faits_vs_opinions.regle+' Process : '+(cl.faits_vs_opinions.process||[]).join(' → ')):''
-  var showDontTell=cl.show_dont_tell?('\nRÈGLE SHOW DON\'T TELL : '+cl.show_dont_tell.principe):''
-  var fp=opts.fingerprint
-  var iterInstruction=fp&&fp.iteration_mode==='isolee'
-    ?('\n\nMODE ITÉRATION : angle mature ('+fp.spins_on_this_angle+' essais, déjà eu une WINNER) — ISOLE un seul levier majeur vs la dernière version (priorité : '+((sop.andromeda_fingerprint&&sop.andromeda_fingerprint.methode_3i&&sop.andromeda_fingerprint.methode_3i.ordre_isolation_priorite)||[]).slice(0,3).join(' / ')+'), garde le reste identique à l\'ADN qui a fonctionné.')
-    :(fp?('\n\nMODE ITÉRATION : angle jeune ('+(fp.spins_on_this_angle||0)+' essais) — BIG SWING autorisé, tu peux varier largement (UMS, preuve, structure) tant que tu restes sur cet angle.'):'')
-
-  var prompt='Tu construis un CONCEPT créatif complet pour Prométhée — la stratégie, pas encore le script ou le visuel final (ça, c\'est une autre étape).'
-    +'\n\nAngle : '+angleObj.angle+' · Hook retenu : "'+hookObj.hook+'" · Niveau de conscience : '+angleObj.awareness_level+'/6'
-    +'\nProduit : '+ctx.product.name+' · USP : '+(ctx.product.usp||'non renseignée')+' · Garantie : '+(ctx.product.guarantee||'non renseignée')
-    +'\nObjections à lever explicitement : '+(ctx.avatar.objections.join(' | ')||'aucune renseignée')
-    +'\n\nUMP (Unique Mechanism Problem) : '+(sop.ump_ums&&sop.ump_ums.ump_def||'')
-    +'\nUMS (Unique Mechanism Solution) : '+(sop.ump_ums&&sop.ump_ums.ums_def||'')
-    +'\nRègle bénéfice vs feature : '+(sop.benefice_vs_feature&&sop.benefice_vs_feature.regle||'')+' Formule : '+(sop.benefice_vs_feature&&sop.benefice_vs_feature.formule||'')
-    +leviersMenuTxt+objMenuTxt+faitsRegle+showDontTell+iterInstruction
-    +'\n\nStructures de copywriting applicables à ce niveau de conscience : '+applicableStructures.map(function(s){return s.name+' ('+s.logique+')'}).join(' | ')
-    +'\nSquelette d\'ad copy à respecter : '+(sop.ad_copy_skeleton||[]).join(' → ')+'. Max '+(sop.ad_copy_max_words||150)+' mots.'
-    +'\nTypes d\'annonces pertinents à ce niveau : '+applicableTypes.map(function(t){return t.type+' (win rate '+(t.win_rate?Math.round(t.win_rate*100)+'%':'variable')+', '+t.cle+')'}).join(' | ')
-    +'\nTypes de titre disponibles : '+(sop.titre_types||[]).map(function(t){return t.type}).join(', ')+'. Règle : '+(sop.titre_complementarity_rule||'')
-    +'\n\nProduis le concept complet. Réponds UNIQUEMENT en JSON :'
-    +'\n{"ump":"d\'où vient le problème pour cet avatar","ums":"pourquoi ce produit fonctionne, le mécanisme différenciant",'
-    +'"levier_psychologique_principal":"autorité|mécanisme unique|self-concept|raise the stakes, + comment appliqué concrètement",'
-    +'"copywriting_structure":"une structure de la liste","type_annonce_recommande":"un type de la liste",'
-    +'"objection_handled":"l\'objection précise levée","strategie_objection":"une des 4 stratégies nommées ci-dessus","proof":"la preuve/preuve sociale utilisée, factuelle et falsifiable (pas une opinion)",'
-    +'"benefice_principal":"le bénéfice, pas la feature","titre":"le titre selon les règles","ad_copy":"l\'ad copy complet selon le squelette","cta":"l\'appel à l\'action final"}'
-
-  var concept=await callClaudeJSON(prompt,1100)
-  concept.angle=angleObj.angle
-  concept.hook=hookObj.hook
-  concept.awareness_level=angleObj.awareness_level
-  concept.hook_style=hookObj.hook_style
-  /* type_media déduit du type d'annonce choisi (table SOP), pas inventé ni laissé au Bloc 6
-     à deviner — vidéo / image / flexible selon le types_annonces.type_media. */
-  var matchedType=(sop.types_annonces||[]).filter(function(t){return t.type===concept.type_annonce_recommande})[0]
-  concept.type_media=matchedType?matchedType.type_media:'flexible'
-  return concept
-}
-function simulateConcept(ctx,angleObj,hookObj){
-  var structures=ctx.sop.copywriting_structures||[]
-  /* Choisir parmi les types applicables à CE niveau de conscience, pas toujours le même —
-     sinon la simulation fausse artificiellement le contrôle de diversité du batch
-     (détecté en testant ce code : les 4 concepts simulés prenaient tous le même type). */
-  var applicableTypes=(ctx.sop.types_annonces||[]).filter(function(t){return (t.awareness||[]).indexOf(angleObj.awareness_level)>=0})
-  if(!applicableTypes.length) applicableTypes=ctx.sop.types_annonces||[{type:'UGC Testimonial authentique'}]
-  var typeChoice=applicableTypes[angleObj.awareness_level%applicableTypes.length]
-  var structChoice=structures[angleObj.awareness_level%Math.max(1,structures.length)]
-  return {
-    angle:angleObj.angle,hook:hookObj.hook,awareness_level:angleObj.awareness_level,hook_style:hookObj.hook_style,
-    ump:'(simulation) douleur fictive liée à '+angleObj.angle,
-    ums:'(simulation) mécanisme fictif différenciant',
-    levier_psychologique_principal:'(simulation) autorité',
-    copywriting_structure:(structChoice&&structChoice.name)||'AIDA',
-    type_annonce_recommande:(typeChoice&&typeChoice.type)||'UGC Testimonial authentique',
-    objection_handled:(ctx.avatar.objections[0])||'(simulation) aucune objection renseignée',
-    strategie_objection:'(simulation) faits vs opinions',
-    proof:'(simulation) preuve fictive',
-    benefice_principal:'(simulation) bénéfice fictif',
-    titre:'[SIMULATION] Titre pour '+angleObj.angle,
-    ad_copy:'[SIMULATION] Ad copy fictif pour tester la structure — '+hookObj.hook,
-    cta:'(simulation) CTA fictif',
-    type_media:typeChoice?typeChoice.type_media:'flexible'
-  }
-}
-
-/* ── VALIDATION DIVERSITÉ DU BATCH COMPLET ─────────────────────────────── */
-function validateBatchDiversity(concepts,sop,businessStage){
-  /* BLOC 5 : en phase testing (0-1KD), le SOP prescrit explicitement de copier fidèlement
-     le concurrent — pas de diversifier. Exiger 3 angles différents à ce stade contredirait
-     le playbook lui-même (trouvé en testant ce code avec un scénario à 2 concurrents partageant
-     le même angle validé : le check échouait alors que c'est exactement le comportement voulu). */
-  if(businessStage==='testing_0_1kd'){
-    return {
-      pass:true,skipped:true,
-      counts:{angles:0,types:0,levels:0},missing:[],
-      note:'Phase testing — diversité non exigée par le SOP (copie fidèle du concurrent attendue, pas de diversification à ce stade).'
-    }
-  }
-  var rules=sop.diversity_rules||{min_angles_per_batch:3,min_types_annonces_per_batch:2,min_awareness_levels_per_batch:2}
-  var angles={},types={},levels={}
-  concepts.forEach(function(c){
-    if(c.angle) angles[c.angle]=true
-    if(c.type_annonce_recommande) types[c.type_annonce_recommande]=true
-    if(c.awareness_level) levels[c.awareness_level]=true
-  })
-  var nAngles=Object.keys(angles).length,nTypes=Object.keys(types).length,nLevels=Object.keys(levels).length
-  var missing=[]
-  if(nAngles<rules.min_angles_per_batch) missing.push(nAngles+'/'+rules.min_angles_per_batch+' angles différents')
-  if(nTypes<rules.min_types_annonces_per_batch) missing.push(nTypes+'/'+rules.min_types_annonces_per_batch+' types d\'annonces différents')
-  if(nLevels<rules.min_awareness_levels_per_batch) missing.push(nLevels+'/'+rules.min_awareness_levels_per_batch+' niveaux de conscience différents')
-  return {
-    pass:missing.length===0,
-    counts:{angles:nAngles,types:nTypes,levels:nLevels},
-    missing:missing,
-    note:missing.length?'Batch insuffisamment diversifié : '+missing.join(', ')+'. Risque de tester 1 hypothèse N fois, pas N hypothèses (Loi des 8%).':'Diversité du batch conforme au SOP.'
-  }
-}
-
-/* ── ORCHESTRATEUR ALTERNATIF — RÉSERVÉ PHASE 5, JAMAIS APPELÉ EN PRODUCTION ──────────────
-   ⚠️  NE PAS APPELER CETTE FONCTION en production. Chemin actif = executeCreateBatch()
-       qui appelle callClaudeForBriefs() en 1 seul appel Claude.
-
-   Pourquoi ce code existe encore :
-   - runCreativeStrategyChain() fait la même chose mais en ~16 appels Claude par batch
-     (generateAngles → generateHooks × N → generateConcept × N → generateScript × N)
-   - C'est architecturalement plus granulaire (chaque étape est corrigeable indépendamment)
-     mais 16× plus coûteux par batch → pas utilisable au stade actuel (coût + latence)
-   - Conservé pour Phase 5 (futur) si on dispose de tokens illimités ou si la granularité
-     devient indispensable pour la qualité créative
-   - L'UNIQUE endroit où cette fonction est actuellement appelée : openSOPSheet() en mode
-     simulation (opts.simulate=true) pour les tests unitaires de la chaîne. Pas de prod.
-
-   Pour y accéder en prod : brancher executeCreateBatch() sur cette chaîne au lieu de
-   callClaudeForBriefs() et accepter ~16 appels Claude + 45-90s de latence par batch. */
-async function runCreativeStrategyChain(productId,batchSize,opts){
-  opts=opts||{}
-  var mem=memGet()
-  var prod=mem.products&&mem.products.find(function(p){return p.id===productId})
-  if(!prod) throw new Error('Produit introuvable : '+productId)
-  var sop=opts.simulate?(await loadSOP().catch(function(){return SOP_FALLBACK})):await loadSOP()
-  var ctx=buildStrategyBaseContext(prod,mem,sop)
-
-  var diagnostics={steps:[],errors:[]}
-  var angles=await generateAngles(ctx,{count:batchSize+2,simulate:opts.simulate})
-  diagnostics.steps.push('Angles générés : '+angles.length)
-
-  var concepts=[]
-  for(var i=0;i<angles.length&&concepts.length<batchSize;i++){
-    var angleObj=angles[i]
-    try{
-      var hooks=await generateHooksForAngle(ctx,angleObj,{count:3,simulate:opts.simulate})
-      var hookObj=hooks[0]
-      var fingerprint=checkFingerprintDiversity(angleObj,hookObj,ctx)
-      var concept=await generateConcept(ctx,angleObj,hookObj,{simulate:opts.simulate,fingerprint:fingerprint})
-      concept._fingerprint_check=fingerprint
-      concepts.push(concept)
-      /* Mettre à jour l'historique local pour que les angles suivants du même batch
-         se comparent aussi entre eux, pas seulement à l'historique déjà persisté. */
-      if(!ctx.history.usedAngles[angleObj.angle]) ctx.history.usedAngles[angleObj.angle]=[]
-      ctx.history.usedAngles[angleObj.angle].push({angle_central:angleObj.angle,texte_headline:hookObj.hook,format:null,audio_musique:null,hook_visuel:null})
-      ctx.history.usedHooks.push(hookObj.hook)
-    }catch(e){
-      diagnostics.errors.push('Angle "'+angleObj.angle+'" : '+e.message)
-    }
-  }
-
-  var batchDiag=validateBatchDiversity(concepts,sop,ctx.business_stage)
-  diagnostics.batch_diversity=batchDiag
-  diagnostics.steps.push('Concepts produits : '+concepts.length+'/'+batchSize)
-
-  return {concepts:concepts,diagnostics:diagnostics,context_used:ctx}
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   BLOC 6 — WORKFLOW DE GÉNÉRATION PAR FORMAT
-   ═══════════════════════════════════════════════════════════════════════════
-   Consomme un "concept" produit par le Bloc 5 et le transforme en brief
-   d'exécution réel (script complet, composition visuelle, copy) puis route
-   vers le bon pipeline technique (fal.ai pour l'image, Higgsfield pour la vidéo).
-
-   Un seul cerveau par format — pas trente stratégies (principe validé avec
-   Ecomnameo) : tout passe par la taxonomie du SOP (formats statiques, 10 éléments
-   vidéo, formats native, framework de script Value Equation), jamais par une
-   logique inventée à côté. Comme le Bloc 5, PAS ENCORE branché sur le chemin réel
-   (executeCreateBatch) — testable en simulation, prêt à devenir la source de
-   vérité une fois validé avec de vrais appels.
-
-   NOTE OUVERTE : l'outil de génération d'image statique reste fal.ai (déjà câblé,
-   déjà testé mécaniquement) — deux sources indépendantes du playbook pointent vers
-   Higgsfield Images pour les statiques, mais je n'ai pas la spec officielle de
-   l'API Higgsfield pour les images (juste pour la vidéo). Basculer sans cette
-   spec serait inventer un appel API qui pourrait être faux — à valider avant de
-   changer concrètement l'intégration. */
-
-/* ── SOCLE D'EXÉCUTION — visuels de référence + voix de marque ── */
-function buildExecutionContext(prod,sop){
-  return {
-    reference_images_count:(prod.images||[]).length,
-    has_reference_images:(prod.images||[]).length>0,
-    voice_profile:prod.avatar&&prod.avatar.voice_profile||null,
-    usp:prod.usp||'',
-    guarantee:prod.guarantee||'',
-    sop:sop
-  }
-}
-
-/* ── ROUTAGE — quel pipeline pour ce concept ───────────────────────────── */
-function routeFormatPipeline(concept){
-  /* Ugly Ads et Text-based Lettre jouent le rôle de "native" dans ce SOP (note_native) —
-     ils méritent la taxonomie native_ads, plus riche, plutôt que le générique image/vidéo. */
-  if(concept.type_annonce_recommande==='Ugly Ads'||concept.type_annonce_recommande==='Text-based Lettre') return 'native'
-  if(concept.type_media==='video') return 'video'
-  if(concept.type_media==='image') return 'static'
-  return 'static' /* flexible → défaut statique : moins cher et plus rapide à produire/tester */
-}
-
-/* ── PIPELINE STATIC ─────────────────────────────────────────────────────── */
-async function generateStaticBrief(concept,execCtx,opts){
-  opts=opts||{}
-  if(opts.simulate) return simulateStaticBrief(concept,execCtx)
-
-  var sop=execCtx.sop
-  var formatsTxt=(sop.static_formats||[]).map(function(f){return f.format+' : '+f.desc}).join('\n')
-  var elementsTxt=(sop.andromeda_fingerprint&&sop.andromeda_fingerprint.static_elements||[]).map(function(e){return e.element}).join(', ')
-  var cl=sop.copywriting_leviers||{}
-  var showTxt=cl.show_dont_tell?('\nSHOW DON\'T TELL (texte overlay) : '+cl.show_dont_tell.principe):''
-  var m3i=(sop.andromeda_fingerprint&&sop.andromeda_fingerprint.methode_3i)||{}
-  var clickbaitTxt=m3i.tactique_prix_clickbait&&(concept.titre||'').toLowerCase().indexOf('offert')<0
-    ?''
-    :(m3i.tactique_prix_clickbait?('\nTACTIQUE PRIX (si pertinent pour une offre bundle) : '+m3i.tactique_prix_clickbait):'')
-  var prompt='Tu construis le BRIEF D\'EXÉCUTION d\'une statique pour Prométhée, à partir d\'un concept déjà validé stratégiquement.'
-    +'\n\nConcept : angle "'+concept.angle+'" · hook "'+concept.hook+'" · niveau de conscience '+concept.awareness_level+'/6'
-    +'\nUMP : '+concept.ump+' · UMS : '+concept.ums
-    +'\nLevier psychologique principal : '+(concept.levier_psychologique_principal||'non défini')
-    +'\nObjection levée : '+concept.objection_handled+' · Preuve : '+concept.proof
-    +'\nTitre proposé : '+concept.titre+' · Ad copy proposé : '+concept.ad_copy
-    +'\n\nFormats statiques disponibles (choisis-en UN, justifie) :\n'+formatsTxt
-    +'\n\nÉléments à faire varier si une créative existe déjà sur cet angle : '+elementsTxt
-    +(execCtx.has_reference_images?'\n\n'+execCtx.reference_images_count+' visuel(s) de référence disponible(s) (produit/concurrence/déjà générés) — utilise-les comme base visuelle plutôt que d\'inventer un visuel from scratch.':'\n\nAucun visuel de référence disponible — décris un visuel à générer entièrement.')
-    +(execCtx.voice_profile?'\nTon de voix : '+execCtx.voice_profile.tone:'')
-    +'\n\nRègles titre/ad copy : '+((sop.titre_ad_copy_insights||[]).join(' | '))+showTxt+clickbaitTxt
-    +'\n\nProduis le brief complet. Réponds UNIQUEMENT en JSON :'
-    +'\n{"format_choisi":"un format de la liste","justification":"pourquoi ce format pour ce concept","composition":{"layout":"description précise de la composition","texte_overlay":"texte exact sur l\'image","couleurs":"couleurs/style"},"titre_final":"titre final respectant la règle de complémentarité","ad_copy_final":"ad copy final","image_gen_prompt":"prompt complet à envoyer à l\'API de génération d\'image, incluant style/composition/texte"}'
-
-  var brief=await callClaudeJSON(prompt,1000)
-  brief.angle=concept.angle
-  brief.hook=concept.hook
-  brief.format=brief.format_choisi||'Statique'
-  brief.type_media='image'
-  brief.script_complet=brief.image_gen_prompt
-  return brief
-}
-function simulateStaticBrief(concept,execCtx){
-  var formats=execCtx.sop.static_formats||[{format:'Bullet Point classique'}]
-  var f=formats[(concept.awareness_level||1)%formats.length]
-  return {
-    format_choisi:f.format,justification:'(simulation) format choisi pour tester le routage',
-    composition:{layout:'(simulation) layout fictif',texte_overlay:'(simulation) '+concept.hook,couleurs:'(simulation)'},
-    titre_final:'[SIMULATION] '+concept.titre,ad_copy_final:'[SIMULATION] '+concept.ad_copy,
-    image_gen_prompt:'[SIMULATION] prompt image pour '+concept.angle,
-    angle:concept.angle,hook:concept.hook,format:f.format,type_media:'image',script_complet:'[SIMULATION] prompt image pour '+concept.angle
-  }
-}
-
-/* ── PIPELINE VIDÉO (mashup / UGC / founder story...) ───────────────────── */
-async function generateVideoScript(concept,execCtx,opts){
-  opts=opts||{}
-  if(opts.simulate) return simulateVideoScript(concept,execCtx)
-
-  var sop=execCtx.sop
-  var ve=sop.script_value_equation
-  var mashupTypes=(sop.video_mashup_types||[]).map(function(t){return t.type+' : '+t.desc}).join(' | ')
-  var conceptCatalog=(sop.video_concept_catalog||[]).join(', ')
-  var veVars=(ve&&ve.variables||[]).map(function(v){return v.nom+' ('+v.ou+') : '+v.regle}).join('\n')
-  var lt=sop.lead_techniques||{}
-  var leadTxt=(lt['6_facons']||[]).map(function(f){return f.nom+' — hook: "'+f.hook+'" → lead: "'+f.lead+'"'}).join('\n')
-  var cl=sop.copywriting_leviers||{}
-  var raiseTxt=cl.raise_the_stakes?('\nRAISE THE STAKES (empiler 2-3 leviers max sur le CTA/la promesse finale) : '+(cl.raise_the_stakes['5_leviers']||[]).map(function(l){return l.nom}).join(', ')):''
-  var showTxt=cl.show_dont_tell?('\nSHOW DON\'T TELL : '+cl.show_dont_tell.principe):''
-
-  var prompt='Tu écris le SCRIPT COMPLET d\'une vidéo pour Prométhée, à partir d\'un concept déjà validé stratégiquement.'
-    +'\n\nConcept : angle "'+concept.angle+'" · hook "'+concept.hook+'" · niveau de conscience '+concept.awareness_level+'/6'
-    +'\nUMP : '+concept.ump+' · UMS : '+concept.ums
-    +'\nLevier psychologique principal : '+(concept.levier_psychologique_principal||'non défini')
-    +'\nObjection levée ('+(concept.strategie_objection||'')+') : '+concept.objection_handled+' · Preuve : '+concept.proof
-    +(execCtx.voice_profile?'\nTon de voix : '+execCtx.voice_profile.tone+' · Expressions : '+(execCtx.voice_profile.phrases||[]).join(' | '):'')
-    +'\n\nFORMULE DE VALEUR (Hormozi via Kahel) : '+(ve&&ve.formule||'')
-    +'\n'+veVars
-    +(leadTxt?('\n\nLE LEAD (phrase juste après le hook, décide "je continue" vs "je passe") — choisis une des 6 façons, adapte au contexte :\n'+leadTxt+'\nGolden nugget : '+((lt.golden_nuggets||[])[0]||'')):'')
-    +raiseTxt+showTxt
-    +'\n\nTypes de mashup vidéo disponibles : '+mashupTypes
-    +'\nAutres concepts vidéo disponibles : '+conceptCatalog
-    +(execCtx.has_reference_images?'\n\n'+execCtx.reference_images_count+' visuel(s) de référence produit disponible(s) — à utiliser comme base pour les plans B / image-to-video.':'')
-    +'\n\nÉcris le script complet mot à mot avec instructions de mise en scène précises, en suivant strictement la structure : hook Dream Outcome (2-3s) → LEAD explicite (maintient l\'attention, choisi dans la liste ci-dessus) → UN levier de Perceived Likelihood (pas les trois) → Time Delay + UMS nommé → CTA avec Effort&Sacrifice (zéro effort + garantie + urgence, renforcé par 1-2 leviers raise the stakes). Réponds UNIQUEMENT en JSON :'
-    +'\n{"type_video_choisi":"un type de mashup ou concept de la liste","lead_choisi":"laquelle des 6 façons et pourquoi","script_complet":"script mot à mot complet avec [HOOK][LEAD][INSTRUCTIONS DE PLAN] etc.","mise_en_scene":"instructions de tournage/montage précises","duree_estimee_secondes":15,"perceived_likelihood_levier":"le levier choisi et pourquoi","audio_approach":"higgsfield_natif ou elevenlabs_signature"}'
-
-  var script=await callClaudeJSON(prompt,1800)
-  script.angle=concept.angle
-  script.hook=concept.hook
-  script.format=script.type_video_choisi||'UGC 20s'
-  script.type_media='video'
-  script.higgsfield_brief=script.script_complet+'\n\nMise en scène : '+script.mise_en_scene
-  return script
-}
-function simulateVideoScript(concept,execCtx){
-  var types=execCtx.sop.video_mashup_types||[{type:'Voix off + b-roll'}]
-  var t=types[(concept.awareness_level||1)%types.length]
-  return {
-    type_video_choisi:t.type,
-    lead_choisi:'(simulation) escalader le désir',
-    script_complet:'[SIMULATION] Script complet pour '+concept.angle+' — hook: '+concept.hook,
-    mise_en_scene:'(simulation) instructions de tournage fictives',
-    duree_estimee_secondes:20,
-    perceived_likelihood_levier:'(simulation) test social segmenté',
-    audio_approach:'higgsfield_natif',
-    angle:concept.angle,hook:concept.hook,format:t.type,type_media:'video',
-    higgsfield_brief:'[SIMULATION] brief Higgsfield pour '+concept.angle
-  }
-}
-
-/* ── PIPELINE NATIVE (Ugly Ads / Text-based Lettre) ─────────────────────── */
-async function generateNativeBrief(concept,execCtx,opts){
-  opts=opts||{}
-  if(opts.simulate) return simulateNativeBrief(concept,execCtx)
-
-  var sop=execCtx.sop
-  var na=sop.native_ads||{}
-  var formatsTxt=(na.formats||[]).map(function(f){return f.nom+' : '+f.desc}).join('\n')
-  var catVisuTxt=(na.categories_visuelles||[]).map(function(c){return c.nom+' : '+c.desc}).join('\n')
-  var patternsTxt=(na.patterns_copy||[]).map(function(p){return p.nom+' : '+p.desc}).join('\n')
-  var cl=sop.copywriting_leviers||{}
-  var relatabilityTxt=cl.autorite&&cl.autorite['2_boosters_caches']?('\nLevier recommandé pour ce format (authenticité native) : Relatability Authority — '+cl.autorite['2_boosters_caches'][0]):''
-
-  var prompt='Tu construis une NATIVE AD pour Prométhée — une pub qui ne ressemble pas à une pub. '+(na.definition||'')
-    +'\n\nMécanique d\'attention : '+(na.mecanique_attention||'')
-    +'\n\nConcept : angle "'+concept.angle+'" · hook "'+concept.hook+'" · niveau de conscience '+concept.awareness_level+'/6'
-    +'\nUMP : '+concept.ump+' · UMS : '+concept.ums+' · Objection : '+concept.objection_handled+' · Preuve : '+concept.proof
-    +(execCtx.voice_profile?'\nTon de voix : '+execCtx.voice_profile.tone:'')
-    +relatabilityTxt
-    +'\n\nFormats disponibles :\n'+formatsTxt
-    +'\n\nCatégories visuelles disponibles :\n'+catVisuTxt
-    +'\n\nPatterns de copy disponibles :\n'+patternsTxt
-    +'\n\nStructure universelle à respecter : '+(na.structure_universelle||'')
-    +'\n\nGARDE-FOU : '+(na.garde_fou_originalite||'')
-    +'\n\nProduis le brief complet. Réponds UNIQUEMENT en JSON :'
-    +'\n{"format_choisi":"un format de la liste","categorie_visuelle":"une catégorie de la liste","pattern_copy":"un pattern de la liste","copy_complet":"le copy complet, très court OU très long jamais entre les deux","image_gen_prompt":"description du visuel à générer (non-édité, naturel) si besoin d\'une image","longueur":"court ou long"}'
-
-  var brief=await callClaudeJSON(prompt,1200)
-  brief.angle=concept.angle
-  brief.hook=concept.hook
-  brief.format='Native — '+(brief.format_choisi||concept.type_annonce_recommande)
-  brief.type_media='image'
-  brief.script_complet=brief.image_gen_prompt
-  brief.ad_copy=brief.copy_complet
-  return brief
-}
-function simulateNativeBrief(concept,execCtx){
-  var na=execCtx.sop.native_ads||{}
-  var formats=na.formats||[{nom:'Post Facebook organique réutilisé'}]
-  var f=formats[(concept.awareness_level||1)%formats.length]
-  return {
-    format_choisi:f.nom,categorie_visuelle:'(simulation) painpoint brut',pattern_copy:'(simulation) témoignage personnel authentique',
-    copy_complet:'[SIMULATION] copy native pour '+concept.angle,longueur:'long',
-    image_gen_prompt:'[SIMULATION] visuel native pour '+concept.angle,
-    angle:concept.angle,hook:concept.hook,format:'Native — '+f.nom,type_media:'image',
-    script_complet:'[SIMULATION] visuel native pour '+concept.angle,ad_copy:'[SIMULATION] copy native pour '+concept.angle
-  }
-}
-
-/* ── ORCHESTRATEUR BLOC 6 — concept (Bloc 5) → brief d'exécution par format ── */
-async function executeFormatGeneration(concept,prod,opts){
-  opts=opts||{}
-  var sop=opts.sop||await loadSOP()
-  var execCtx=buildExecutionContext(prod,sop)
-  var pipeline=routeFormatPipeline(concept)
-  var brief
-  if(pipeline==='native') brief=await generateNativeBrief(concept,execCtx,opts)
-  else if(pipeline==='video') brief=await generateVideoScript(concept,execCtx,opts)
-  else brief=await generateStaticBrief(concept,execCtx,opts)
-  brief._pipeline=pipeline
-  brief._concept=concept
-  return brief
 }
 
 /* ── CREATIVE ENGINE COMPLET (Bloc 1-4, chemin réel actuel) ─────────────── */
@@ -8365,6 +8375,11 @@ async function callClaudeForBriefs(mem,batchSize,opts){
     if(siteData.description) ctxSite+='\nDescription produit : '+siteData.description
     ctxSite+='\nREGLE ABSOLUE : le hook et le message de la créa doivent matcher exactement le langage du site. Si le site dit "douleurs lombaires", la créa dit "douleurs lombaires", pas "mal de dos".'
   }
+  /* Offre / bundles du produit (saisis à l'onboarding) → contexte créa pour tester l'offre */
+  if(prod&&prod.offer_summary){
+    ctxSite+='\n\nOFFRE / BUNDLES À METTRE EN AVANT : '+prod.offer_summary
+    ctxSite+='\nUtilise cette offre dans les créas (mécanique de valeur, pack, économie) quand c\'est pertinent pour l\'angle.'
+  }
 
   /* Contexte patterns hebdo */
   var ctxPatterns=''
@@ -8381,6 +8396,18 @@ async function callClaudeForBriefs(mem,batchSize,opts){
   /* BLOC E — Feedback Loop : signaux de performance réels → priorité 1 pour Claude.
      Safe state garanti : ctxSignals = '' si 0 data, jamais bloquant. */
   var ctxSignals=buildCtxSignals(buildFeedbackContext(mem))
+
+  /* F3 — DÉCLINAISON D'UN WINNER : si opts.parent est fourni, on impose à Claude de décliner l'ADN
+     gagnant (garder angle + levier, varier UN seul axe). Sans ça, une « déclinaison » produirait du
+     contenu non apparenté et la lignée n'aurait aucun sens. Injecté uniquement en mode déclinaison. */
+  var ctxParent=''
+  if(opts&&opts.parent){
+    var pp=opts.parent
+    ctxParent='\n\n🧬 DÉCLINAISON D\'UN WINNER (priorité absolue) — décline l\'ADN de cette créative gagnante :'
+      +'\nAngle gagnant : '+(pp.angle||'?')+' · Format : '+(pp.format||'?')+' · Levier : '+(pp.levier_psychologique_principal||'?')
+      +(pp.hook?'\nHook source : "'+pp.hook+'"':'')
+      +'\nRÈGLE : GARDE l\'angle et le levier gagnants. Varie UN SEUL axe (nouveau hook / nouvelle exécution visuelle). Ne pars PAS sur un nouvel angle — on amplifie ce qui marche, on ne recommence pas.'
+  }
 
   /* CLUSTER CREATIVE — contexte injecté uniquement si batch_type est cluster/upsell/crosssell.
      Ne polue pas les batches solo avec des infos sur d'autres produits. */
@@ -8461,9 +8488,11 @@ async function callClaudeForBriefs(mem,batchSize,opts){
         :'Phase SCALING — winner confirmé. Déclinaisons de l\'ADN gagnant, angles adjacents, UGC premium. Ne pas casser ce qui marche.')
     :''
 
-  /* STAGE CONTEXT (CLR) — informe Claude du type de créa à produire AVANT génération.
-     Le CLR overridera type_media après, mais Claude doit déjà écrire le bon contenu
-     (image_prompt vs script_complet) selon le stage courant. */
+  /* BLOC 2 — STAGE CONTEXT réécrit : le stage est un SIGNAL STRATÉGIQUE (sophistication,
+     agressivité du hook, densité marketing, type d'angle, structure) — PAS une règle de format.
+     Le format final est décidé par le système (CLR + nature produit + perf, cf. routeCreative).
+     Claude propose le type_media le plus pertinent et remplit TOUJOURS image_prompt (fallback)
+     + script_complet/higgsfield_brief quand une vidéo est plausible. */
   var clrMetrics=mem.last_metrics||{}
   var clrRoas=clrMetrics.roas_real||null
   var clrTrend=computeRoasTrend(mem)
@@ -8472,12 +8501,19 @@ async function callClaudeForBriefs(mem,batchSize,opts){
     if(clrRoas>=(prod.roas_target||2.76)&&clrTrend!=='DECLINING') clrStage='SCALE'
     else if(clrRoas>=(prod.roas_be||2.3)) clrStage='VALIDATION'
   }
-  var ctxStage='\n\n⚠️ STAGE COURANT DU SYSTÈME : '+clrStage
-    +(clrStage==='TEST'
-      ?'\nPhase TEST — génère UNIQUEMENT des briefs image (type_media="image"). Formats autorisés : Statique, Offer First, Text-based, UGC photo. Pas de vidéo. script_complet="" pour tous les briefs. Remplis image_prompt avec soin.'
-      :clrStage==='VALIDATION'
-        ?'\nPhase VALIDATION — génère UNIQUEMENT des briefs image UGC (type_media="image"). Photo lifestyle, personne utilisant le produit, pas de texte overlay (needs_text_overlay=false). script_complet="" pour tous. Remplis image_prompt.'
-        :'\nPhase SCALE — génère UNIQUEMENT des briefs vidéo UGC (type_media="video"). Script 15-30s avec [HOOK][LEAD][PAUSE][ZOOM][CUT] requis. higgsfield_brief précis. image_prompt="" pour tous.')
+  var clrProfile=resolveCreativeProfile(mem,prod)
+  var STAGE_STRAT={
+    TEST:'TEST — on cherche l\'accroche. Hooks agressifs et très variés, gros contrastes, angles larges et opposés (big swings). Un seul message par créa, sophistication basse : on teste l\'ANGLE, pas la finition.',
+    VALIDATION:'VALIDATION — un angle accroche, on le solidifie. Hooks affinés, preuve et crédibilité, densité marketing moyenne. On itère autour de ce qui marche, on lève les objections explicitement.',
+    SCALE:'SCALE — winner confirmé. Sophistication haute, production premium, storytelling, preuve sociale forte, déclinaisons de l\'ADN gagnant. On maximise sans casser ce qui marche.'
+  }
+  var ctxStage='\n\n🎯 ÉTAT BUSINESS — STAGE = '+clrStage+' (orientation stratégique, PAS une règle de format) :'
+    +'\n'+(STAGE_STRAT[clrStage]||STAGE_STRAT.TEST)
+    +'\nNature créative du produit : '+clrProfile+'-dominant.'
+    +'\nLE FORMAT FINAL (image / UGC / vidéo) est décidé par le système (CLR + nature produit + perf), pas par toi.'
+    +' Propose le type_media le plus pertinent pour CE produit à CE stage, mais : remplis TOUJOURS image_prompt (fallback image),'
+    +' et remplis aussi script_complet + higgsfield_brief dès qu\'une vidéo est plausible.'
+    +'\nLe stage oriente la SOPHISTICATION, l\'AGRESSIVITÉ du hook, la DENSITÉ marketing et le TYPE d\'ANGLE — jamais le média.'
 
   var prompt='Tu es le cerveau créatif de Prométhée, expert Meta Ads e-commerce. Tu suis ASL v9 à la lettre.'
     +'\n\nPRODUIT ACTIF :'
@@ -8492,6 +8528,7 @@ async function callClaudeForBriefs(mem,batchSize,opts){
     +'\nNiveau conscience actuel (baseline prospect froid) : '+(prod.avatar&&prod.avatar.awareness_level?prod.avatar.awareness_level:2)+'/5'
     +'\nHeadline boutique : '+(prod.headline||'Non renseigné')
     +'\nAngles saturés (INTERDITS) : '+((prod.angles_saturated||[]).join(', ')||'aucun')
+    +'\nStratégie de funnel du produit (aligne la structure/copy dessus) : '+(prod.funnel_strategy||'direct')
     +ctxMarket
     +ctxVoice
     +ctxSite
@@ -8501,6 +8538,7 @@ async function callClaudeForBriefs(mem,batchSize,opts){
     +ctxHook+ctxLeviers+ctxLead
     +ctxCampaignState
     +ctxStage
+    +ctxParent
     +'\n\nCREATIVE BANK :'
     +'\nAngles disponibles : '+(availAngles.length?availAngles.join(', '):'Tous disponibles')
     +'\nHooks déjà testés (NE PAS répéter) : '+(usedHooks.join(' | ')||'aucun')
@@ -8529,11 +8567,12 @@ async function callClaudeForBriefs(mem,batchSize,opts){
     +'\n  "strategie_objection":"laquelle des 4 stratégies citées plus haut",'
     +'\n  "variable_changed":"ce qui change vs brief précédent (ou vs le dernier brief sur cet angle si itération isolée)",'
     +'\n  "script_complet":"VIDÉO UNIQUEMENT : script mot à mot 15-30s avec [HOOK][LEAD][PAUSE][ZOOM][CUT] etc., lead explicite juste après le hook. Laisser vide si type_media=image.",'
-    +'\n  "image_prompt":"IMAGE UNIQUEMENT : description visuelle précise pour fal.ai — composition, éclairage, position produit, couleurs dominantes, ambiance, et si needs_text_overlay=true : texte exact à afficher + son placement. Laisser vide si type_media=video.",'
+    +'\n  "image_prompt":"TOUJOURS rempli (sert de fallback image même si type_media=video) : description visuelle précise pour fal.ai — composition, éclairage, position produit, couleurs dominantes, ambiance, et si needs_text_overlay=true : texte exact à afficher + son placement.",'
     +'\n  "needs_text_overlay":false,'
     +'\n  "ad_copy":"texte publicitaire complet 100-150 mots pour le post",'
     +'\n  "higgsfield_brief":"VIDÉO UNIQUEMENT : instructions techniques pour Higgsfield — cadrage / mouvement caméra / ambiance / éclairage / acteur / produit visible comment / durée chaque scène. Laisser vide si type_media=image.",'
     +'\n  "message_match":"comment ce brief matche exactement le langage du site",'
+    +'\n  "funnel_type":"FACULTATIF (fallback) : lp | listicle | direct — uniquement si la stratégie funnel du produit n\'est PAS définie. Sinon laisse vide, le produit décide.",'
     +'\n  "why":"pourquoi cette créa maintenant selon ASL et les données"'
     +'\n}]}'
 
@@ -8552,7 +8591,7 @@ async function callClaudeForBriefs(mem,batchSize,opts){
   if(!data.content) throw new Error('Réponse Claude inattendue (pas de champ "content") : '+JSON.stringify(data).slice(0,200))
   var text=data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('')
   try{
-    return JSON.parse(text.replace(/```json|```/g,'').trim())
+    return JSON.parse(extractJsonObject(text)) /* F9 — tolère un wrapper de prose autour du JSON */
   }catch(e){
     throw new Error('Réponse Claude non parsable en JSON ('+e.message+') — début de la réponse : '+text.slice(0,150))
   }
@@ -8787,24 +8826,40 @@ async function pollHiggsfield(jobId,brief,attempt){
 /* ── ORCHESTRATEUR — route vers le bon pipeline ─────────────── */
 async function sendToCreativeEngine(brief,opts){
   opts=opts||{}
-  var isVideo=brief.type_media==='video'||
-    brief.format==='UGC 20s'||brief.format==='UGC'||
-    brief.format==='Unboxing'||brief.format==='Vidéo'||
-    (brief.format&&brief.format.toLowerCase().indexOf('ugc')>=0)||
-    (brief.format&&brief.format.toLowerCase().indexOf('video')>=0)||
-    (brief.format&&brief.format.toLowerCase().indexOf('vidéo')>=0)
+  /* BLOC 2 — la DÉCISION DE ROUTING fait autorité pour le média (multi-facteur : stage + nature
+     produit + perf). On NE re-dérive plus le média depuis la chaîne brief.format (qui pouvait
+     contenir "ugc"/"video" et court-circuiter un routing IMAGE → bug de cohérence).
+     Priorité : _routing.media → type_media explicite → (fallback legacy) heuristique format, et
+     UNIQUEMENT quand aucune décision amont n'existe (appel direct sans CLR). */
+  var isVideo
+  if(brief._routing&&brief._routing.media){
+    isVideo=brief._routing.media==='video'
+  }else if(brief.type_media==='video'||brief.type_media==='image'){
+    isVideo=brief.type_media==='video'
+  }else{
+    isVideo=!!(brief.format&&/ugc|video|vidéo|unboxing/i.test(brief.format))
+  }
 
-  /* GUARD CLR — bloque la génération vidéo si le stage n'est pas SCALE.
-     Principe fondamental : pas de Higgsfield sans validation ROAS.
-     Si ce guard se déclenche hors simulate, c'est un bug upstream : le CLR
-     aurait dû déjà mettre type_media='image' via overrideBriefWithStage(). */
+  /* SOFT-CAP vidéo hors SCALE (product-aware) — voir bloc ci-dessous. */
   if(isVideo){
-    var briefStage=brief._routing?brief._routing.stage:null
-    if(briefStage&&briefStage!=='SCALE'){
-      console.warn('[CLR GUARD] Génération vidéo bloquée — stage='+briefStage+'. Fallback image.')
-      pushToMiniChat('⚠️ CLR guard : vidéo bloquée (stage '+briefStage+' ≠ SCALE) — fallback image.')
-      brief.type_media='image'
-      return await generateImage(brief,opts)
+    /* BLOC 2 — SOFT-CAP (remplace le blocage dur "vidéo = SCALE only").
+       La vidéo hors SCALE n'est plus interdite : elle dépend de la nature du produit.
+       - produit static-dominant : pas de vidéo hors SCALE → fallback image (budget + cohérence).
+       - produit video/hybrid-dominant : vidéo autorisée, MAIS warning budget (coûte 20-50€/j). */
+    var r=brief._routing||{}
+    var ap=getActiveProduct()
+    var profile=r.creative_profile||(ap&&ap.creative_profile)||'hybrid'
+    var outOfScale=r.stage&&r.stage!=='SCALE'
+    if(outOfScale){
+      if(profile==='static'){
+        console.warn('[CLR soft-cap] vidéo hors SCALE sur produit static-dominant → fallback image')
+        pushToMiniChat('⚠️ Soft-cap : vidéo hors SCALE sur produit static-dominant → fallback image (budget protégé).')
+        brief.type_media='image'
+        return await generateImage(brief,opts)
+      }
+      pushSignal({type:'warning',text:'Vidéo hors phase SCALE',
+        sub:'Stage '+r.stage+' · produit '+profile+'-dominant · budget vidéo 20-50€/j',
+        whyText:'Soft-cap : la vidéo est autorisée hors SCALE car le produit est video/hybrid-dominant, mais elle coûte cher (Higgsfield). Surveille le ROAS de près avant de monter le budget.'})
     }
     return await generateVideo(brief,opts)
   }
@@ -8883,54 +8938,71 @@ function detectCreativeFatigue(creative){
   Input  : { angle, roas, roas_trend, spend, confidence, format_type, prod }
   Output : { stage, tool, model, format, budget_level, budget_label, next_action, rationale }
 */
+/* BLOC 2 — AUTO-AFFINAGE de la nature créative depuis les winners (la moitié "auto" de
+   "les deux"). Non-autoritaire : le champ manuel prod.creative_profile reste prioritaire ;
+   l'inférence ne sert que de fallback (produit sans champ) + de suggestion UI. Inerte tant
+   qu'il n'y a pas ≥2 winners → renvoie {profile:null}. La perf détaillée arrivera en BLOC 3. */
+function inferCreativeProfile(mem,productId){
+  var bank=(mem&&mem.creative_bank||[]).filter(function(c){
+    return (!productId||c.product_id===productId)&&c.status==='WINNER'
+  })
+  if(bank.length<2) return {profile:null,confidence:0,basis:'pas assez de winners'}
+  var img=0,vid=0
+  bank.forEach(function(c){ if(c.media_type==='video'||c.type_media==='video') vid++; else img++ })
+  var profile = vid>img*1.5?'video' : img>vid*1.5?'static' : 'hybrid'
+  return {profile:profile,confidence:Math.min(1,bank.length/5),basis:img+' img / '+vid+' vidéo winners'}
+}
+
+/* Résout la nature créative effective : manuel d'abord, sinon inférence, sinon hybride. */
+function resolveCreativeProfile(mem,prod){
+  if(prod&&prod.creative_profile) return prod.creative_profile
+  var inf=inferCreativeProfile(mem,prod&&prod.id)
+  return inf.profile||'hybrid'
+}
+
 function routeCreative(params){
   var roas        = params.roas        || null
   var roas_trend  = params.roas_trend  || 'INSUFFICIENT_DATA'
   var spend       = params.spend       || 0
   var confidence  = params.confidence  || 0   /* 0-1 : winners/tests sur cet angle */
   var prod        = params.prod        || {}
+  /* Nature créative déjà résolue par l'appelant (applyCreativeLifecycleRouter / runDecisionEngine),
+     sinon fallback sur le champ produit, sinon hybride. */
+  var profile     = params.creative_profile || prod.creative_profile || 'hybrid'
 
   var roas_be      = prod.roas_be      || 2.3
   var roas_target  = prod.roas_target  || 2.76
   var roas_minus20 = prod.roas_minus20 || 1.84
 
-  /* ── Détermination du stage ─────────────────────────────────────────── */
+  /* ── 1. STAGE business (inchangé) = orientation stratégique + discipline budget ──────── */
   var stage
+  if(roas&&roas>=roas_target&&roas_trend!=='DECLINING') stage='SCALE'
+  else if(roas&&roas>=roas_be)                          stage='VALIDATION'
+  else                                                  stage='TEST'
+  if(roas&&roas<roas_minus20&&spend>=30) stage='TEST'   /* déclassement hard */
 
-  /* SCALE : ROAS ≥ target ET trend non déclinant */
-  if(roas&&roas>=roas_target&&roas_trend!=='DECLINING'){
-    stage='SCALE'
+  /* ── 2. FORMAT = orientation du stage, MAIS la nature produit a la décision finale ──────
+     Le stage NE force PAS le format (c'était l'erreur de conception). Il propose un défaut ;
+     la nature produit l'override. La perf historique l'affinera en BLOC 3. */
+  var STAGE_DEFAULT_FORMAT={TEST:'IMAGE_STATIC',VALIDATION:'UGC_IMAGE',SCALE:'VIDEO_UGC'}
+  var FORMAT_DEFS={
+    IMAGE_STATIC:{tool:'fal.ai',model:'fal-ai/flux-pro/v1.1',media:'image'},
+    UGC_IMAGE:{tool:'fal.ai',model:'fal-ai/flux-pro/v1.1',media:'image'},
+    VIDEO_UGC:{tool:'higgsfield',model:'higgsfield-ugc',media:'video'}
   }
-  /* VALIDATION : ROAS dans la zone BE→target (ou SCALE avec trend déclinant) */
-  else if(roas&&roas>=roas_be){
-    stage='VALIDATION'
-  }
-  /* TEST : pas de données, ROAS < BE, spend < 50€ */
-  else{
-    stage='TEST'
-  }
+  var format=STAGE_DEFAULT_FORMAT[stage]
+  if(profile==='static'&&format==='VIDEO_UGC') format='UGC_IMAGE'   /* static-dominant : jamais de vidéo, même en SCALE */
+  if(profile==='video'&&format!=='VIDEO_UGC')  format='VIDEO_UGC'   /* video-dominant : vidéo dès TEST/VALIDATION (soft-cap aval) */
+  /* hybrid : on garde le défaut du stage */
+  var fdef=FORMAT_DEFS[format]
 
-  /* Déclassement hard : ROAS sous roas_minus20 ET spend ≥ 30€ → TEST forcé */
-  if(roas&&roas<roas_minus20&&spend>=30) stage='TEST'
+  /* ── 3. BUDGET = piloté par le STAGE (discipline préservée, indépendant du format) ──── */
+  var STAGE_BUDGET={TEST:{level:'LOW',label:'5-10€/j par créa'},VALIDATION:{level:'MEDIUM',label:'10-20€/j par créa'},SCALE:{level:'HIGH',label:'20-50€/j par créa'}}
+  var budget=STAGE_BUDGET[stage]
+  /* Vidéo hors SCALE = dépense vidéo non encore validée par le ROAS → flag soft-cap (warning aval). */
+  var budget_flag = (fdef.media==='video'&&stage!=='SCALE')
 
-  /* ── Mapping STRICT (aucun chevauchement) ───────────────────────────── */
-  var ROUTING_MAP={
-    TEST:{
-      tool:'fal.ai',model:'fal-ai/flux-pro/v1.1',format:'IMAGE_STATIC',
-      budget_level:'LOW',budget_label:'5-10€/j par créa'
-    },
-    VALIDATION:{
-      tool:'fal.ai',model:'fal-ai/flux-pro/v1.1',format:'UGC_IMAGE',
-      budget_level:'MEDIUM',budget_label:'10-20€/j par créa'
-    },
-    SCALE:{
-      tool:'higgsfield',model:'higgsfield-ugc',format:'VIDEO_UGC',
-      budget_level:'HIGH',budget_label:'20-50€/j par créa'
-    }
-  }
-  var routing=ROUTING_MAP[stage]
-
-  /* ── Next action ────────────────────────────────────────────────────── */
+  /* ── Next action (inchangé) ─────────────────────────────────────────── */
   var next_action
   if(stage==='TEST'){
     if(roas&&roas<roas_minus20&&spend>=30) next_action='CUT'
@@ -8945,22 +9017,22 @@ function routeCreative(params){
     else                                  next_action='DOUBLE_DOWN'
   }
 
-  /* ── Rationale (pour decisions_log + Signal Feed) ───────────────────── */
-  var rationale='[CLR] Stage='+stage
+  var rationale='[CLR] Stage='+stage+' · nature='+profile
     +' · '+(roas?'ROAS='+roas.toFixed(2)+'x':'pas de ROAS')
     +' (BE='+roas_be.toFixed(2)+'x, Target='+roas_target.toFixed(2)+'x)'
-    +' · trend='+roas_trend
-    +' · spend='+spend+'€'
-    +' · confidence='+Math.round(confidence*100)+'%'
-    +' → '+routing.format+' via '+routing.tool
+    +' · trend='+roas_trend+' · spend='+spend+'€'
+    +' → '+format+' via '+fdef.tool+(budget_flag?' [soft-cap vidéo hors SCALE]':'')
 
   return{
     stage:stage,
-    tool:routing.tool,
-    model:routing.model,
-    format:routing.format,
-    budget_level:routing.budget_level,
-    budget_label:routing.budget_label,
+    creative_profile:profile,
+    tool:fdef.tool,
+    model:fdef.model,
+    format:format,
+    media:fdef.media,
+    budget_level:budget.level,
+    budget_label:budget.label,
+    budget_flag:budget_flag,
     next_action:next_action,
     rationale:rationale
   }
@@ -8974,8 +9046,12 @@ function routeCreative(params){
 function overrideBriefWithStage(brief,routing){
   var b=Object.assign({},brief)
   b._routing=routing
+  /* BLOC 2 : on branche sur le FORMAT décidé par le CLR (stage-orientation + nature produit),
+     plus sur le stage seul. Le média est ainsi découplé du stage (vidéo possible hors SCALE,
+     image possible en SCALE). On NE touche jamais à hook/angle/ad_copy/levier (rôle de Claude). */
+  var fmt=routing.format||'IMAGE_STATIC'
 
-  if(routing.stage==='TEST'){
+  if(fmt==='IMAGE_STATIC'){
     b.type_media='image'
     b.needs_text_overlay=b.format==='Offer First'||b.format==='Text-based'||!!b.needs_text_overlay
     b._fal_model_override=b.needs_text_overlay?'fal-ai/ideogram/v3':'fal-ai/flux-pro/v1.1'
@@ -8984,9 +9060,9 @@ function overrideBriefWithStage(brief,routing){
         +'Concept: '+(b.hook||'')+'. '
         +'Style: static ad'+(b.needs_text_overlay?', text overlay: "'+b.hook+'"':'')+'.'
     }
-    b.higgsfield_brief='' /* aucune vidéo en TEST */
+    b.higgsfield_brief=''
 
-  }else if(routing.stage==='VALIDATION'){
+  }else if(fmt==='UGC_IMAGE'){
     b.type_media='image'
     b.needs_text_overlay=false
     b._fal_model_override='fal-ai/flux-pro/v1.1' /* lifestyle authentique */
@@ -8995,15 +9071,20 @@ function overrideBriefWithStage(brief,routing){
         +'Natural light, candid feel, no text overlay. '
         +'Angle emotion: '+(b.hook||'')+'.'
     }
-    b.higgsfield_brief='' /* aucune vidéo en VALIDATION */
+    b.higgsfield_brief=''
 
-  }else{ /* SCALE */
+  }else{ /* VIDEO_UGC */
     b.type_media='video'
     b._fal_model_override=null
     if(!b.higgsfield_brief||b.higgsfield_brief===''){
       b.higgsfield_brief='UGC video 10s, 9:16, 720p. '
         +'Hook (0-3s): '+(b.hook||'')+'. '
         +'Content: '+((b.script_complet||b.ad_copy||'').slice(0,300))+'.'
+    }
+    /* Garde un image_prompt même en vidéo : si le soft-cap retombe en image (vidéo hors SCALE
+       sur produit non video-friendly), generateImage a de quoi travailler. */
+    if(!b.image_prompt||b.image_prompt===''){
+      b.image_prompt='Product-centered lifestyle image (fallback). Concept: '+(b.hook||'')+'.'
     }
   }
 
@@ -9020,6 +9101,8 @@ function applyCreativeLifecycleRouter(briefs,mem,prod){
   var spend=(mem.campaign&&mem.campaign.spend_cycle)||0
   var angleScores=ensureAngleScoresBucket(mem)
   var batchStage=null
+  /* BLOC 2 : nature créative résolue une fois pour le batch (manuel → inférence → hybride). */
+  var creativeProfile=resolveCreativeProfile(mem,prod)
 
   var routedBriefs=briefs.map(function(brief){
     var angleData=angleScores[brief.angle]||{}
@@ -9028,6 +9111,7 @@ function applyCreativeLifecycleRouter(briefs,mem,prod){
       angle:brief.angle,
       roas:roas,roas_trend:roas_trend,spend:spend,
       confidence:confidence,format_type:brief.type_media,
+      creative_profile:creativeProfile,
       prod:prod
     })
     if(!batchStage) batchStage=routing.stage /* unifie le stage sur le premier brief */
@@ -9195,10 +9279,20 @@ function submitMetrics(){
       var creative=mem.creative_bank.find(function(c){return c.id===e.creative_id})
       if(creative){
         if(!creative.daily) creative.daily=[]
-        creative.daily.push({date:todayStr,spend:e.spend,ctr:e.ctr,cpm:e.cpm,atc:e.atc,purchases:e.purchases,ca:e.ca,roas:e.roas})
-        creative.spend=(creative.spend||0)+e.spend
+        /* BLOC 3 — provenance : saisie par créative = donnée MESURÉE (Meta par pub). */
+        var rec={date:todayStr,spend:e.spend,ctr:e.ctr,cpm:e.cpm,atc:e.atc,purchases:e.purchases,ca:e.ca,roas:e.roas,source:'measured'}
+        /* F2 — anti double-comptage : une re-saisie (ou un upgrade d'un imputé) du MÊME jour
+           REMPLACE l'entrée existante au lieu de s'ajouter. Dernière saisie = vérité du jour. */
+        var idx=creative.daily.findIndex(function(d){return d.date===todayStr})
+        if(idx>=0){
+          creative.spend=(creative.spend||0)-(creative.daily[idx].spend||0)+e.spend
+          creative.daily[idx]=rec /* écrase mesuré OU imputé du même jour ; days inchangé */
+        }else{
+          creative.daily.push(rec)
+          creative.spend=(creative.spend||0)+e.spend
+          creative.days=(creative.days||0)+1
+        }
         if(e.roas!=null) creative.roas=e.roas
-        creative.days=(creative.days||0)+1
       }
     })
   }
@@ -9216,11 +9310,65 @@ function submitMetrics(){
         if(!c.daily) c.daily=[]
         var alreadyToday=c.daily.some(function(d){return d.date===todayStr2})
         if(!alreadyToday){
-          c.daily.push({date:todayStr2,spend:Math.round(spendShare*100)/100,roas:roas_real,source:'global_fallback'})
+          /* BLOC 3 — provenance : split égal = donnée IMPUTÉE. Conservée pour l'affichage,
+             mais EXCLUE de tout agrégat de learning (aggregateCreativePerformance measuredOnly). */
+          c.daily.push({date:todayStr2,spend:Math.round(spendShare*100)/100,roas:roas_real,source:'imputed',imputed_reason:'global_split'})
           c.spend=(c.spend||0)+spendShare
           c.days=(c.days||0)+1
         }
       })
+    }
+  }
+
+  /* BLOC 3 — RÉCONCILIATION + DAILY_TOTALS + FACTEUR DE CALIBRATION (observation brute, jamais appliquée).
+     - Réconciliation spend : Σ(spend par créa) doit ≈ spend total Meta → écart >12% = jour low_confidence.
+     - Facteur Meta→Shopify : CA Shopify total ÷ Σ(CA Meta par créa). Stocké tel quel ; BLOC 4 le lissera.
+     Le CA Shopify est la vérité business ; le CA Meta par créa est le signal de ranking. */
+  var _sumCreaSpend=0,_sumCreaCa=0
+  dceEntries.forEach(function(e){ _sumCreaSpend+=(e.spend||0); _sumCreaCa+=(e.ca||0) })
+  var _spendDev=spend>0?Math.abs(_sumCreaSpend-spend)/spend:0
+  var _spendConfidence=(dceEntries.length&&_spendDev>0.12)?'low':'ok'
+  var _reconFactor=_sumCreaCa>0?Math.round((ca/_sumCreaCa)*1000)/1000:null
+  var _todayT=new Date().toISOString().slice(0,10)
+  mem.daily_totals=mem.daily_totals||[]
+  if(!mem.daily_totals.some(function(t){return t.date===_todayT})){
+    mem.daily_totals.push({
+      date:_todayT, spend:spend, ca_shopify:ca, roas_real:roas_real,
+      sum_creative_spend:Math.round(_sumCreaSpend*100)/100,
+      sum_creative_ca_meta:Math.round(_sumCreaCa*100)/100,
+      recon_factor:_reconFactor,        /* Meta→Shopify (null si pas de saisie par créa) */
+      spend_confidence:_spendConfidence, /* 'ok' | 'low' */
+      has_per_creative:dceEntries.length>0
+    })
+    if(mem.daily_totals.length>90) mem.daily_totals=mem.daily_totals.slice(-90)
+  }
+  if(dceEntries.length&&_spendConfidence==='low'){
+    pushSignal({type:'warning',text:'Réconciliation spend imparfaite',
+      sub:'Σ spend par créa '+_sumCreaSpend.toFixed(0)+'€ ≠ total '+spend.toFixed(0)+'€ · jour marqué low_confidence',
+      whyText:'La somme des spends par créative s\'écarte de plus de 12% du spend total Meta. Les données par créative du jour sont conservées mais signalées peu fiables pour le learning (BLOC 4 pourra les pondérer ou exclure).'})
+  }
+  /* F1 — ANTI-STARVATION : totaux saisis mais AUCUNE ligne par créative alors que des créas TESTING
+     tournent → la journée est imputée (split égal) donc EXCLUE du learning. On le signale clairement,
+     sinon le learning reste vide à vie sans que tu le saches. Aucun état, aucune décision. */
+  if(!dceEntries.length&&spend>0){
+    var _testingCount=getProductBank(mem).filter(function(c){return c.status==='TESTING'}).length
+    if(_testingCount>0){
+      pushSignal({type:'warning',text:'Aucune donnée par créative captée',
+        sub:_testingCount+' créa(s) en test · le learning ne progresse PAS aujourd\'hui',
+        whyText:'Tu as saisi les totaux mais aucune ligne par pub (grille DCE). Sans les chiffres Meta par créative, la performance du jour est imputée (split égal) et EXCLUE du scoring (BLOC 4/5). Remplis la grille par pub pour que Zenith apprenne réellement.'})
+    }
+  }
+  /* #2 — SAISIE PAR CRÉATIVE INCOMPLÈTE : certaines créas TESTING ont des chiffres aujourd'hui mais
+     pas toutes. Les créas oubliées restent sans donnée mesurée → trou silencieux que la réconciliation
+     spend (sur le total) ne voit pas. On liste les manquantes. Warning seul, aucun état. */
+  if(dceEntries.length){
+    var _enteredIds={}; dceEntries.forEach(function(e){_enteredIds[e.creative_id]=true})
+    var _missing=getProductBank(mem).filter(function(c){return c.status==='TESTING'&&!_enteredIds[c.id]})
+    if(_missing.length){
+      var _missNames=_missing.slice(0,3).map(function(c){return c.meta_ad_name||c.name||c.id}).join(' · ')
+      pushSignal({type:'warning',text:'Saisie par créative incomplète',
+        sub:_missing.length+' créa(s) TESTING sans chiffres aujourd\'hui'+(_missNames?' : '+_missNames:''),
+        whyText:'Ces créatives n\'ont pas de ligne par pub aujourd\'hui → leur performance du jour est absente (donc exclue du learning), alors que d\'autres en ont. La réconciliation du spend total ne détecte pas ce trou partiel. Complète leurs chiffres pour une vérité par créative cohérente.'})
     }
   }
 
@@ -9376,6 +9524,28 @@ function checkCogsReminder(mem){
   memSet(m2)
 }
 
+/* Relance taux de retour — déclenchée DÈS les premières ventes si le champ a été laissé vide
+   à l'onboarding (facultatif au démarrage, mais nécessaire dès qu'il y a des commandes). */
+function checkReturnRateReminder(mem){
+  var prod=getActiveProduct()
+  if(!prod) return
+  if(prod.taux_retour&&parseFloat(prod.taux_retour)>0) return   /* déjà renseigné */
+  var lm=mem.last_metrics||{}
+  var orders=parseFloat(lm.orders)||0
+  if(orders<1) return                                            /* pas encore de ventes */
+  getActiveCampaign(mem)
+  var last=(mem.campaign&&mem.campaign._returnrate_reminder_at)||0
+  if(last>0 && (Date.now()-last)/(1000*60*60*24)<7) return       /* anti-spam : 1×/7j */
+  pushSignal({
+    type:'warning',
+    text:'📦 Renseigne ton taux de retour',
+    sub:'Premières ventes détectées — ton taux de retour réel affine tes seuils ROAS',
+    whyText:'Tu avais laissé le taux de retour vide au démarrage (normal, 0 vente). Maintenant que tu as des commandes, le taux de retour réel ajuste ta marge nette et donc tes seuils BE / Target / roas_minus20. Mets-le dans la fiche produit → Économie.'
+  })
+  var m2=memGet(); getActiveCampaign(m2)
+  if(m2.campaign){ m2.campaign._returnrate_reminder_at=Date.now(); memSet(m2) }
+}
+
 var _brainRunning=false
 var _brainPendingCall=false  /* un appel a été bloqué → le relancer après */
 
@@ -9408,19 +9578,15 @@ async function runBrain(manual){
        sinon "hier" changerait toutes les heures et perdrait tout son sens. */
     decision._yesterday=updateDailyJournal(memGet(),decision)
 
-    /* Si CREATE → chemin unique partagé avec le clic manuel "Go — Générer" (Bloc 1 / Modification 1.1).
-       executeCreateBatch gère elle-même toute sa mise en scène (orb, bulle, succès/erreur) —
-       on ne refait pas de rendu ici pour éviter d'écraser son état final avec la décision périmée. */
-    if(decision.missionKey==='CREATE_BATCH'){
-      await executeCreateBatch(decision)
-    }else{
-      spawnDecisionBubbles(decision)
-      renderOrb()
-      setBrainStatus('default')
-      /* Ouvrir la bulle automatiquement — boutons toujours visibles */
-      var _orb=document.getElementById('orb')
-      if(_orb&&!_orb.classList.contains('expanded')&&!_orb.classList.contains('thinking')) _orb.classList.add('expanded')
-    }
+    /* RÈGLE V1 : Orb = SEUL point d'entrée création. runBrain ne fait QUE rendre l'Orb — y compris
+       pour CREATE_BATCH. Aucune génération n'est déclenchée ici (plus d'auto-exécution implicite).
+       La création part exclusivement du bouton "Go" de l'Orb (orbGo → executeCreateBatch). */
+    spawnDecisionBubbles(decision)
+    renderOrb()
+    setBrainStatus('default')
+    /* Ouvrir la bulle automatiquement — boutons toujours visibles */
+    var _orb=document.getElementById('orb')
+    if(_orb&&!_orb.classList.contains('expanded')&&!_orb.classList.contains('thinking')) _orb.classList.add('expanded')
 
     var nb=document.getElementById('brain-next')
     if(nb) nb.textContent=(decision.orbType||'bs-wait').replace('bs-','').toUpperCase()
@@ -9630,6 +9796,15 @@ function confirmExecuted(){
   if(key.startsWith('J4_OPTI')){mem.campaign.j4_decided=true;mem.campaign.asl_phase='OPTI';mem.campaign.cartouche='C1'}
   if(key.startsWith('J4_CUT')){mem.campaign.cuts_count++;mem.campaign.asl_phase='TESTING';resetCycle(mem)}
   if(key==='AUDIT_WEEKLY') mem.campaign.is_monday_audit_done=true
+  /* DIAGNOSTIC — SORTIE : jamais un état terminal. On remet le streak de cuts à zéro et on repart
+     sur un cycle de testing propre. Sans ce handler, cuts_count restait ≥ 2 → P2 re-déclenchait
+     DIAGNOSTIC à l'infini et bloquait tout le waterfall (deadlock V1). */
+  if(key==='DIAGNOSTIC'){mem.campaign.cuts_count=0;mem.campaign.asl_phase='TESTING';resetCycle(mem)}
+  /* OPTI_EXHAUSTED — SORTIE : on arrête d'optimiser, le produit passe au repos (WAIT). asl_phase='P7'
+     = sentinelle "post-J4, aucun batch requis" déjà reconnue par needsBatch → le moteur retombe
+     proprement sur WAIT, sans boucle. Sans ce handler, asl_phase restait 'OPTI' + cartouche
+     'EXHAUSTED' → la mission se re-déclenchait à l'infini. */
+  if(key==='OPTI_EXHAUSTED'){mem.campaign.asl_phase='P7';mem.campaign.cartouche=null}
   /* P7b — Scaling Loop : Zenith PROPOSE recommended_budget mais ne l'écrit JAMAIS.
      L'utilisateur valide en confirmant "Exécuté ✓" — ALORS on met à jour current_daily_budget.
      C'est la seule place où Zenith modifie ce champ (sur action explicite utilisateur). */
@@ -9792,6 +9967,13 @@ function confirmExecuted(){
     if(mem.weekly_patterns.length>12) mem.weekly_patterns=mem.weekly_patterns.slice(-12)
     pushToMiniChat('Pattern semaine enregistré · Format dominant : '+dominantFormat+' · Angle dominant : '+dominantAngle+' · '+winners2.length+' winner(s) · ROAS moyen : '+roasMoy.toFixed(2)+'x')
   }
+  /* ANTI-DONNÉES-OBSOLÈTES : après un CUT ou un DIAGNOSTIC le cycle repart de zéro. On vide les
+     métriques du jour pour que le prochain runDecisionEngine ne re-décide pas sur des chiffres
+     périmés (sinon J1/J2 se re-déclenchent sur les mêmes données → faux cut en chaîne, et chemin
+     direct vers le deadlock DIAGNOSTIC). Placé après le scoring J4 qui consomme encore last_metrics. */
+  if(key==='DIAGNOSTIC'||key.startsWith('J1_CUT')||key.startsWith('J2_CUT')||key.startsWith('J4_CUT')){
+    mem.last_metrics={spend:null,ca_shopify:null,orders:null,ctr:null,cpc:null,cpm:null,thumbstop:null,freq:null,impr:null,cvr:null,atc:null,cost_per_atc:null,checkout_init:null,reach:null,roas_real:null,atc_ratio:null,saisie_at:null}
+  }
   memSet(mem)
   var msg='Action confirmée.'
   if(budgetEngage>0) msg+=' Budget engagé : '+budgetEngage+'€. Restant : '+Math.round(mem.account&&mem.account.budget_remaining!=null?mem.account.budget_remaining:0)+'€.'
@@ -9830,18 +10012,11 @@ function simulateData(){
 }
 
 /* ── BULLES SECONDAIRES CONTEXTUELLES ─────────────────────── */
-/* ÉTAPE 9 — elevateToMissionBoard : override la Mission Board depuis un signal critique.
-   Utilisé quand un signal secondaire est assez grave pour bloquer toute autre décision.
-   Il écrase currentMission et re-rend la Mission Board immédiatement. */
-function elevateToMissionBoard(missionData){
-  missionData.orbType=missionData.orbType||'bs-alert'
-  instrStates[missionData.missionKey]=missionData
-  currentMission=missionData.missionKey
-  renderOrb()
-  document.getElementById('orb').classList.add('expanded')
-  /* Log comme une décision normale */
-  logDecision(missionData)
-}
+/* elevateToMissionBoard SUPPRIMÉ (V1). Il écrasait currentMission HORS du waterfall, créant un flux
+   décisionnel parallèle interdit (la bulle secondaire pouvait remplacer la mission principale et
+   contourner runDecisionEngine). Les signaux budget / CPM / fréquence sont désormais de simples
+   bulles secondaires INFO-ONLY dans spawnDecisionBubbles — jamais une mission, jamais un override.
+   RÈGLE V1 : runDecisionEngine est la seule source de la mission principale. */
 
 /* CLUSTER BATCH BUBBLE — bulle contextuelle proposant un batch upsell/cross-sell/cluster.
    Conditions d'affichage :
@@ -9877,21 +10052,14 @@ function maybeSpawnClusterBatchBubble(mem){
 
 /* Lance un batch cluster/upsell/cross-sell (appel utilisateur depuis la bulle) */
 async function executeClusterBatch(batchType,linkedProdId){
-  var mem=memGet()
   var prod=getActiveProduct()
   if(!prod){pushToMiniChat('Aucun produit actif.');return}
   pushToMiniChat('🔗 Lancement batch '+batchType+' pour '+linkedProdId+'...')
-  try{
-    var result=await callClaudeForBriefs(2,{batch_type:batchType,cluster_product_id:linkedProdId,simulate:false})
-    if(result&&result.briefs&&result.briefs.length){
-      pushToMiniChat('✅ Batch '+batchType+' généré — '+result.briefs.length+' briefs · CBO SÉPARÉE recommandée.')
-      pushSignal({type:'info',text:'Batch '+batchType.toUpperCase()+' prêt — '+result.briefs.length+' créas',
-        sub:'Lance dans une CBO séparée à 50€/j · données séparées du produit principal',
-        whyText:'Batch dédié à la relation '+batchType+' avec le produit lié. ROAS évalué indépendamment.'})
-    }
-  }catch(e){
-    pushToMiniChat('Erreur batch '+batchType+' : '+(e.message||e))
-  }
+  /* F4 — on passe désormais par le PIPELINE STANDARD (executeCreateBatch) au lieu de générer des
+     briefs jetés. Résultat : les créas cluster sont persistées en creative_bank, tracées (BLOC 2.5),
+     dotées d'un utm_content (attribution) et d'une lignée — plus de trou noir hors-vérité.
+     batch_type/cluster_product_id sont taggés sur chaque entrée et injectent ctxCluster dans le prompt. */
+  return executeCreateBatch({missionKey:'CREATE_BATCH',text:batchType+' batch'},{batch_type:batchType,cluster_product_id:linkedProdId})
 }
 
 function showClusterInstructions(batchType){
@@ -9946,7 +10114,7 @@ function spawnDecisionBubbles(decision){
      tant que le seuil de fiabilité (SIGNAL_MIN_DAYS/SIGNAL_MIN_SPEND/SIGNAL_MIN_ECART_ROAS)
      n'est pas atteint : pas de fausse certitude sur 1-2 jours de data. */
   var ATTR_LABELS={angle:'Angle',format:'Format',mood:'Mood',intensite:'Intensité',levier_psychologique_principal:'Levier psychologique',awareness:'Niveau de conscience'}
-  var signalReport=buildCreativeSignalReport(mem,7)
+  var signalReport=buildCreativeScoreReport(mem,7) /* BLOC 4 — scoring stratifié/scopé (measured/raw) */
   if(signalReport.has_enough_data){
     signalReport.signals.forEach(function(s){
       queue.push({
@@ -9957,6 +10125,25 @@ function spawnDecisionBubbles(decision){
         why:'Calculé depuis la répartition par créative que tu saisis chaque jour — '+s.best.nb_jours_data+' jours de data sur "'+s.best.value+'", '+s.worst.nb_jours_data+' sur "'+s.worst.value+'", '+s.best.spend+'EUR et '+s.worst.spend+'EUR de spend respectivement (seuil mini '+SIGNAL_MIN_DAYS+'j/'+SIGNAL_MIN_SPEND+'EUR avant affichage). Encore tôt pour être définitif, mais l\'écart dépasse '+Math.round((SIGNAL_MIN_ECART_ROAS-1)*100)+'%.',
         buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]
       })
+    })
+  }
+
+  /* ── BLOC 5 — STRATÉGIE CRÉATIVE (proposition read-only, ASL-gated). "Quoi générer ensuite". ── */
+  var b5=buildCreativeActions(mem)
+  if(b5.has_actions){
+    /* Première action créative actionnable (déclinaison/itération/refresh) → bouton Appliquer (le "Go"). */
+    var actIdx=b5.creative_actions.findIndex(function(a){return a.type==='declinate_winner'||a.type==='refresh'||a.type==='iterate'})
+    var act=actIdx>=0?b5.creative_actions[actIdx]:null
+    var favTxt=(b5.batch_suggestion.favor||[]).slice(0,3).map(function(f){return f.value}).join(', ')||'—'
+    var b5btns=[{label:'Pourquoi ?',fn:'',isWhy:true}]
+    if(act) b5btns.unshift({label:(act.type==='declinate_winner'?'Décliner le winner':act.type==='refresh'?'Rafraîchir':'Itérer'),fn:'applyCreativeActionByIndex("'+actIdx+'")',primary:true})
+    queue.push({
+      type:'sb-insight',
+      label:'Stratégie créative · '+b5.asl_phase,
+      text:act?act.reason:('Doubler : '+favTxt),
+      sub:'Prochain batch ('+b5.batch_suggestion.size+') · favoriser : '+favTxt+(b5.batch_suggestion.avoid.length?' · éviter : '+b5.batch_suggestion.avoid.slice(0,2).map(function(a){return a.value}).join(', '):''),
+      why:'BLOC 5 (read-only) traduit les signaux stables BLOC 4 en actions créatives, filtrées par la phase ASL ('+b5.asl_phase+'). Aucune décision budget/campagne (ASL souverain). '+(act?'Appliquer lance une variante via le pipeline existant — la lignée (parent_id) est préservée.':'Aucune action créative individuelle fiable pour l\'instant — uniquement des orientations d\'attributs.'),
+      buttons:b5btns
     })
   }
 
@@ -9976,65 +10163,52 @@ function spawnDecisionBubbles(decision){
     })
   }
 
-  /* ── ÉTAPE 9 : ELEVATE — signaux critiques → Mission Board ── */
+  /* ── SIGNAUX CONTEXTUELS (INFO-ONLY) ──
+     budget / CPM / fréquence sont des bulles SECONDAIRES uniquement. Elles n'écrasent JAMAIS la
+     mission principale et ne contournent jamais runDecisionEngine. (V1 : UI = renderer, le moteur
+     décide.) Plus aucun elevateToMissionBoard, plus aucun return qui couperait le reste des bulles.
+     if/else-if : un seul palier s'affiche par métrique (pas de doublon critique + warning). */
 
-  /* Budget critique < 200 → override Mission Board */
+  /* Budget restant */
   var budgetRem=mem.account?mem.account.budget_remaining:mem.campaign?mem.campaign.budget_remaining||0:0
   if(budgetRem>0&&budgetRem<200){
-    elevateToMissionBoard({
-      orbType:'bs-alert',tag:'Danger budget',
-      text:'Budget critique : '+Math.round(budgetRem)+'EUR restants.',
-      sub:'ASL P10 - mode conservateur absolu - aucun test - aucun scaling',
-      conf:'100%',confBg:'var(--red)',confLbl:'Critique',missionKey:'ELEVATE_BUDGET',
-      why:'Sous 200EUR restants le risque est trop eleve. ASL P10 : stopper tout spend non essentiel.'
-    })
-    return
-  }
-  /* Budget 200-400 → bulle secondaire */
-  if(budgetRem>0&&budgetRem<400){
+    queue.push({type:'sb-alert',label:'Budget critique',
+      text:Math.round(budgetRem)+'€ restants',sub:'Mode conservateur absolu — pas de test, pas de scaling',
+      why:'Sous 200€ restants le risque est élevé. Info contextuelle — la décision reste pilotée par le waterfall.',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
+  }else if(budgetRem>0&&budgetRem<400){
     queue.push({type:'sb-alert',label:'Budget ⚠',
-      text:Math.round(budgetRem)+'EUR restants',sub:'Mode conservateur - pas de scaling',
-      why:'ASL P10 : sous 400EUR chaque decision doit etre irreprochable.',
+      text:Math.round(budgetRem)+'€ restants',sub:'Mode conservateur — pas de scaling',
+      why:'Sous 400€ chaque décision doit être irréprochable. Info contextuelle.',
       buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
   }
 
-  /* CPM x1.5 → override Mission Board (LOI 3 ASL) */
+  /* CPM vs hier */
   if(m.cpm&&mem.campaign&&mem.campaign.spend_yesterday_cpm&&m.cpm>mem.campaign.spend_yesterday_cpm*1.5){
-    var hausse=Math.round((m.cpm/mem.campaign.spend_yesterday_cpm-1)*100)
-    elevateToMissionBoard({
-      orbType:'bs-alert',tag:'Anomalie CPM - LOI 3',
-      text:'CPM +'+hausse+'% vs hier - signal audience, pas les creas.',
-      sub:'Ne pas toucher aux creatives - verifier taille audience et frequence',
-      conf:'92%',confBg:'var(--red)',confLbl:'Anomalie detectee',missionKey:'ELEVATE_CPM',
-      why:'LOI 3 ASL INTERRUPTION : hausse CPM x1.5 = audience saturee. Toucher aux creas maintenant serait une erreur.'
-    })
-    return
-  }
-  /* CPM +10-50% → bulle secondaire */
-  if(m.cpm&&mem.campaign&&mem.campaign.spend_yesterday_cpm&&m.cpm>mem.campaign.spend_yesterday_cpm*1.1){
-    var hausse2=Math.round((m.cpm/mem.campaign.spend_yesterday_cpm-1)*100)
-    queue.push({type:'sb-alert',label:'CPM +'+hausse2+'%',
-      text:'CPM '+m.cpm.toFixed(1)+'EUR vs hier',sub:'Signal audience - pas les creatives',
-      why:'Hausse CPM = audience qui se sature. Verifier frequence avant de toucher aux creas.',
+    var hausseCpm=Math.round((m.cpm/mem.campaign.spend_yesterday_cpm-1)*100)
+    queue.push({type:'sb-alert',label:'CPM +'+hausseCpm+'%',
+      text:'CPM '+m.cpm.toFixed(1)+'€ vs hier',sub:'Signal audience — pas les créatives',
+      why:'Hausse CPM ×1.5 = audience saturée. Vérifier taille audience et fréquence. Info contextuelle, pas une mission.',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
+  }else if(m.cpm&&mem.campaign&&mem.campaign.spend_yesterday_cpm&&m.cpm>mem.campaign.spend_yesterday_cpm*1.1){
+    var hausseCpm2=Math.round((m.cpm/mem.campaign.spend_yesterday_cpm-1)*100)
+    queue.push({type:'sb-alert',label:'CPM +'+hausseCpm2+'%',
+      text:'CPM '+m.cpm.toFixed(1)+'€ vs hier',sub:'Signal audience — pas les créatives',
+      why:'Hausse CPM = audience qui se sature. Vérifier la fréquence avant de toucher aux créas.',
       buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
   }
 
-  /* Frequence >= 2.5 → override Mission Board (seuil ASL P6) */
+  /* Fréquence */
   if(m.freq&&m.freq>=2.5){
-    elevateToMissionBoard({
-      orbType:'bs-action-system',tag:'Frequence - Seuil ASL P6',
-      text:'Frequence '+m.freq.toFixed(1)+' - refresh creatives requis.',
-      sub:'ASL P6 : seuil 2.5 atteint - audience fatiguee - injecter nouvelles creas',
-      conf:'95%',confBg:'var(--red)',confLbl:'Action immediate',missionKey:'ELEVATE_FREQ',
-      why:'ASL P6 : frequence >= 2.5 = audience surchargee. ROAS va baisser sans nouvelles creatives dans 24-48h.'
-    })
-    return
-  }
-  /* Frequence 2-2.5 → bulle secondaire */
-  if(m.freq&&m.freq>=2){
-    queue.push({type:'sb-user-action',label:'Frequence '+m.freq.toFixed(1),
-      text:'Frequence a surveiller',sub:'Seuil ASL : 2.5 - actuel : '+m.freq.toFixed(1),
-      why:'Frequence qui monte. Pas encore critique. Si elle depasse 2.5 je la remonte en mission principale.',
+    /* Fréquence excessive (≥2.5) → rouge (alerte), conforme au code couleur strict. */
+    queue.push({type:'sb-alert',label:'Fréquence '+m.freq.toFixed(1),
+      text:'Fréquence excessive — audience fatiguée',sub:'Seuil 2.5 atteint — envisager un refresh créatives',
+      why:'Fréquence ≥ 2.5 = audience surchargée. Info contextuelle — la décision reste pilotée par le waterfall.',
+      buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
+  }else if(m.freq&&m.freq>=2){
+    queue.push({type:'sb-user-action',label:'Fréquence '+m.freq.toFixed(1),
+      text:'Fréquence à surveiller',sub:'Seuil 2.5 — actuel : '+m.freq.toFixed(1),
+      why:'Fréquence qui monte, pas encore critique. Info contextuelle.',
       buttons:[{label:'Pourquoi ?',fn:'',isWhy:true}]})
   }
 
@@ -10079,8 +10253,61 @@ function spawnDecisionBubbles(decision){
   setTimeout(function(){ maybeSpawnClusterBatchBubble(mem) }, clusterDelay)
 }
 
+/* GARDE-FOU #3 — SELF-TEST de la machine à états ASL.
+   Snapshot localStorage → injecte des états synthétiques → runDecisionEngine() → vérifie que
+   chaque missionKey est connu (et conforme pour les scénarios déterministes) et qu'aucun scénario
+   ne jette → restaure (finally, sans effet de bord). Auto-exécuté au boot, log console uniquement.
+   But : tout futur ajout/édition de l'ASL qui casserait une sortie est détecté immédiatement. */
+var KNOWN_MISSIONS=['NO_PRODUCT','AUDIT_WEEKLY','DATA_NEEDED','DIAGNOSTIC','J1_GO','J1_CUT','J2_GO','J2_CUT','J4_GO','J4_OPTI','J4_CUT','SCALE_UP','SCALE_DOWN','SCALE_HOLD','SCALE_OPTI','OPTI_SUCCESS','OPTI_EXHAUSTED','OPTI_C1','OPTI_C2','OPTI_C3','CREATE_BATCH','WAIT']
+function _selfTestMem(o){
+  var mem=defaultMemory()
+  var prod={id:'p_test',name:'Test',price:40,cogs:10,aov:45,livraison:0,frais_paiement:0,taux_retour:0,
+    roas_be:1.5,roas_target:2,roas_target_low:1.7,roas_minus20:1.2,atc_threshold:9,
+    avatar:{pain:'xxxxxxxxxx',desire:'xxxxxxxxxx'},usp:'xxxxxxxxxx'}
+  mem.products=[prod]; mem.active_product_id='p_test'; mem.campaigns={}
+  Object.assign(mem.campaign,o.campaign||{})
+  mem.campaign.is_monday_audit_done=true /* neutralise AUDIT_WEEKLY → test déterministe tous les jours */
+  if(o.metrics) mem.last_metrics=Object.assign(mem.last_metrics,o.metrics)
+  if(o.noProduct){ mem.products=[]; mem.active_product_id=null }
+  return mem
+}
+function runDecisionSelfTest(){
+  var snapshot=null
+  try{ snapshot=localStorage.getItem(MEM_KEY) }catch(e){}
+  var scenarios=[
+    {name:'no_product',mem:{noProduct:true},expect:'NO_PRODUCT'},
+    {name:'premier_batch',mem:{campaign:{cycle_number:1,j1_decided:false,spend_cycle:0,asl_phase:'TESTING'},metrics:{spend:null}},expect:'CREATE_BATCH'},
+    {name:'data_needed',mem:{campaign:{cycle_number:3,j1_decided:true,asl_phase:'TESTING'},metrics:{spend:null}},expect:'DATA_NEEDED'},
+    {name:'diagnostic_2cuts',mem:{campaign:{cuts_count:2,asl_phase:'TESTING'},metrics:{spend:60,ca_shopify:30,roas_real:0.5}},expect:'DIAGNOSTIC'},
+    {name:'j1',mem:{campaign:{cycle_number:2,spend_cycle:0,j1_decided:false,asl_phase:'TESTING'},metrics:{spend:60,ca_shopify:90,orders:1,cpc:0.6,roas_real:1.5}},expectPrefix:'J1_'},
+    {name:'opti_exhausted',mem:{campaign:{asl_phase:'OPTI',cartouche:'EXHAUSTED',j1_decided:true,j2_decided:true,j4_decided:true},metrics:{spend:200,ca_shopify:200,roas_real:1.0}},expect:'OPTI_EXHAUSTED'},
+    {name:'wait_repos',mem:{campaign:{asl_phase:'P7',j1_decided:true,j2_decided:true,j4_decided:true},metrics:{spend:200,ca_shopify:600,roas_real:3}},expect:'WAIT'}
+  ]
+  var pass=0,fail=0,fails=[]
+  try{
+    scenarios.forEach(function(sc){
+      try{
+        localStorage.setItem(MEM_KEY,JSON.stringify(_selfTestMem(sc.mem)))
+        var d=runDecisionEngine()
+        var k=d&&d.missionKey
+        var ok=KNOWN_MISSIONS.indexOf(k)!==-1
+        if(sc.expect) ok=ok&&(k===sc.expect)
+        if(sc.expectPrefix) ok=ok&&(!!k&&k.indexOf(sc.expectPrefix)===0)
+        if(ok){pass++}else{fail++;fails.push(sc.name+' → '+k+(sc.expect?' (attendu '+sc.expect+')':'')+(sc.expectPrefix?' (attendu '+sc.expectPrefix+'*)':''))}
+      }catch(e){ fail++; fails.push(sc.name+' → EXCEPTION '+(e&&e.message)) }
+    })
+  }finally{
+    try{ if(snapshot!=null) localStorage.setItem(MEM_KEY,snapshot); else localStorage.removeItem(MEM_KEY) }catch(e){}
+  }
+  if(fail===0) console.log('[selfTest ASL] ✅ '+pass+'/'+scenarios.length+' scénarios OK — machine à états saine')
+  else console.error('[selfTest ASL] ❌ '+fail+' échec(s) sur '+scenarios.length+' :',fails)
+  return {pass:pass,fail:fail,fails:fails}
+}
+
 /* ── INIT ─────────────────────────────────────────────────── */
 migrateMemoryIfNeeded()
+/* Self-test machine à états (snapshot/restore — sans effet de bord sur la vraie mémoire) */
+try{ runDecisionSelfTest() }catch(e){ console.error('[selfTest ASL] crash inattendu :',e) }
 /* Niveau initial : A (Jamais lancé) — évolue automatiquement en background */
 var _initMem=memGet()
 if(!_initMem.account) _initMem.account={}
